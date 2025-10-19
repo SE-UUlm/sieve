@@ -1,0 +1,56 @@
+name: Bug report
+description: Report a bug
+title: "[Bug]: <title>"
+labels: ["bug"]
+projects: ["SE-UUlm/10"]
+
+body:
+    - type: checkboxes
+      id: existing-issue
+      attributes:
+          label: Is there an existing issue for this?
+          description: Please check whether this bug has already been reported.
+          options:
+              - label: I have searched the existing issues
+                required: true
+
+    - type: textarea
+      id: what-happened
+      attributes:
+          label: What happened?
+          description: A clear and concise description of what the bug is.
+          placeholder: e.g. "When submitting a POST request, the server responds with a 500 error."
+      validations:
+          required: true
+
+    - type: textarea
+      id: steps-to-reproduce
+      attributes:
+          label: Steps to reproduce
+          description: Steps to reproduce the issue.
+          placeholder: |
+              1. Send a request to '...'
+              2. Use payload '...'
+              3. Observe response '...'
+      validations:
+          required: true
+
+    - type: textarea
+      id: expected-behavior
+      attributes:
+          label: What did you expect?
+          description: What behavior did you expect instead?
+          placeholder: e.g. "The server should respond with a 201 Created."
+      validations:
+          required: true
+
+    - type: textarea
+      id: additional-context
+      attributes:
+          label: Anything else?
+          description: |
+              Logs, request examples, links, or any other context that helps us debug the issue.
+
+              Tip: You can drag and drop files here.
+      validations:
+          required: false

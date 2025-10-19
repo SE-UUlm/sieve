@@ -1,0 +1,33 @@
+name: Refactor task
+description: Suggest improvements to existing code or architecture
+title: "[Refactor]: <title>"
+labels: ["refactor"]
+projects: ["SE-UUlm/10"]
+
+body:
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: What part of the system needs refactoring or improvement?
+      placeholder: The authentication service is becoming difficult to maintain because [...]
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-change
+    attributes:
+      label: Proposed change
+      description: What kind of change are you proposing?
+      placeholder: Split this module into smaller components and add tests for [...]
+    validations:
+      required: true
+
+  - type: textarea
+    id: risk
+    attributes:
+      label: Potential risks
+      description: Could this introduce regressions or impact performance?
+      placeholder: May temporarily break session persistence during migration
+    validations:
+      required: false
