@@ -1,3 +1,4 @@
+"use client";
 import { useEffect, useState } from "react";
 
 const Time = () => {
@@ -7,8 +8,6 @@ const Time = () => {
         const id = setInterval(() => setTime(Date.now()));
         return () => clearInterval(id);
     }, []);
-    const test = 3;
-    const string = "hallo";
 
     return <div>{new Date(time).toISOString()}</div>;
 };

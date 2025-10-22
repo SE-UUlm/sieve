@@ -1,27 +1,10 @@
-"use client";
-
-import styled from "styled-components";
 import Time from "../components/Time";
-
-const Container = styled.div`
-    height: 100%;
-    width: 100%;
-    overflow: hidden;
-`;
-
-const H1 = styled.h1`
-    color: cyan;
-    font-size: 50px;
-    line-height: 100vh;
-    text-align: center;
-    transform: scale(calc(1vw / 10px), calc(1vh / 1px));
-`;
 
 export default function Home() {
     return (
-        <Container>
-            <H1>SIEVE</H1>
+        <main className="flex min-h-screen p-24 flex-col">
+            <h1 className="text-2x1 text-orange-500">SIEVE</h1>
             <Time />
-        </Container>
+        </main>
     );
 }
