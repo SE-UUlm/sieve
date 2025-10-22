@@ -1,0 +1,40 @@
+name: Build Frontend
+
+on:
+    push:
+        branches:
+            - main
+            - develop
+    pull_request:
+
+jobs:
+    build:
+        name: Build
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v5
+
+            - name: Setup
+              uses: ./.github/workflows/frontend_setup
+
+            - uses: actions/cache@v4
+              with:
+                  path: apps/frontend/.next/cache
+                  # Generate a new cache whenever packages or source files change.
+                  key: ${{ runner.os }}-nextjs-${{ hashFiles('apps/frontend/package-lock.json') }}-${{ hashFiles('apps/frontend/**/*.js', 'apps/frontend/**/*.jsx', 'apps/frontend/**/*.ts', 'apps/frontend/**/*.tsx') }}
+                  # If source files changed but packages didn't, rebuild from a prior cache.
+                  restore-keys: |
+                      ${{ runner.os }}-nextjs-${{ hashFiles('apps/frontend/package-lock.json') }}-
+
+            - name: Build application
+              run: npm run build
+              working-directory: ./apps/frontend
+
+            - name: Archive build artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: frontend-build-artifact
+                  path: apps/frontend/.next
+                  include-hidden-files: true
+                  if-no-files-found: error
