@@ -1,0 +1,38 @@
+name: Build Backend
+
+on:
+    push:
+        branches:
+            - main
+            - develop
+    pull_request:
+
+env:
+    node_version: ${{ vars.NODE_VERSION }}
+    working_directory: apps/backend
+
+jobs:
+    build:
+        name: Build Backend
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v5
+
+            - name: Setup
+              uses: ./.github/workflows/setup/
+              with:
+                  node_version: ${{ env.node_version }}
+                  working-directory: ${{ env.working_directory }}
+
+            - name: Build Backend
+              run: npm run build
+              working-directory: ${{ env.working_directory }}
+
+            - name: Archive Build Artifacts
+              uses: actions/upload-artifact@v4
+              if: ${{ !cancelled() }}
+              with:
+                  name: build-artifact
+                  path: apps/backend/dist/
+                  if-no-files-found: error
