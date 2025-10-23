@@ -5,7 +5,7 @@ const Time = () => {
     const [time, setTime] = useState(Date.now());
 
     useEffect(() => {
-        const id = setInterval(() => setTime(Date.now()));
+        const id = setInterval(() => setTime(Date.now()), 100);
         return () => clearInterval(id);
     }, []);
 
