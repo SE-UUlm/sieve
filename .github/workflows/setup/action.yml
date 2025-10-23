@@ -1,0 +1,23 @@
+name: Setup
+description: Setup CI/CD pipeline environment
+inputs:
+    node_version:
+        description: "Node.js version"
+        required: true
+    working-directory:
+        description: "Working directory for installing dependencies"
+        required: false
+        default: "."
+
+runs:
+    using: composite
+    steps:
+        - name: Setup Node.js
+          uses: actions/setup-node@v5
+          with:
+              node-version: ${{ inputs.node_version }}
+
+        - name: Install dependencies
+          shell: bash
+          run: npm ci
+          working-directory: ${{ inputs.working-directory }}
