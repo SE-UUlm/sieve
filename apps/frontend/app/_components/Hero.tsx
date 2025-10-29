@@ -5,7 +5,7 @@ const Hero = () => (
             Turn Cryptic Emails into Structured Purchase Orders
         </h2>
 
-        <h1 className="text-6xl sm:text-9xl font-light tracking-tighter text-primary my-2 transform-[scaleX(2)]">
+        <h1 className="text-6xl sm:text-9xl font-light tracking-tighter text-primary my-2 scale-x-200">
             Sieve
         </h1>
 
