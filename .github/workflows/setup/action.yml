@@ -6,14 +6,25 @@ inputs:
         required: true
     working-directory:
         description: "Working directory for installing dependencies"
+        required: true
+    cache-dependency-path:
+        description: "Path to the file used for caching dependencies"
         required: false
-        default: "."
 
 runs:
     using: composite
     steps:
-        - name: Setup Node.js
-          uses: actions/setup-node@v5
+        - name: Setup Node.js (with cache)
+          if: ${{ inputs.cache-dependency-path != '' }}
+          uses: actions/setup-node@v6
+          with:
+              node-version: ${{ inputs.node_version }}
+              cache: npm
+              cache-dependency-path: ${{ inputs.cache-dependency-path }}
+
+        - name: Setup Node.js (no cache)
+          if: ${{ inputs.cache-dependency-path == '' }}
+          uses: actions/setup-node@v6
           with:
               node-version: ${{ inputs.node_version }}
 

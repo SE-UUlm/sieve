@@ -7,16 +7,25 @@ on:
             - develop
     pull_request:
 
+env:
+    node_version: ${{ vars.NODE_VERSION_FRONTEND }}
+    working_directory: apps/frontend
+    cache-dependency-path: apps/frontend/package-lock.json
+
 jobs:
     build:
-        name: Build
+        name: Build Frontend
         runs-on: ubuntu-latest
         steps:
             - name: Checkout code
               uses: actions/checkout@v5
 
             - name: Setup
-              uses: ./.github/workflows/frontend_setup
+              uses: ./.github/workflows/setup/
+              with:
+                  node_version: ${{ env.node_version }}
+                  working-directory: ${{ env.working_directory }}
+                  cache-dependency-path: ${{ env.cache-dependency-path }}
 
             - uses: actions/cache@v4
               with:
@@ -27,12 +36,13 @@ jobs:
                   restore-keys: |
                       ${{ runner.os }}-nextjs-${{ hashFiles('apps/frontend/package-lock.json') }}-
 
-            - name: Build application
+            - name: Build Application
               run: npm run build
-              working-directory: ./apps/frontend
+              working-directory: ${{ env.working_directory }}
 
-            - name: Archive build artifacts
+            - name: Archive Build Artifacts
               uses: actions/upload-artifact@v4
+              if: ${{ !cancelled() }}
               with:
                   name: frontend-build-artifact
                   path: apps/frontend/.next

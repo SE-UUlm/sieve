@@ -8,7 +8,7 @@ on:
     pull_request:
 
 env:
-    node_version: ${{ vars.NODE_VERSION }}
+    node_version: ${{ vars.NODE_VERSION_BACKEND }}
     working_directory: apps/backend
 
 jobs:
@@ -33,6 +33,7 @@ jobs:
               uses: actions/upload-artifact@v4
               if: ${{ !cancelled() }}
               with:
-                  name: build-artifact
+                  name: backend-build-artifact
                   path: apps/backend/dist/
+                  include-hidden-files: true
                   if-no-files-found: error
