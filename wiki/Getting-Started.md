@@ -25,6 +25,23 @@ Before you begin, ensure you have configured the necessary environment variables
 For a detailed guide on all configuration options, see the
 **[Configuration](https://github.com/SE-UUlm/sieve/wiki/Configuration)** page.
 
+#### Docker Setup
+
+The fastest way to get started is to use the provided Docker setup.
+
+1. Clone the repository:
+
+    ```bash
+    git clone git@github.com:SE-UUlm/sieve.git
+    cd apps/backend
+    ```
+
+2. Start the services using Docker Compose:
+
+    ```bash
+    docker compose up
+    ```
+
 #### Building from Source
 
 To build this project from source, run the following commands:
