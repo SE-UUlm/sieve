@@ -4,6 +4,6 @@ services:
             context: .
         environment:
             NODE_ENV: production
-            PORT: ${PORT:-3000}
+            PORT: ${PORT:-5175}
         ports:
-            - ${PORT:-3000}:${PORT:-3000}
+            - ${PORT:-5175}:${PORT:-5175}
