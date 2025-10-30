@@ -9,12 +9,12 @@ on:
     workflow_dispatch:
 
 env:
-    node_version: ${{ vars.NODE_VERSION }}
+    node_version: ${{ vars.NODE_VERSION_BACKEND }}
     working_directory: apps/backend
 
 jobs:
     linting:
-        name: Linting
+        name: Linting Backend
         runs-on: ubuntu-latest
         steps:
             - name: Checkout Code

@@ -1,0 +1,31 @@
+name: Code Quality Checks Frontend
+
+on:
+    push:
+        branches:
+            - main
+            - develop
+    pull_request:
+    workflow_dispatch:
+
+env:
+    node_version: ${{ vars.NODE_VERSION_FRONTEND }}
+    working_directory: apps/frontend
+
+jobs:
+    linting:
+        name: Linting Frontend
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v5
+
+            - name: Setup Frontend
+              uses: ./.github/workflows/setup/
+              with:
+                  node_version: ${{ env.node_version }}
+                  working-directory: ${{ env.working_directory }}
+
+            - name: Linting
+              run: npm run lint
+              working-directory: ${{ env.working_directory }}
