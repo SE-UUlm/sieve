@@ -4,6 +4,8 @@ import { AppService } from "./app.service";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import Joi from "joi";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { User } from "./users/user.entity";
+import { UsersModule } from "./users/users.module";
 
 @Module({
     imports: [
@@ -28,10 +30,11 @@ import { TypeOrmModule } from "@nestjs/typeorm";
                 username: configService.get<string>("DB_USERNAME"),
                 password: configService.get<string>("DB_PASSWORD"),
                 database: configService.get<string>("DB_NAME"),
-                entities: [],
+                entities: [User],
                 autoLoadEntities: true,
             }),
         }),
+        UsersModule,
     ],
     controllers: [AppController],
     providers: [AppService],
