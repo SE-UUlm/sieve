@@ -4,7 +4,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
     title: "Sieve",
-    description: "Convert Bad Emails into purchase orders",
+    description: "Convert Bad Emails into Purchase Orders",
 };
 
 export default function RootLayout({
