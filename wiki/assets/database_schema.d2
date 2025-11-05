@@ -1,0 +1,71 @@
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+}
+
+user: {
+  shape: sql_table
+
+  id: uuid {constraint: primary_key}
+  name: string
+  email: string {constraint: unique}
+  passwordHash: string
+  role: enum
+
+  # Metadata
+  createdAt: timestamp with time zone
+  updatedAt: timestamp with time zone {constraint: nullable}
+  deletedAt: timestamp with time zone {constraint: nullable}
+}
+
+job: {
+  shape: sql_table
+
+  id: uuid {constraint: primary_key}
+  status: enum
+  userId: uuid {constraint: foreign_key}
+  emailId: uuid {constraint: foreign_key}
+  startedAt: timestamp with time zone {constraint: nullable}
+  completedAt: timestamp with time zone {constraint: nullable}
+
+  # Metadata
+  createdAt: timestamp with time zone
+  deletedAt: timestamp with time zone {constraint: nullable}
+}
+
+jobResult: {
+  shape: sql_table
+
+  id: uuid {constraint: primary_key}
+  jobId: uuid {constraint: foreign_key}
+  status: enum
+  output: json
+
+  # Metadata
+  createdAt: timestamp with time zone
+  deletedAt: timestamp with time zone {constraint: nullable}
+}
+
+email: {
+  shape: sql_table
+
+  id: uuid {constraint: primary_key}
+  userId: uuid {constraint: foreign_key}
+  sender: string {constraint: nullable}
+  subject: string {constraint: nullable}
+  body: text
+
+  # Metadata
+  createdAt: timestamp with time zone
+  deletedAt: timestamp with time zone {constraint: nullable}
+}
+
+direction: left
+
+job.userId -> user.id
+job.emailId -> email.id
+
+jobResult.jobId -> job.id
+
+email.userId -> user.id
