@@ -7,15 +7,15 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from "typeorm";
-import { Job } from "./job.entity";
-import { Email } from "./email.entity";
+import { Job } from "../../job/entities/job.entity";
+import { Email } from "../../email/entities/email.entity";
 
 export enum UserRole {
     ADMIN = "admin",
     USER = "user",
 }
 
-@Entity()
+@Entity("users")
 export class User {
     @PrimaryGeneratedColumn("uuid")
     id!: string;

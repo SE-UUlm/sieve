@@ -8,9 +8,9 @@ import {
     OneToOne,
     PrimaryGeneratedColumn,
 } from "typeorm";
-import { User } from "./user.entity";
-import { Email } from "./email.entity";
-import { JobResult } from "./jobResult.entity";
+import { User } from "../../user/entities/user.entity";
+import { Email } from "../../email/entities/email.entity";
+import { JobResult } from "../../job-result/entities/job-result.entity";
 
 export enum JobStatus {
     CREATED = "created",
@@ -19,7 +19,7 @@ export enum JobStatus {
     COMPLETED = "completed",
 }
 
-@Entity()
+@Entity("jobs")
 export class Job {
     @PrimaryGeneratedColumn("uuid")
     id!: string;

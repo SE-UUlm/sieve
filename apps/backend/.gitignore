@@ -20,7 +20,6 @@ lerna-debug.log*
 /.nyc_output
 
 # IDEs and editors
-/.idea
 .project
 .classpath
 .c9/
@@ -34,6 +33,13 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+# IDE - WebStorm (and other JetBrains IDEs)
+.idea/copilot.data.migration.**.xml
+.idea/dataSources
+.idea/inspectionProfiles
+.idea/dataSources.local.xml
+.idea/workspace.xml
 
 # dotenv environment variable files
 .env
@@ -54,3 +60,6 @@ pids
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# DB
+db-data
