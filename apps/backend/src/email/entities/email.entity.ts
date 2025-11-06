@@ -10,7 +10,7 @@ import {
 import { User } from "../../user/entities/user.entity";
 import { Job } from "../../job/entities/job.entity";
 
-@Entity()
+@Entity("emails")
 export class Email {
     @PrimaryGeneratedColumn("uuid")
     id!: string;

@@ -4,7 +4,7 @@ vars: {
   }
 }
 
-user: {
+users: {
   shape: sql_table
 
   id: uuid {constraint: primary_key}
@@ -19,7 +19,7 @@ user: {
   deletedAt: timestamp with time zone {constraint: nullable}
 }
 
-job: {
+jobs: {
   shape: sql_table
 
   id: uuid {constraint: primary_key}
@@ -34,7 +34,7 @@ job: {
   deletedAt: timestamp with time zone {constraint: nullable}
 }
 
-jobResult: {
+jobResults: {
   shape: sql_table
 
   id: uuid {constraint: primary_key}
@@ -47,7 +47,7 @@ jobResult: {
   deletedAt: timestamp with time zone {constraint: nullable}
 }
 
-email: {
+emails: {
   shape: sql_table
 
   id: uuid {constraint: primary_key}
@@ -63,9 +63,9 @@ email: {
 
 direction: left
 
-job.userId -> user.id
-job.emailId -> email.id
+jobs.userId -> users.id
+jobs.emailId -> emails.id
 
-jobResult.jobId -> job.id
+jobResults.jobId -> jobs.id
 
-email.userId -> user.id
+emails.userId -> users.id

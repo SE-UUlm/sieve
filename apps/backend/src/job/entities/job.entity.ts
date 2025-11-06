@@ -19,7 +19,7 @@ export enum JobStatus {
     COMPLETED = "completed",
 }
 
-@Entity()
+@Entity("jobs")
 export class Job {
     @PrimaryGeneratedColumn("uuid")
     id!: string;

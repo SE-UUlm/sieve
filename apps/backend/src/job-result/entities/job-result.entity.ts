@@ -14,7 +14,7 @@ export enum JobResultStatus {
     FAILURE = "failure",
 }
 
-@Entity()
+@Entity("job-results")
 export class JobResult {
     @PrimaryGeneratedColumn("uuid")
     id!: string;
