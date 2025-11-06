@@ -1,5 +1,26 @@
 services:
+    # PostgreSQL Database
+    db:
+        profiles: [ "", "db-only" ]
+        image: postgres:16-alpine3.22
+        restart: always
+        environment:
+            POSTGRES_HOST: ${DB_HOST:-localhost}
+            POSTGRES_PORT: ${DB_PORT:-5432}
+            POSTGRES_USER: ${DB_USERNAME:-postgres}
+            POSTGRES_PASSWORD: ${DB_PASSWORD}
+            POSTGRES_DB: ${DB_NAME:-postgres}
+        ports:
+            - ${DB_PORT:-5432}:5432
+        volumes:
+            - ./db-data:/var/lib/postgresql/data
+        healthcheck:
+            test: "pg_isready -U postgres"
+            start_period: 4s # wait 4s to let db get ready for accepting connections
+            start_interval: 2s # start first healthcheck after 2s
+
     server:
+        profiles: [ "", "server-only" ]
         build:
             context: .
         environment:
