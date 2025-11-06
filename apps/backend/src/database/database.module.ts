@@ -19,6 +19,7 @@ import { JobResult } from "../job-result/entities/job-result.entity";
                 password: configService.get<string>("DB_PASSWORD"),
                 database: configService.get<string>("DB_NAME"),
                 entities: [User, Email, Job, JobResult],
+                synchronize: true, // TODO: disable in production
                 logging: true,
             }),
         }),
