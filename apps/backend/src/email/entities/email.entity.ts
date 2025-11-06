@@ -7,8 +7,8 @@ import {
     OneToOne,
     PrimaryGeneratedColumn,
 } from "typeorm";
-import { User } from "./user.entity";
-import { Job } from "./job.entity";
+import { User } from "../../user/entities/user.entity";
+import { Job } from "../../job/entities/job.entity";
 
 @Entity()
 export class Email {

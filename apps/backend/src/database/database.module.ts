@@ -1,10 +1,10 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import { User } from "../entities/user.entity";
-import { Email } from "../entities/email.entity";
-import { Job } from "../entities/job.entity";
-import { JobResult } from "../entities/jobResult.entity";
+import { User } from "../user/entities/user.entity";
+import { Email } from "../email/entities/email.entity";
+import { Job } from "../job/entities/job.entity";
+import { JobResult } from "../job-result/entities/job-result.entity";
 
 @Module({
     imports: [

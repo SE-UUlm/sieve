@@ -7,7 +7,7 @@ import {
     OneToOne,
     PrimaryGeneratedColumn,
 } from "typeorm";
-import { Job } from "./job.entity";
+import { Job } from "../../job/entities/job.entity";
 
 export enum JobResultStatus {
     SUCCESS = "success",
