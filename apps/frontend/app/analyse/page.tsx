@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
 const AnalysePage = () => (
-    <main className="mx-auto flex min-h-screen max-w-6xl flex-col gap-12 p-4 lg:p-24">
+    <main className="mx-auto flex max-w-6xl flex-col gap-12 p-4 lg:p-24">
         <form className="flex flex-col gap-4">
             <h1>Analyse Email</h1>
             <Textarea placeholder="Paste your email here" />
