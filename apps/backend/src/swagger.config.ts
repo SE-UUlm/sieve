@@ -16,6 +16,10 @@ export function setupSwagger(app: INestApplication): void {
             "Emails",
             "Endpoints for submitting and managing uploaded emails. Each uploaded email triggers job creation and processing in the backend.",
         )
+        .addTag(
+            "Jobs",
+            "Endpoints to list or inspect background processing jobs created by the user.",
+        )
         .build();
     const document = SwaggerModule.createDocument(app, config);
 
