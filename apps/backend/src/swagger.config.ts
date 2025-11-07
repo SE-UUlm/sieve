@@ -13,6 +13,10 @@ export function setupSwagger(app: INestApplication): void {
         .setLicense("GPLv3-or-later", "https://www.gnu.org/licenses/gpl-3.0.html")
         .setExternalDoc("Documentation", "https://github.com/SE-UUlm/sieve/wiki")
         .addTag(
+            "Users",
+            "Endpoints for listing and inspecting users. Accessible only to users with admin roles.",
+        )
+        .addTag(
             "Emails",
             "Endpoints for submitting and managing uploaded emails. Each uploaded email triggers job creation and processing in the backend.",
         )
