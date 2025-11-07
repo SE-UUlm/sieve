@@ -1,11 +1,11 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { JobStatus } from "../entities/job.entity";
-import { randomUUID } from "node:crypto";
 import { IsDateString, IsEnum, IsOptional, IsUUID } from "class-validator";
+import { EXAMPLE_USER_ID } from "../../common/examples.constants";
 
 export class JobDto {
     // TODO: replace with actual UUID version once implemented
-    @ApiProperty({ description: "Unique job ID", type: String, example: randomUUID() })
+    @ApiProperty({ description: "Unique job ID", type: String, example: EXAMPLE_USER_ID })
     @IsUUID()
     id!: string;
 
@@ -21,7 +21,7 @@ export class JobDto {
     @ApiProperty({
         description: "User ID who created the job",
         type: String,
-        example: randomUUID(),
+        example: EXAMPLE_USER_ID,
     })
     @IsUUID()
     userId!: string;
@@ -30,7 +30,7 @@ export class JobDto {
     @ApiProperty({
         description: "Email ID associated with this job",
         type: String,
-        example: randomUUID(),
+        example: EXAMPLE_USER_ID,
     })
     @IsUUID()
     emailId!: string;

@@ -1,11 +1,11 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { UserRole } from "../entities/user.entity";
-import { randomUUID } from "node:crypto";
 import { IsEmail, IsEnum, IsNotEmpty, IsString, IsUUID } from "class-validator";
+import { EXAMPLE_USER_ID } from "../../common/examples.constants";
 
 export class SimpleUserDto {
     // TODO: replace with actual UUID version once implemented
-    @ApiProperty({ description: "Unique user ID", type: String, example: randomUUID() })
+    @ApiProperty({ description: "Unique user ID", type: String, example: EXAMPLE_USER_ID })
     @IsUUID()
     id!: string;
 
