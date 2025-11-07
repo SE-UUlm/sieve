@@ -12,6 +12,10 @@ export function setupSwagger(app: INestApplication): void {
         .setOpenAPIVersion("3.1.1")
         .setLicense("GPLv3-or-later", "https://www.gnu.org/licenses/gpl-3.0.html")
         .setExternalDoc("Documentation", "https://github.com/SE-UUlm/sieve/wiki")
+        .addTag(
+            "Emails",
+            "Endpoints for submitting and managing uploaded emails. Each uploaded email triggers job creation and processing in the backend.",
+        )
         .build();
     const document = SwaggerModule.createDocument(app, config);
 
