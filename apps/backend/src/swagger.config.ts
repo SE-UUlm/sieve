@@ -25,6 +25,7 @@ export function setupSwagger(app: INestApplication): void {
             "Jobs",
             "Endpoints to list or inspect background processing jobs created by the user.",
         )
+        .addTag("Health", "Endpoint to check the health status of the SIEVE backend service.")
         .addBearerAuth(
             { type: "http", description: "JWT Bearer token authentication" },
             "bearerAuth",
