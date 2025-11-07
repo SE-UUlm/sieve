@@ -1,14 +1,17 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { JobResultStatus } from "../entities/job-result.entity";
 import { randomUUID } from "node:crypto";
+import { IsDateString, IsEnum, IsObject, IsOptional, IsUUID } from "class-validator";
 
 export class JobResultDto {
     // TODO: replace with actual UUID version once implemented
     @ApiProperty({ description: "Unique JobResult ID", type: String, example: randomUUID() })
+    @IsUUID()
     id!: string;
 
     // TODO: replace with actual UUID version once implemented
     @ApiProperty({ description: "Associated Job ID", type: String, example: randomUUID() })
+    @IsUUID()
     jobId!: string;
 
     @ApiProperty({
@@ -16,12 +19,15 @@ export class JobResultDto {
         enum: JobResultStatus,
         example: JobResultStatus.SUCCESS,
     })
+    @IsEnum(JobResultStatus)
     status!: JobResultStatus;
 
     @ApiProperty({ description: "JSON output of the job", type: Object })
+    @IsObject()
     output!: any;
 
     @ApiProperty({ description: "Creation timestamp", type: String, format: "date-time" })
+    @IsDateString()
     createdAt!: string;
 
     @ApiProperty({
@@ -31,5 +37,7 @@ export class JobResultDto {
         required: false,
         nullable: true,
     })
+    @IsOptional()
+    @IsDateString()
     deletedAt?: string | null;
 }

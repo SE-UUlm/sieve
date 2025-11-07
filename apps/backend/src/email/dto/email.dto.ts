@@ -1,13 +1,16 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { randomUUID } from "node:crypto";
+import { IsDateString, IsEmail, IsNotEmpty, IsOptional, IsString, IsUUID } from "class-validator";
 
 export class EmailDto {
     // TODO: replace with actual UUID version once implemented
     @ApiProperty({ description: "Unique email ID", type: String, example: randomUUID() })
+    @IsUUID()
     id!: string;
 
     // TODO: replace with actual UUID version once implemented
     @ApiProperty({ description: "User ID of the owner", type: String, example: randomUUID() })
+    @IsUUID()
     userId!: string;
 
     @ApiProperty({
@@ -17,6 +20,8 @@ export class EmailDto {
         required: false,
         nullable: true,
     })
+    @IsOptional()
+    @IsEmail()
     sender?: string | null;
 
     @ApiProperty({
@@ -26,6 +31,8 @@ export class EmailDto {
         required: false,
         nullable: true,
     })
+    @IsOptional()
+    @IsString()
     subject?: string | null;
 
     @ApiProperty({
@@ -37,9 +44,12 @@ export class EmailDto {
             "Best regards,\n" +
             "Alice Smith",
     })
+    @IsString()
+    @IsNotEmpty()
     body!: string;
 
     @ApiProperty({ description: "Creation timestamp", type: String, format: "date-time" })
+    @IsDateString()
     createdAt!: string;
 
     @ApiProperty({
@@ -49,9 +59,12 @@ export class EmailDto {
         required: false,
         nullable: true,
     })
+    @IsOptional()
+    @IsDateString()
     deletedAt?: string | null;
 
     // TODO: replace with actual UUID version once implemented
     @ApiProperty({ description: "Associated job ID", type: String, example: randomUUID() })
+    @IsUUID()
     jobId!: string;
 }
