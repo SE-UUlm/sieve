@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 
 import "./globals.css";
+import NavBar from "./_components/NavBar";
 
 export const metadata: Metadata = {
     title: "Sieve",
-    description: "Convert Bad Emails into purchase orders",
+    description: "Convert Bad Emails into Purchase Orders",
 };
 
 export default function RootLayout({
@@ -14,7 +15,10 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body>{children}</body>
+            <body>
+                <NavBar />
+                {children}
+            </body>
         </html>
     );
 }
