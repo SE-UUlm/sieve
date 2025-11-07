@@ -5,6 +5,8 @@ import { UserRole } from "./entities/user.entity";
 import { SimpleUserDto } from "./dto/simple-user.dto";
 
 // TODO: Add an Admin-only guard at the controller level, e.g., @UseGuards(AdminGuard)
+// TODO: Remove eslint-disable when implementing methods
+/* eslint-disable @typescript-eslint/no-unused-vars */
 @ApiTags("Users")
 @Controller("users")
 export class UserController {

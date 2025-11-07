@@ -6,6 +6,8 @@ import { UserDto } from "../user/dto/user.dto";
 import { TokenResponseDto } from "./dto/token-response.dto";
 import { RefreshTokenDto } from "./dto/refresh-token.dto";
 
+// TODO: Remove eslint-disable when implementing methods
+/* eslint-disable @typescript-eslint/no-unused-vars */
 @ApiTags("Authentication")
 @Controller("auth")
 export class AuthController {

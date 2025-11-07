@@ -4,6 +4,8 @@ import { JobDto } from "./dto/job.dto";
 import { JobStatus } from "./entities/job.entity";
 import { JobResultDto } from "../job-result/dto/job-result.dto";
 
+// TODO: Remove eslint-disable when implementing methods
+/* eslint-disable @typescript-eslint/no-unused-vars */
 @ApiTags("Jobs")
 @Controller("jobs")
 export class JobController {

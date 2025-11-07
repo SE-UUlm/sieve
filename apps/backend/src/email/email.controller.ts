@@ -3,6 +3,8 @@ import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagg
 import { CreateEmailDto } from "./dto/create-email.dto";
 import { JobDto } from "../job/dto/job.dto";
 
+// TODO: Remove eslint-disable when implementing methods
+/* eslint-disable @typescript-eslint/no-unused-vars */
 @ApiTags("Emails")
 @Controller("emails")
 export class EmailController {
