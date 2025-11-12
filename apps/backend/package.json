@@ -1,7 +1,7 @@
 {
     "name": "sieve-backend",
     "version": "0.1.0",
-    "license": "GPL-3.0-only",
+    "license": "GPL-3.0-or-later",
     "packageManager": "npm@11.3.0",
     "scripts": {
         "build": "nest build",
@@ -16,7 +16,8 @@
         "test:watch": "jest --watch",
         "test:cov": "jest --coverage",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-        "test:e2e": "jest --config ./test/jest-e2e.json"
+        "test:e2e": "jest --config ./test/jest-e2e.json",
+        "license-check": "license-checker --onlyAllow --customPath ../../.license-checker.json --summary"
     },
     "dependencies": {
         "@nestjs/common": "^11.0.1",
@@ -50,6 +51,7 @@
         "eslint-plugin-prettier": "^5.2.2",
         "globals": "^16.0.0",
         "jest": "^30.0.0",
+        "license-checker": "^25.0.1",
         "prettier": "^3.4.2",
         "source-map-support": "^0.5.21",
         "supertest": "^7.0.0",

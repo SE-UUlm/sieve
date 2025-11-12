@@ -1,13 +1,14 @@
 {
     "name": "sieve-frontend",
     "version": "0.1.0",
-    "private": true,
+    "license": "GPL-3.0-or-later",
     "scripts": {
         "dev": "next dev --turbopack",
         "build": "next build --turbopack",
         "start": "next start",
         "lint": "eslint",
-        "format": "prettier --write ."
+        "format": "prettier --write .",
+        "license-check": "license-checker --onlyAllow --customPath ../../.license-checker.json --summary"
     },
     "dependencies": {
         "@radix-ui/react-navigation-menu": "^1.2.14",
@@ -29,6 +30,7 @@
         "eslint": "^9.38.0",
         "eslint-config-next": "15.5.6",
         "eslint-config-prettier": "^10.1.8",
+        "license-checker": "^25.0.1",
         "prettier": "3.6.2",
         "prettier-plugin-tailwindcss": "^0.7.1",
         "tailwindcss": "^4.1.15",

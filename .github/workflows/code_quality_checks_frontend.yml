@@ -26,6 +26,10 @@ jobs:
                   node_version: ${{ env.node_version }}
                   working-directory: ${{ env.working_directory }}
 
+            - name: Run License Check
+              run: npm run license-check
+              working-directory: ${{ env.working_directory }}
+
             - name: Linting
               run: npm run lint
               working-directory: ${{ env.working_directory }}
