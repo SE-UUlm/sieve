@@ -2,7 +2,7 @@ import { INestApplication } from "@nestjs/common";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { apiReference } from "@scalar/nestjs-api-reference";
 
-export function setupSwagger(app: INestApplication): void {
+export function setupSwagger(nestApplication: INestApplication): void {
     const config = new DocumentBuilder()
         .setTitle("SIEVE")
         .setDescription(
@@ -31,9 +31,9 @@ export function setupSwagger(app: INestApplication): void {
             "bearerAuth",
         )
         .build();
-    const document = SwaggerModule.createDocument(app, config);
+    const document = SwaggerModule.createDocument(nestApplication, config);
 
-    app.use(
+    nestApplication.use(
         "/api",
         apiReference({
             content: document,

@@ -15,7 +15,7 @@ export class AuthController {
     @ApiOperation({ summary: "Register a new user" })
     @ApiResponse({ status: 201, description: "User successfully registered" })
     @ApiResponse({ status: 400, description: "Bad Request" })
-    signup(@Body() dto: SignupDto): Promise<void> {
+    signup(@Body() signupData: SignupDto): Promise<void> {
         // TODO: Implement user registration logic
         return Promise.resolve();
     }
@@ -28,7 +28,7 @@ export class AuthController {
         type: TokenResponseDto,
     })
     @ApiResponse({ status: 401, description: "Unauthorized" })
-    login(@Body() dto: LoginDto): Promise<TokenResponseDto> {
+    login(@Body() loginData: LoginDto): Promise<TokenResponseDto> {
         // TODO: Implement user login logic
         return Promise.resolve(new TokenResponseDto());
     }
@@ -62,7 +62,7 @@ export class AuthController {
         type: TokenResponseDto,
     })
     @ApiResponse({ status: 401, description: "Unauthorized" })
-    refresh(@Body() dto: RefreshTokenDto): Promise<TokenResponseDto> {
+    refresh(@Body() refreshTokenData: RefreshTokenDto): Promise<TokenResponseDto> {
         // TODO: Implement token refresh logic
         return Promise.resolve(new TokenResponseDto());
     }

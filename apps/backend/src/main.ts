@@ -5,19 +5,19 @@ import { setupSwagger } from "./swagger.config";
 import { ValidationPipe } from "@nestjs/common";
 
 async function bootstrap() {
-    const app = await NestFactory.create(AppModule);
+    const nestApplication = await NestFactory.create(AppModule);
 
-    const configService = app.get(ConfigService);
+    const configService = nestApplication.get(ConfigService);
     const port = configService.get<number>("BACKEND_PORT");
 
-    setupSwagger(app);
+    setupSwagger(nestApplication);
 
-    app.useGlobalPipes(new ValidationPipe());
+    nestApplication.useGlobalPipes(new ValidationPipe());
 
-    await app.listen(port!);
+    await nestApplication.listen(port!);
 }
 
-bootstrap().catch((err) => {
-    console.error(err);
+bootstrap().catch((error) => {
+    console.error(error);
     process.exit(1);
 });

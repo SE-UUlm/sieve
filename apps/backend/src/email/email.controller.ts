@@ -14,7 +14,7 @@ export class EmailController {
     @ApiResponse({ status: 201, description: "Successfully submitted", type: JobDto })
     @ApiResponse({ status: 400, description: "Bad Request" })
     @ApiResponse({ status: 401, description: "Unauthorized" })
-    submitEmail(@Body() dto: CreateEmailDto): Promise<JobDto> {
+    submitEmail(@Body() emailData: CreateEmailDto): Promise<JobDto> {
         // TODO: Implement email upload logic
         return Promise.resolve({} as JobDto);
     }
