@@ -13,7 +13,7 @@
             <option value="db-only" />
           </list>
         </option>
-        <option name="sourceFilePath" value="compose.yaml" />
+        <option name="sourceFilePath" value="../../docker-compose.yml" />
       </settings>
     </deployment>
     <method v="2" />

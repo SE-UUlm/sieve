@@ -10,46 +10,75 @@ First, make sure you have installed the following:
 * IDE of your choice (e.g. [WebStorm](https://www.jetbrains.com/webstorm/download/) or
   [VS Code](https://code.visualstudio.com/download))
 
-## Next Steps
+## Docker Setup (Recommended)
 
-If all prerequisites are installed, we can start. Since SIEVE consists of an independent frontend and backend,
-both need to be started. To do so, read the following instructions.
-
-### Backend
-
-This guide provides instructions on how to set up and run the SIEVE backend on your local machine.
-You can either use the provided Docker setup (not yet available) for a quick start
-or build the project from source for more control.
+The fastest way to get started is to use the provided Docker setup, which runs the entire stack
+(database, backend, and frontend) with a single command.
 
 Before you begin, ensure you have configured the necessary environment variables.
 For a detailed guide on all configuration options, see the
 **[Configuration](https://github.com/SE-UUlm/sieve/wiki/Configuration)** page.
 
-#### Docker Setup
-
-The fastest way to get started is to use the provided Docker setup.
-
 1. Clone the repository:
 
     ```bash
     git clone git@github.com:SE-UUlm/sieve.git
-    cd apps/backend
+    cd sieve
     ```
 
-2. Start the services using Docker Compose:
+2. Copy the example environment file and configure it:
+
+    ```bash
+    cp .env.example .env
+    # Edit .env with your preferred settings
+    ```
+
+3. Start all services using Docker Compose:
 
     ```bash
     docker compose up
     ```
 
-#### Building from Source
+    This will start:
+    * PostgreSQL database on port 5432
+    * Backend API on port 5175 (configurable via `BACKEND_PORT`)
+    * Frontend on port 3000 (configurable via `FRONTEND_PORT`)
 
-To build this project from source, run the following commands:
+4. Access the application:
+    * Frontend: `http://localhost:3000`
+    * Backend API: `http://localhost:5175`
 
-1. Clone the repository:
+### Running Individual Services
+
+You can also run services individually using Docker Compose profiles:
+
+* Run only the database:
 
     ```bash
-    git clone git@github.com:SE-UUlm/sieve.git
+    docker compose --profile db-only up
+    ```
+
+* Run only the backend (with database):
+
+    ```bash
+    docker compose --profile backend-only up
+    ```
+
+* Run only the frontend:
+
+    ```bash
+    docker compose --profile frontend-only up
+    ```
+
+## Building from Source
+
+If you prefer more control over the development environment, you can build and run each service from source.
+
+### Backend
+
+1. Navigate to the backend directory:
+
+    ```bash
     cd apps/backend
     ```
 
@@ -59,7 +88,9 @@ To build this project from source, run the following commands:
     npm install
     ```
 
-3. Run the backend:
+3. Configure environment variables (copy `.env.example` to `.env` and edit as needed)
+
+4. Run the backend:
 
     **Option A** - Development mode (auto-reload on file changes):
 
@@ -78,3 +109,36 @@ To build this project from source, run the following commands:
 
     This first compiles the TypeScript source to JavaScript in the `/dist` directory,
     then starts the server using Node.
+
+### Frontend
+
+1. Navigate to the frontend directory:
+
+    ```bash
+    cd apps/frontend
+    ```
+
+2. Install all dependencies using `npm`:
+
+    ```bash
+    npm install
+    ```
+
+3. Run the frontend:
+
+    **Option A** - Development mode (with hot reload):
+
+    ```bash
+    npm run dev
+    ```
+
+    This starts the Next.js development server with hot module replacement.
+
+    **Option B** - Production mode:
+
+    ```bash
+    npm run build
+    npm run start
+    ```
+
+    This builds the optimized production bundle and starts the production server.
