@@ -10,5 +10,25 @@ This repository contains the backend, as well as the frontend of the SIEVE appli
 
 ## Getting Started
 
-To run the project locally, follow the [Getting Started](https://github.com/SE-UUlm/sieve/wiki/Getting-Started) guide
-(currently empty).
+### Quick Start with Docker
+
+The easiest way to run the entire application stack:
+
+```bash
+# Clone the repository
+git clone git@github.com:SE-UUlm/sieve.git
+cd sieve
+
+# Copy and configure environment variables
+cp .env.example .env
+
+# Start all services
+docker compose up
+```
+
+The application will be available at:
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:5175
+
+For detailed setup instructions, building from source, and configuration options, see the 
+[Getting Started](https://github.com/SE-UUlm/sieve/wiki/Getting-Started) guide.
