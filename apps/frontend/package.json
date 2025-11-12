@@ -1,13 +1,14 @@
 {
     "name": "sieve-frontend",
     "version": "0.1.0",
-    "private": true,
+    "license": "GPL-3.0-or-later",
     "scripts": {
         "dev": "next dev --turbopack",
         "build": "next build --turbopack",
         "start": "next start",
         "lint": "eslint",
-        "format": "prettier --write ."
+        "format": "prettier --write .",
+        "license-check": "license-checker --onlyAllow 'GPL-3.0-only;GPL-3.0-or-later;GPL-2.0-or-later;LGPL-3.0-only;LGPL-3.0-or-later;LGPL-2.1-only;LGPL-2.1-or-later;AGPL-3.0-only;AGPL-3.0-or-later;Apache-2.0;Artistic-2.0;ClArtistic;BSL-1.0;BSD-3-Clause;CC0-1.0;CECILL-2.0;BSD-3-Clause-Clear;ECL-2.0;EFL-2.0;EUDatagrid;MIT;BSD-2-Clause;FTL;HPND;iMatix;Imlib2;IJG;Intel;ISC;MPL-2.0;NCSA;OLDAP-2.7;Python-2.0;Ruby;SGI-B-2.0;SMLNJ;UPL-1.0;Unlicense;Vim;W3C;WTFPL;X11;XFree86-1.1;Zlib;ZPL-2.0;ZPL-2.1;CC-BY-4.0;BlueOak-1.0.0;0BSD' --excludePackages 'spdx-exceptions@2.5.0;parse-cache-control@1.0.1' --summary"
     },
     "dependencies": {
         "@radix-ui/react-navigation-menu": "^1.2.14",
@@ -29,6 +30,7 @@
         "eslint": "^9.38.0",
         "eslint-config-next": "15.5.6",
         "eslint-config-prettier": "^10.1.8",
+        "license-checker": "^25.0.1",
         "prettier": "3.6.2",
         "prettier-plugin-tailwindcss": "^0.7.1",
         "tailwindcss": "^4.1.15",
