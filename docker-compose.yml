@@ -1,0 +1,62 @@
+services:
+    # PostgreSQL Database
+    db:
+        profiles: ["", "db-only"]
+        image: postgres:16-alpine3.22
+        restart: always
+        environment:
+            POSTGRES_USER: ${DB_USERNAME:-postgres}
+            POSTGRES_PASSWORD: ${DB_PASSWORD}
+            POSTGRES_DB: ${DB_NAME:-postgres}
+        ports:
+            - "5432:5432"
+        volumes:
+            - db-data:/var/lib/postgresql/data
+        healthcheck:
+            test: "pg_isready -U postgres"
+            start_period: 4s # wait 4s to let db get ready for accepting connections
+            start_interval: 2s # start first healthcheck after 2s
+        networks:
+            - sieve-network
+
+    backend:
+        profiles: ["", "backend-only"]
+        build:
+            context: ./apps/backend
+        environment:
+            BACKEND_PORT: ${BACKEND_PORT:-5175}
+
+            DB_HOST: db
+            DB_PORT: 5432
+            DB_USERNAME: ${DB_USERNAME:-postgres}
+            DB_PASSWORD: ${DB_PASSWORD}
+            DB_NAME: ${DB_NAME:-postgres}
+        ports:
+            - ${BACKEND_PORT:-5175}:${BACKEND_PORT:-5175}
+        depends_on:
+            db:
+                condition: service_healthy
+        networks:
+            - sieve-network
+
+    frontend:
+        profiles: ["", "frontend-only"]
+        build:
+            context: ./apps/frontend
+        environment:
+            NODE_ENV: production
+            # Backend API URL for frontend to connect to backend service
+            NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:5175}
+        ports:
+            - ${FRONTEND_PORT:-3000}:3000
+        depends_on:
+            - backend
+        networks:
+            - sieve-network
+
+volumes:
+    db-data:
+
+networks:
+    sieve-network:
+        driver: bridge
