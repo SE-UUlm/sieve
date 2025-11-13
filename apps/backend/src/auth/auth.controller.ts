@@ -5,6 +5,7 @@ import { LoginDto } from "./dto/login.dto";
 import { UserDto } from "../user/dto/user.dto";
 import { TokenResponseDto } from "./dto/token-response.dto";
 import { RefreshTokenDto } from "./dto/refresh-token.dto";
+import { auth } from "../lib/auth";
 
 // TODO: Remove eslint-disable when implementing methods
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -15,9 +16,15 @@ export class AuthController {
     @ApiOperation({ summary: "Register a new user" })
     @ApiResponse({ status: 201, description: "User successfully registered" })
     @ApiResponse({ status: 400, description: "Bad Request" })
-    signup(@Body() dto: SignupDto): Promise<void> {
-        // TODO: Implement user registration logic
-        return Promise.resolve();
+    async signup(@Body() dto: SignupDto) {
+        return await auth.api.signUpEmail({
+            body: {
+                name: dto.name,
+                email: dto.email,
+                password: dto.password,
+            },
+            asResponse: false,
+        });
     }
 
     @Post("login")

@@ -18,22 +18,22 @@ export enum UserRole {
 @Entity("users")
 export class User {
     @PrimaryGeneratedColumn("uuid")
-    id!: string;
+    id: string = "";
 
     @Column()
-    name!: string;
+    name: string = "";
 
     @Column({ unique: true })
-    email!: string;
+    email: string = "";
 
     @Column()
-    passwordHash!: string;
+    passwordHash: string = "";
 
     @Column({ type: "enum", enum: UserRole, default: UserRole.USER })
-    role!: UserRole;
+    role: UserRole = UserRole.USER;
 
     @CreateDateColumn({ type: "timestamptz" })
-    createdAt!: Date;
+    createdAt: Date = new Date();
 
     @UpdateDateColumn({ type: "timestamptz", nullable: true })
     updatedAt?: Date;
@@ -42,8 +42,8 @@ export class User {
     deletedAt?: Date;
 
     @OneToMany(() => Job, (job) => job.user)
-    jobs!: Job[];
+    jobs: Job[] = [];
 
     @OneToMany(() => Email, (email) => email.user)
-    emails!: Email[];
+    emails: Email[] = [];
 }
