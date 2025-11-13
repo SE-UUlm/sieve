@@ -17,6 +17,7 @@ cp .env.example .env
 | `DB_USERNAME`         |                    |        postgres         | The username for the database.            |
 | `DB_PASSWORD`         | :white_check_mark: |            -            | The password for the database.            |
 | `DB_NAME`             |                    |        postgres         | The name of the database.                 |
+| `BETTER_AUTH_SECRET`  | :white_check_mark: |            -            | The secret for BetterAuth authentication. |
 
 ## Building from Source
 
@@ -32,12 +33,13 @@ cp .env.example .env
 
 Backend-specific environment variables:
 
-| Variable       |      Required      | Default  | Description                           |
-| -------------- | :----------------: | :------: | ------------------------------------- |
-| `BACKEND_PORT` | :white_check_mark: |   5175   | The port where the backend is served. |
-| `DB_USERNAME`  | :white_check_mark: | postgres | The username for the database.        |
-| `DB_PASSWORD`  | :white_check_mark: |    -     | The password for the database.        |
-| `DB_NAME`      | :white_check_mark: | postgres | The name of the database.             |
+| Variable             |      Required      | Default  | Description                               |
+| -------------------- | :----------------: | :------: | ----------------------------------------- |
+| `BACKEND_PORT`       | :white_check_mark: |   5175   | The port where the backend is served.     |
+| `DB_USERNAME`        | :white_check_mark: | postgres | The username for the database.            |
+| `DB_PASSWORD`        | :white_check_mark: |    -     | The password for the database.            |
+| `DB_NAME`            | :white_check_mark: | postgres | The name of the database.                 |
+| `BETTER_AUTH_SECRET` | :white_check_mark: |    -     | The secret for BetterAuth authentication. |
 
 ### Frontend
 
