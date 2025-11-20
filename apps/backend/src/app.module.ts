@@ -7,6 +7,7 @@ import { JobModule } from "./job/job.module";
 import { JobResultModule } from "./job-result/job-result.module";
 import { EmailModule } from "./email/email.module";
 import { AuthController } from "./auth/auth.controller";
+import { PrismaModule } from "./prisma/prisma.module";
 
 @Module({
     imports: [
@@ -17,6 +18,7 @@ import { AuthController } from "./auth/auth.controller";
         JobModule,
         JobResultModule,
         EmailModule,
+        PrismaModule,
     ],
     controllers: [AuthController],
 })
