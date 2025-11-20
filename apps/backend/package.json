@@ -26,7 +26,6 @@
         "@nestjs/platform-express": "^11.0.1",
         "@nestjs/swagger": "^11.2.3",
         "@nestjs/terminus": "^11.0.0",
-        "@nestjs/typeorm": "^11.0.0",
         "@prisma/adapter-pg": "^7.0.0",
         "@prisma/client": "^7.0.0",
         "@scalar/nestjs-api-reference": "^1.0.6",
@@ -35,8 +34,7 @@
         "joi": "^18.0.1",
         "pg": "^8.16.3",
         "reflect-metadata": "^0.2.2",
-        "rxjs": "^7.8.1",
-        "typeorm": "^0.3.27"
+        "rxjs": "^7.8.1"
     },
     "devDependencies": {
         "@eslint/eslintrc": "^3.2.0",

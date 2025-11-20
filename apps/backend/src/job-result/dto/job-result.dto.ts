@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { JobResultStatus } from "../entities/job-result.entity";
 import { IsDateString, IsEnum, IsObject, IsOptional, IsUUID } from "class-validator";
 import { EXAMPLE_USER_ID } from "../../common/examples.constants";
+import { JobResultStatus } from "../../../prisma/client/enums";
 
 export class JobResultDto {
     // TODO: replace with actual UUID version once implemented

@@ -1,8 +1,8 @@
 import { Controller, Get, Param, Query } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { JobDto } from "./dto/job.dto";
-import { JobStatus } from "./entities/job.entity";
 import { JobResultDto } from "../job-result/dto/job-result.dto";
+import { JobStatus } from "../../prisma/client/enums";
 
 // TODO: Remove eslint-disable when implementing methods
 /* eslint-disable @typescript-eslint/no-unused-vars */
