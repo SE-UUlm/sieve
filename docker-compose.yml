@@ -5,9 +5,9 @@ services:
         image: postgres:16-alpine3.22
         restart: always
         environment:
-            POSTGRES_USER: ${DB_USERNAME:-postgres}
+            POSTGRES_USER: ${DB_USERNAME}
             POSTGRES_PASSWORD: ${DB_PASSWORD}
-            POSTGRES_DB: ${DB_NAME:-postgres}
+            POSTGRES_DB: ${DB_NAME}
         ports:
             - "5432:5432"
         volumes:
@@ -22,15 +22,15 @@ services:
         build:
             context: ./apps/backend
         environment:
-            BACKEND_PORT: ${BACKEND_PORT:-5175}
+            BACKEND_PORT: ${BACKEND_PORT}
 
             DB_HOST: db
             DB_PORT: 5432
-            DB_USERNAME: ${DB_USERNAME:-postgres}
+            DB_USERNAME: ${DB_USERNAME}
             DB_PASSWORD: ${DB_PASSWORD}
-            DB_NAME: ${DB_NAME:-postgres}
+            DB_NAME: ${DB_NAME}
         ports:
-            - ${BACKEND_PORT:-5175}:${BACKEND_PORT:-5175}
+            - ${BACKEND_PORT}:${BACKEND_PORT}
         depends_on:
             db:
                 condition: service_healthy
@@ -40,15 +40,15 @@ services:
         build:
             context: ./apps/backend
         environment:
-            BACKEND_PORT: ${BACKEND_PORT:-5175}
+            BACKEND_PORT: ${BACKEND_PORT}
 
             DB_HOST: db
             DB_PORT: 5432
-            DB_USERNAME: ${DB_USERNAME:-postgres}
+            DB_USERNAME: ${DB_USERNAME}
             DB_PASSWORD: ${DB_PASSWORD}
-            DB_NAME: ${DB_NAME:-postgres}
+            DB_NAME: ${DB_NAME}
         ports:
-            - ${BACKEND_PORT:-5175}:${BACKEND_PORT:-5175}
+            - ${BACKEND_PORT}:${BACKEND_PORT}
 
     frontend:
         profiles: [""]

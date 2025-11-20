@@ -21,8 +21,12 @@ jobs:
                   up-flags: "--build --wait"
                   down-flags: "--volumes"
               env:
-                  # Optional, override secrets if needed
+                  BACKEND_PORT: 5175
+                  DB_USERNAME: postgres
                   DB_PASSWORD: example
+                  DB_HOST: localhost
+                  DB_PORT: 5432
+                  DB_NAME: postgres
                   NEXT_PUBLIC_API_URL: http://localhost:5175
 
             - name: Verify backend health
