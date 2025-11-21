@@ -11,12 +11,14 @@ cp .env.example .env
 
 | Variable              |      Required      |         Default         | Description                               |
 | --------------------- | :----------------: | :---------------------: | ----------------------------------------- |
-| `BACKEND_PORT`        | :white_check_mark: |          5175           | The port where the backend is served.     |
+| `BACKEND_PORT`        | :white_check_mark: |            -            | The port where the backend is served.     |
 | `FRONTEND_PORT`       |                    |          3000           | The port where the frontend is served.    |
 | `NEXT_PUBLIC_API_URL` |                    | `http://localhost:5175` | The backend API URL used by the frontend. |
-| `DB_USERNAME`         |                    |        postgres         | The username for the database.            |
+| `DB_USERNAME`         | :white_check_mark: |            -            | The username for the database.            |
 | `DB_PASSWORD`         | :white_check_mark: |            -            | The password for the database.            |
-| `DB_NAME`             |                    |        postgres         | The name of the database.                 |
+| `DB_HOST`             | :white_check_mark: |            -            | The host of the database.                 |
+| `DB_PORT`             | :white_check_mark: |            -            | The port of the database.                 |
+| `DB_NAME`             | :white_check_mark: |            -            | The name of the database.                 |
 
 ## Building from Source
 
@@ -32,12 +34,14 @@ cp .env.example .env
 
 Backend-specific environment variables:
 
-| Variable       |      Required      | Default  | Description                           |
-| -------------- | :----------------: | :------: | ------------------------------------- |
-| `BACKEND_PORT` | :white_check_mark: |   5175   | The port where the backend is served. |
-| `DB_USERNAME`  | :white_check_mark: | postgres | The username for the database.        |
-| `DB_PASSWORD`  | :white_check_mark: |    -     | The password for the database.        |
-| `DB_NAME`      | :white_check_mark: | postgres | The name of the database.             |
+| Variable       |      Required      | Default | Description                           |
+| -------------- | :----------------: | :-----: | ------------------------------------- |
+| `BACKEND_PORT` | :white_check_mark: |    -    | The port where the backend is served. |
+| `DB_USERNAME`  | :white_check_mark: |    -    | The username for the database.        |
+| `DB_PASSWORD`  | :white_check_mark: |    -    | The password for the database.        |
+| `DB_HOST`      | :white_check_mark: |    -    | The host of the database.             |
+| `DB_PORT`      | :white_check_mark: |    -    | The port of the database.             |
+| `DB_NAME`      | :white_check_mark: |    -    | The name of the database.             |
 
 ### Frontend
 

@@ -1,8 +1,8 @@
 import { Controller, Get, Param, Query } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { UserDto } from "./dto/user.dto";
-import { UserRole } from "./entities/user.entity";
 import { SimpleUserDto } from "./dto/simple-user.dto";
+import { UserRole } from "../../prisma/client/enums";
 
 // TODO: Add an Admin-only guard at the controller level, e.g., @UseGuards(AdminGuard)
 // TODO: Remove eslint-disable when implementing methods

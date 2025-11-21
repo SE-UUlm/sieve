@@ -1,0 +1,81 @@
+generator client {
+    provider = "prisma-client"
+    output   = "../prisma/client"
+    moduleFormat = "cjs"
+}
+
+datasource db {
+    provider = "postgresql"
+}
+
+model User {
+    id        String   @id @default(uuid())
+    name      String
+    email     String   @unique
+    role      UserRole @default(USER)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    emails    Email[]
+    jobs      Job[]
+
+    @@map("users")
+}
+
+model Email {
+    id        String   @id @default(uuid())
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    userId    String
+    sender    String?
+    subject   String?
+    body      String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    job       Job?
+
+    @@map("emails")
+}
+
+model Job {
+    id          String     @id @default(uuid())
+    status      JobStatus  @default(CREATED)
+    user        User       @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    userId      String
+    email       Email      @relation(fields: [emailId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    emailId     String     @unique
+    startedAt   DateTime?
+    completedAt DateTime?
+    createdAt   DateTime   @default(now())
+    updatedAt   DateTime   @updatedAt
+    result      JobResult?
+
+    @@map("jobs")
+}
+
+model JobResult {
+    id        String          @id @default(uuid())
+    job       Job             @relation(fields: [jobId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    jobId     String          @unique
+    status    JobResultStatus
+    output    Json
+    createdAt DateTime        @default(now())
+    updatedAt DateTime        @updatedAt
+
+    @@map("job_results")
+}
+
+enum UserRole {
+    ADMIN
+    USER
+}
+
+enum JobStatus {
+    CREATED
+    PENDING
+    PROCESSING
+    COMPLETED
+}
+
+enum JobResultStatus {
+    SUCCESS
+    FAILURE
+}

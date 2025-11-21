@@ -1,5 +1,4 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { UserRole } from "../entities/user.entity";
 import {
     IsArray,
     IsDateString,
@@ -11,6 +10,7 @@ import {
     IsUUID,
 } from "class-validator";
 import { EXAMPLE_USER_ID } from "../../common/examples.constants";
+import { UserRole } from "../../../prisma/client/enums";
 
 export class UserDto {
     // TODO: replace with actual UUID version once implemented

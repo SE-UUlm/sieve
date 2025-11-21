@@ -4,7 +4,7 @@
 # If you need more help, visit the Dockerfile reference guide at
 # https://docs.docker.com/go/dockerfile-reference/
 
-ARG NODE_VERSION=23.11.1
+ARG NODE_VERSION=24.11.1
 
 ################################################################################
 # Use node image for base image for all stages.
