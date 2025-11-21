@@ -20,6 +20,8 @@ cp .env.example .env
 | `DB_PORT`             | :white_check_mark: |            -            | The port of the database.                 |
 | `DB_NAME`             | :white_check_mark: |            -            | The name of the database.                 |
 | `RESTART_POLICY`      |                    |        `always`         | The database container restart policy.    |
+| `BETTER_AUTH_SECRET`  | :white_check_mark: |            -            | The secret for Better Auth.               |
+| `BETTER_AUTH_URL`     | :white_check_mark: | `http://localhost:5175` | Base URL for Better Auth.                 |
 
 ## Building from Source
 
@@ -35,15 +37,17 @@ cp .env.example .env
 
 Backend-specific environment variables:
 
-| Variable         |      Required      | Default  | Description                            |
-| ---------------- | :----------------: | :------: | -------------------------------------- |
-| `BACKEND_PORT`   | :white_check_mark: |    -     | The port where the backend is served.  |
-| `DB_USERNAME`    | :white_check_mark: |    -     | The username for the database.         |
-| `DB_PASSWORD`    | :white_check_mark: |    -     | The password for the database.         |
-| `DB_HOST`        | :white_check_mark: |    -     | The host of the database.              |
-| `DB_PORT`        | :white_check_mark: |    -     | The port of the database.              |
-| `DB_NAME`        | :white_check_mark: |    -     | The name of the database.              |
-| `RESTART_POLICY` |                    | `always` | The database container restart policy. |
+| Variable             |      Required      |         Default         | Description                            |
+| -------------------- | :----------------: | :---------------------: | -------------------------------------- |
+| `BACKEND_PORT`       | :white_check_mark: |            -            | The port where the backend is served.  |
+| `DB_USERNAME`        | :white_check_mark: |            -            | The username for the database.         |
+| `DB_PASSWORD`        | :white_check_mark: |            -            | The password for the database.         |
+| `DB_HOST`            | :white_check_mark: |            -            | The host of the database.              |
+| `DB_PORT`            | :white_check_mark: |            -            | The port of the database.              |
+| `DB_NAME`            | :white_check_mark: |            -            | The name of the database.              |
+| `RESTART_POLICY`     |                    |        `always`         | The database container restart policy. |
+| `BETTER_AUTH_SECRET` | :white_check_mark: |            -            | The secret for Better Auth.            |
+| `BETTER_AUTH_URL`    | :white_check_mark: | `http://localhost:5175` | Base URL for Better Auth.              |
 
 ### Frontend
 
