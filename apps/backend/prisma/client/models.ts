@@ -8,8 +8,8 @@
  *
  * 🟢 You can import this file directly.
  */
-export type * from './models/User'
-export type * from './models/Email'
-export type * from './models/Job'
-export type * from './models/JobResult'
-export type * from './commonInputTypes'
+export type * from './models/User.js'
+export type * from './models/Email.js'
+export type * from './models/Job.js'
+export type * from './models/JobResult.js'
+export type * from './commonInputTypes.js'
