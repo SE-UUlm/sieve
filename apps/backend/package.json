@@ -7,6 +7,7 @@
         "build": "nest build",
         "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
         "start": "nest start",
+        "dev": "npm run start:dev",
         "start:dev": "nest start --watch",
         "start:debug": "nest start --debug --watch",
         "start:prod": "node dist/src/main.js",
@@ -17,7 +18,8 @@
         "test:cov": "jest --coverage",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
         "test:e2e": "jest --config ./test/jest-e2e.json",
-        "license-check": "license-checker --onlyAllow --customPath ../../.license-checker.json --summary"
+        "license-check": "license-checker --onlyAllow --customPath ../../.license-checker.json --summary",
+        "generate:client": "npm run build && node dist/scripts/generate-client.js"
     },
     "dependencies": {
         "@nestjs/common": "^11.0.1",
@@ -32,6 +34,7 @@
         "class-transformer": "^0.5.1",
         "class-validator": "^0.14.2",
         "joi": "^18.0.1",
+        "orval": "^7.16.1",
         "pg": "^8.16.3",
         "reflect-metadata": "^0.2.2",
         "rxjs": "^7.8.1"

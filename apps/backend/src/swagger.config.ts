@@ -1,8 +1,8 @@
 import { INestApplication } from "@nestjs/common";
-import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import { DocumentBuilder, OpenAPIObject, SwaggerModule } from "@nestjs/swagger";
 import { apiReference } from "@scalar/nestjs-api-reference";
 
-export function setupSwagger(app: INestApplication): void {
+export function createDocument(app: INestApplication): OpenAPIObject {
     const config = new DocumentBuilder()
         .setTitle("SIEVE")
         .setDescription(
@@ -32,7 +32,11 @@ export function setupSwagger(app: INestApplication): void {
         )
         .build();
     const document = SwaggerModule.createDocument(app, config);
+    return document;
+}
 
+export function setupSwagger(app: INestApplication): void {
+    const document = createDocument(app);
     app.use(
         "/api",
         apiReference({
