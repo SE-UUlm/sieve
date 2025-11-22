@@ -1,3 +1,4 @@
+"use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -8,6 +9,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { CSSProperties, useId } from "react";
+import Link from "next/link";
 
 const formSchema = z.object({
     username: z
@@ -98,11 +100,17 @@ const LoginForm = () => {
                     </FieldGroup>
                 </form>
             </CardContent>
-            <CardFooter>
+            <CardFooter className="flex-col gap-4">
                 <Field orientation="horizontal">
                     <Button type="submit" form={formId}>
                         Login
                     </Button>
+                </Field>
+                <Field orientation="horizontal">
+                    Don&apos;t have an account?
+                    <Link href="/auth/signup" className="font-medium">
+                        Sign up
+                    </Link>
                 </Field>
             </CardFooter>
         </Card>
