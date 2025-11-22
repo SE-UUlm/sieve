@@ -33,3 +33,31 @@ jobs:
             - name: Linting
               run: npm run lint
               working-directory: ${{ env.working_directory }}
+
+    check-client-generation:
+        name: Check Client Generation
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v5
+
+            - name: Setup Backend
+              uses: ./.github/workflows/setup/
+              with:
+                  node_version: ${{ env.node_version }}
+                  working-directory: ${{ env.working_directory }}
+
+            - name: Run Client Generation
+              run: npm run generate:client
+              working-directory: ${{ env.working_directory }}
+
+            - name: Make sure client is up to date
+              run: |
+                  if [[ -n "$(git status --porcelain)" ]]; then
+                    echo "Client is not up to date. Please run 'npm run generate:client' in Backend and commit the changes."
+                    echo "Uncommitted changes to client:"
+                    git --no-pager diff
+                    exit 1
+                  else
+                    echo "Client is up to date."
+                  fi
