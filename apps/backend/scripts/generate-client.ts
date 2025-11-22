@@ -7,22 +7,24 @@ import { createDocument } from "../src/swagger.config";
 
 const execPromise = promisify(exec);
 
-async function runPrettierCli(cwd: string, path: string) {
+async function runPrettierCli(path: string) {
     try {
         const { stdout, stderr } = await execPromise(
-            "npx prettier --log-level warn --write " + path,
-            { cwd },
+            // force usage of backend prettierrc, even for client code in frontend,
+            // because the plugin for windtail used in frontend prettierrc is not necessarly installed when developing the backend
+            // Not really optimal if the frontend prettierrc will differ in the future but right now they are the same
+            "npx prettier --log-level warn --config .prettierrc --write " + path,
         );
 
         if (stdout) {
-            console.log(`Prettier ${cwd} (Stdout): \n${stdout}`);
+            console.log(`Prettier ${path} (Stdout): \n${stdout}`);
         }
 
         if (stderr) {
-            console.warn(`Prettier ${cwd} (Stderr): \n${stderr}`);
+            console.warn(`Prettier ${path} (Stderr): \n${stderr}`);
         }
     } catch (error) {
-        console.error(`Error running Prettier CLI  ${cwd}:`);
+        console.error(`Error running Prettier CLI  ${path}:`);
         console.error(error);
         process.exit(1);
     }
@@ -48,13 +50,13 @@ export async function generateClient() {
         // Close Nest App
         promises.push(app.close());
 
-        promises.push(runPrettierCli(".", "./openapi.json"));
+        promises.push(runPrettierCli("./openapi.json"));
 
         // Generate client
         await orval();
 
         // Option prettier: true in orval.config.ts was not working
-        promises.push(runPrettierCli("../frontend", "./src/lib/client"));
+        promises.push(runPrettierCli("../frontend/src/lib/client"));
 
         await Promise.all(promises);
 
