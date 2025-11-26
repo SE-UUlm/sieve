@@ -11,7 +11,7 @@ services:
         ports:
             - "5432:5432"
         volumes:
-            - db-data:/var/lib/postgresql/data
+            - ./apps/backend/db-data:/var/lib/postgresql/data
         healthcheck:
             test: "pg_isready -U postgres"
             start_period: 4s # wait 4s to let db get ready for accepting connections
@@ -73,6 +73,3 @@ services:
             NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:5175}
         ports:
             - ${FRONTEND_PORT:-3000}:3000
-
-volumes:
-    db-data:
