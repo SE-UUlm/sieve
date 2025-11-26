@@ -5,7 +5,9 @@ import { setupSwagger } from "./swagger.config";
 import { ValidationPipe } from "@nestjs/common";
 
 async function bootstrap() {
-    const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create(AppModule, {
+        bodyParser: false, // Disable built-in body parser, nestjs-better-auth re-adds it
+    });
 
     const configService = app.get(ConfigService);
     const port = configService.get<number>("BACKEND_PORT");

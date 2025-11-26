@@ -6,6 +6,8 @@ import { JobModule } from "./job/job.module";
 import { JobResultModule } from "./job-result/job-result.module";
 import { EmailModule } from "./email/email.module";
 import { PrismaModule } from "./prisma/prisma.module";
+import { AuthModule } from "@thallesp/nestjs-better-auth";
+import { auth } from "./lib/auth";
 
 @Module({
     imports: [
@@ -16,6 +18,7 @@ import { PrismaModule } from "./prisma/prisma.module";
         JobResultModule,
         EmailModule,
         PrismaModule,
+        AuthModule.forRoot({ auth }),
     ],
 })
 export class AppModule {}
