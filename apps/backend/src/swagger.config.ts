@@ -34,7 +34,7 @@ export function setupSwagger(app: INestApplication): void {
     const document = SwaggerModule.createDocument(app, config);
 
     app.use(
-        "/api",
+        "/docs",
         apiReference({
             content: document,
         }),
