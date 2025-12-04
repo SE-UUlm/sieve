@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Query } from "@nestjs/common";
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiCookieAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { JobDto } from "./dto/job.dto";
 import { JobResultDto } from "../job-result/dto/job-result.dto";
 import { JobStatus } from "../../prisma/client/enums";
@@ -10,7 +10,7 @@ import { JobStatus } from "../../prisma/client/enums";
 @Controller("jobs")
 export class JobController {
     @Get()
-    @ApiBearerAuth()
+    @ApiCookieAuth("apiKeyCookie")
     @ApiOperation({ summary: "List jobs (filtered by user unless admin)" })
     @ApiResponse({ status: 200, description: "Jobs successfully retrieved.", type: [JobDto] })
     @ApiResponse({ status: 401, description: "Unauthorized" })
@@ -24,7 +24,7 @@ export class JobController {
     }
 
     @Get(":jobId")
-    @ApiBearerAuth()
+    @ApiCookieAuth("apiKeyCookie")
     @ApiOperation({ summary: "Get detailed job information" })
     @ApiResponse({ status: 200, description: "Job successfully retrieved.", type: JobDto })
     @ApiResponse({ status: 401, description: "Unauthorized" })
@@ -35,7 +35,7 @@ export class JobController {
     }
 
     @Get(":jobId/result")
-    @ApiBearerAuth()
+    @ApiCookieAuth("apiKeyCookie")
     @ApiOperation({ summary: "Get job result output" })
     @ApiResponse({
         status: 200,

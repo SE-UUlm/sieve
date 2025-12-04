@@ -1,5 +1,5 @@
 import { Body, Controller, Post } from "@nestjs/common";
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiCookieAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { CreateEmailDto } from "./dto/create-email.dto";
 import { JobDto } from "../job/dto/job.dto";
 
@@ -9,7 +9,7 @@ import { JobDto } from "../job/dto/job.dto";
 @Controller("emails")
 export class EmailController {
     @Post()
-    @ApiBearerAuth()
+    @ApiCookieAuth("apiKeyCookie")
     @ApiOperation({ summary: "Submit an email for processing" })
     @ApiResponse({ status: 201, description: "Successfully submitted", type: JobDto })
     @ApiResponse({ status: 400, description: "Bad Request" })
