@@ -4,11 +4,16 @@ import { PrismaService } from "../prisma/prisma.service";
 import { ConfigService } from "@nestjs/config";
 import { openAPI } from "better-auth/plugins";
 
-const prisma = new PrismaService(new ConfigService());
+const configService = new ConfigService();
+const trustedOriginsEnv = configService.get<string>("TRUSTED_ORIGINS");
+const trustedOrigins = trustedOriginsEnv
+    ? trustedOriginsEnv.split(",").map((origin) => origin.trim())
+    : ["http://localhost:3000"];
+const prisma = new PrismaService(configService);
 export const auth = betterAuth({
     appName: "SIEVE",
     basePath: "/api/auth",
-    trustedOrigins: ["http://localhost:3000"], // TODO: Make configurable via env
+    trustedOrigins: trustedOrigins,
     database: prismaAdapter(prisma, {
         provider: "postgresql",
     }),
