@@ -3,7 +3,7 @@ services:
     db:
         profiles: ["", "db-only"]
         image: postgres:16-alpine3.22
-        restart: always
+        restart: ${RESTART_POLICY:-no}
         environment:
             POSTGRES_USER: ${DB_USERNAME}
             POSTGRES_PASSWORD: ${DB_PASSWORD}
