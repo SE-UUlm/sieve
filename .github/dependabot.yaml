@@ -8,4 +8,41 @@ updates:
     - package-ecosystem: "github-actions"
       directory: "/"
       schedule:
-          interval: "monthly"
+          interval: "weekly"
+
+    - package-ecosystem: "npm"
+      directory: "/apps/backend"
+      schedule:
+          interval: "weekly"
+      groups:
+          nestjs:
+              patterns:
+                  - "@nestjs/*"
+          prisma:
+              patterns:
+                  - "prisma"
+                  - "@prisma/*"
+          jest:
+              patterns:
+                  - "jest"
+                  - "ts-jest"
+                  - "@types/jest"
+
+    - package-ecosystem: "npm"
+      directory: "/apps/frontend"
+      schedule:
+          interval: "weekly"
+      groups:
+          react-stack:
+              patterns:
+                  - "react*"
+                  - "@types/react*"
+          next:
+              patterns:
+                  - "next"
+                  - "eslint-config-next"
+          tailwind:
+              patterns:
+                  - "tailwind*"
+                  - "@tailwindcss/*"
+                  - "prettier-plugin-tailwindcss"
