@@ -415,10 +415,6 @@ export type EmailUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.EmailScalarWhereInput | Prisma.EmailScalarWhereInput[]
 }
 
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
 export type EmailCreateNestedOneWithoutJobInput = {
   create?: Prisma.XOR<Prisma.EmailCreateWithoutJobInput, Prisma.EmailUncheckedCreateWithoutJobInput>
   connectOrCreate?: Prisma.EmailCreateOrConnectWithoutJobInput

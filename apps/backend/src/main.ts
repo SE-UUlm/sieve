@@ -2,15 +2,21 @@ import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import { ConfigService } from "@nestjs/config";
 import { setupSwagger } from "./swagger.config";
-import { ValidationPipe } from "@nestjs/common";
+import { RequestMethod, ValidationPipe } from "@nestjs/common";
 
 async function bootstrap() {
-    const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create(AppModule, {
+        bodyParser: false, // Disable built-in body parser, nestjs-better-auth re-adds it
+    });
+
+    app.setGlobalPrefix("api", {
+        exclude: [{ path: "docs", method: RequestMethod.GET }],
+    });
 
     const configService = app.get(ConfigService);
     const port = configService.get<number>("BACKEND_PORT");
 
-    setupSwagger(app);
+    await setupSwagger(app);
 
     app.useGlobalPipes(new ValidationPipe());
 
