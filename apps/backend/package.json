@@ -7,9 +7,9 @@
         "build": "nest build",
         "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
         "start": "nest start",
-        "start:dev": "nest start --watch",
-        "start:debug": "nest start --debug --watch",
-        "start:prod": "node dist/src/main.js",
+        "dev": "nest start --watch",
+        "debug": "nest start --debug --watch",
+        "prod": "node dist/src/main.js",
         "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
         "lint:fix": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
         "test": "jest",
@@ -17,7 +17,8 @@
         "test:cov": "jest --coverage",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
         "test:e2e": "jest --config ./test/jest-e2e.json",
-        "license-check": "license-checker --onlyAllow --customPath ../../.license-checker.json --summary"
+        "license-check": "license-checker --onlyAllow --customPath ../../.license-checker.json --summary",
+        "generate:client": "npm run build && node dist/scripts/generate-client.js"
     },
     "dependencies": {
         "@nestjs/common": "^11.1.9",
@@ -34,6 +35,7 @@
         "class-transformer": "^0.5.1",
         "class-validator": "^0.14.2",
         "joi": "^18.0.1",
+        "orval": "^7.16.1",
         "pg": "^8.16.3",
         "reflect-metadata": "^0.2.2",
         "rxjs": "^7.8.1"
@@ -54,7 +56,7 @@
         "globals": "^16.0.0",
         "jest": "^30.0.0",
         "license-checker": "^25.0.1",
-        "prettier": "^3.4.2",
+        "prettier": "^3.7.4",
         "prisma": "^7.1.0",
         "source-map-support": "^0.5.21",
         "supertest": "^7.0.0",

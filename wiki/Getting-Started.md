@@ -95,7 +95,7 @@ If you prefer more control over the development environment, you can build and r
     **Option A** - Development mode (auto-reload on file changes):
 
     ```bash
-    npm run start:dev
+    npm run dev
     ```
 
     This runs the NestJS server using `ts-node` and watches for file changes.
@@ -104,7 +104,7 @@ If you prefer more control over the development environment, you can build and r
 
     ```bash
     npm run build
-    npm run start:prod
+    npm run prod
     ```
 
     This first compiles the TypeScript source to JavaScript in the `/dist` directory,
