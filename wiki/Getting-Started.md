@@ -4,11 +4,11 @@ This guide will help you set up your development environment and get your first 
 
 First, make sure you have installed the following:
 
-* [Docker](https://www.docker.com/get-started/)
-* [Docker Compose](https://docs.docker.com/compose/install/)
-* [Node.js 22/23](https://nodejs.org/en)
-* IDE of your choice (e.g. [WebStorm](https://www.jetbrains.com/webstorm/download/) or
-  [VS Code](https://code.visualstudio.com/download))
+-   [Docker](https://www.docker.com/get-started/)
+-   [Docker Compose](https://docs.docker.com/compose/install/)
+-   [Node.js 22/23](https://nodejs.org/en)
+-   IDE of your choice (e.g. [WebStorm](https://www.jetbrains.com/webstorm/download/) or
+    [VS Code](https://code.visualstudio.com/download))
 
 ## Docker Setup (Recommended)
 
@@ -40,31 +40,32 @@ For a detailed guide on all configuration options, see the
     ```
 
     This will start:
-    * PostgreSQL database on port 5432
-    * Backend API on port 5175 (configurable via `BACKEND_PORT`)
-    * Frontend on port 3000 (configurable via `FRONTEND_PORT`)
+
+    - PostgreSQL database on port 5432
+    - Backend API on port 5175 (configurable via `BACKEND_PORT`)
+    - Frontend on port 3000 (configurable via `FRONTEND_PORT`)
 
 4. Access the application:
-    * Frontend: `http://localhost:3000`
-    * Backend API: `http://localhost:5175`
+    - Frontend: `http://localhost:3000`
+    - Backend API: `http://localhost:5175`
 
 ### Running Individual Services
 
 You can also run services individually using Docker Compose profiles:
 
-* Run only the database:
+-   Run only the database:
 
     ```bash
     docker compose --profile db-only up
     ```
 
-* Run only the backend (with database):
+-   Run only the backend (with database):
 
     ```bash
     docker compose --profile backend-only up
     ```
 
-* Run only the frontend:
+-   Run only the frontend:
 
     ```bash
     docker compose --profile frontend-only up
@@ -95,7 +96,7 @@ If you prefer more control over the development environment, you can build and r
     **Option A** - Development mode (auto-reload on file changes):
 
     ```bash
-    npm run start:dev
+    npm run dev
     ```
 
     This runs the NestJS server using `ts-node` and watches for file changes.
@@ -104,7 +105,7 @@ If you prefer more control over the development environment, you can build and r
 
     ```bash
     npm run build
-    npm run start:prod
+    npm run prod
     ```
 
     This first compiles the TypeScript source to JavaScript in the `/dist` directory,
