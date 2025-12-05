@@ -10,6 +10,7 @@ import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field
 import { Input } from "@/components/ui/input";
 import { CSSProperties, useId } from "react";
 import Link from "next/link";
+import { authClient } from "@/lib/auth-client";
 
 const formSchema = z.object({
     username: z
@@ -31,13 +32,17 @@ const LoginForm = () => {
         },
     });
 
-    function onSubmit(data: z.infer<typeof formSchema>) {
-        toast("You submitted the following values:", {
-            description: (
-                <pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
-                    <code>{JSON.stringify(data, null, 2)}</code>
-                </pre>
-            ),
+    async function onSubmit(data: z.infer<typeof formSchema>) {
+        const { data: loginData, error } = await authClient.signIn.email({
+            email: data.username,
+            password: data.password,
+        });
+        toast("Login Result:", {
+            description:
+                "data: " +
+                JSON.stringify(loginData, null, 2) +
+                "\nerror: " +
+                JSON.stringify(error, null, 2),
             position: "bottom-right",
             classNames: {
                 content: "flex flex-col gap-2",
