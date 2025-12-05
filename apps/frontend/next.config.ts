@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
         return [
             {
                 source: "/api/:path*",
-                destination: "http://localhost:5175/:path*", // Proxy /api to Backend, also needed for Mocking because Mock works by intercepting outgoing requests
+                destination: "http://localhost:5175/api/:path*", // Proxy /api from Frontend to /api in Backend, also needed for Mocking because Mock works by intercepting outgoing requests
             },
         ];
     },
