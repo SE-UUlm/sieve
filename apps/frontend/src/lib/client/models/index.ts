@@ -39,6 +39,8 @@ export * from "./deleteUser404";
 export * from "./deleteUser429";
 export * from "./deleteUser500";
 export * from "./deleteUserBody";
+export * from "./emailControllerSubmitEmail201";
+export * from "./emailControllerSubmitEmail500";
 export * from "./getAccountInfo200";
 export * from "./getAccountInfo200Data";
 export * from "./getAccountInfo200User";

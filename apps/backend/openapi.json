@@ -3521,12 +3521,30 @@
                         "description": "Successfully submitted",
                         "content": {
                             "application/json": {
-                                "schema": { "$ref": "#/components/schemas/JobDto" }
+                                "schema": {
+                                    "type": "object",
+                                    "properties": { "data": { "type": "string" } },
+                                    "required": ["data"]
+                                }
                             }
                         }
                     },
                     "400": { "description": "Bad Request" },
-                    "401": { "description": "Unauthorized" }
+                    "401": { "description": "Unauthorized" },
+                    "500": {
+                        "description": "Langflow processing failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": { "type": "string" },
+                                        "details": { "type": "string" }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 },
                 "security": [{ "apiKeyCookie": [] }],
                 "summary": "Submit an email for processing",

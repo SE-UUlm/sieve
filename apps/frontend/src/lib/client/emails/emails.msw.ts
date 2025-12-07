@@ -13,39 +13,21 @@ import { faker } from "@faker-js/faker";
 import { HttpResponse, delay, http } from "msw";
 import type { RequestHandlerOptions } from "msw";
 
-import type { JobDto } from ".././models";
+import type { EmailControllerSubmitEmail201 } from ".././models";
 
 export const getEmailControllerSubmitEmailResponseMock = (
-    overrideResponse: Partial<JobDto> = {},
-): JobDto => ({
-    id: faker.string.alpha({ length: { min: 10, max: 20 } }),
-    status: faker.helpers.arrayElement(["CREATED", "PENDING", "PROCESSING", "COMPLETED"] as const),
-    userId: faker.string.alpha({ length: { min: 10, max: 20 } }),
-    emailId: faker.string.alpha({ length: { min: 10, max: 20 } }),
-    startedAt: faker.helpers.arrayElement([
-        faker.helpers.arrayElement([`${faker.date.past().toISOString().split(".")[0]}Z`, null]),
-        undefined,
-    ]),
-    completedAt: faker.helpers.arrayElement([
-        faker.helpers.arrayElement([`${faker.date.past().toISOString().split(".")[0]}Z`, null]),
-        undefined,
-    ]),
-    createdAt: `${faker.date.past().toISOString().split(".")[0]}Z`,
-    deletedAt: faker.helpers.arrayElement([
-        faker.helpers.arrayElement([`${faker.date.past().toISOString().split(".")[0]}Z`, null]),
-        undefined,
-    ]),
-    resultId: faker.helpers.arrayElement([
-        faker.helpers.arrayElement([faker.string.alpha({ length: { min: 10, max: 20 } }), null]),
-        undefined,
-    ]),
+    overrideResponse: Partial<EmailControllerSubmitEmail201> = {},
+): EmailControllerSubmitEmail201 => ({
+    data: faker.string.alpha({ length: { min: 10, max: 20 } }),
     ...overrideResponse,
 });
 
 export const getEmailControllerSubmitEmailMockHandler = (
     overrideResponse?:
-        | JobDto
-        | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<JobDto> | JobDto),
+        | EmailControllerSubmitEmail201
+        | ((
+              info: Parameters<Parameters<typeof http.post>[1]>[0],
+          ) => Promise<EmailControllerSubmitEmail201> | EmailControllerSubmitEmail201),
     options?: RequestHandlerOptions,
 ) => {
     return http.post(
