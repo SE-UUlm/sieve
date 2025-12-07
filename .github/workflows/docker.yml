@@ -1,0 +1,150 @@
+name: Docker
+
+on:
+    push:
+        branches:
+            - main
+            - develop
+    pull_request:
+    workflow_dispatch:
+
+env:
+    REGISTRY: ghcr.io
+    IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+    build-and-publish-backend-docker-image:
+        name: Build and Publish Backend Docker Image
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v6
+
+            - name: Set Up QEMU
+              uses: docker/setup-qemu-action@v3
+
+            - name: Set Up Docker Buildx
+              uses: docker/setup-buildx-action@v3
+
+            # Only push artifacts on the default development branch or on a new tag
+            - name: Determine If Artifacts Should Be Pushed To The Registry
+              id: check-push
+              run: |
+                  echo "should-push=${{ github.ref_type == 'tag' || (github.ref_type == 'branch' && github.ref_name == 'develop') }}" >> $GITHUB_OUTPUT
+
+            - name: Login to GitHub Container Registry
+              if: steps.check-push.outputs.should-push == 'true'
+              uses: docker/login-action@v3
+              with:
+                  registry: ${{ env.REGISTRY }}
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+
+            # This step uses metadata-action to extract tags and labels that will be
+            # applied to the specified image. The `id` "meta" allows the output of
+            # this step to be referenced in a subsequent step. The `images` value
+            # provides the base name for the tags and labels.
+            # We add the following tags
+            # - version tags: for v1.2.3 -> v1, v1.2, v1.2.3
+            # - latest tags: for develop -> latest-dev; for latest tag -> latest
+            - name: Extract metadata (tags, labels) for Docker
+              id: meta
+              uses: docker/metadata-action@v5
+              with:
+                  images: ${{ env.REGISTRY }}/sieve-backend
+                  tags: |
+                      type=semver,pattern=v{{version}},enable=${{ github.ref_type == 'tag' }}
+                      type=semver,pattern=v{{major}}.{{minor}},enable=${{ github.ref_type == 'tag' }}
+                      type=semver,pattern=v{{major}},enable=${{ github.ref_type == 'tag' }}
+                      type=raw,value=latest-dev,enable=${{ github.ref_name == inputs.default-branch }}
+                      type=raw,value=latest,enable=${{ github.ref_type == 'tag' }}
+                  flavor: |
+                      latest=false
+
+            - name: Build and Push Backend Docker Image
+              id: push
+              uses: docker/build-push-action@v6
+              with:
+                  context: ./apps/backend
+                  file: ./apps/backend/Dockerfile
+                  push: ${{ steps.check-push.outputs.should-push == 'true' }}
+                  # Only build for ARM when we intend to publish the image, as the emulation takes a lot of time
+                  platforms: ${{ steps.check-push.outputs.should-push == 'true' && 'linux/amd64,linux/arm64' || 'linux/amd64' }}
+                  tags: ${{ steps.meta.outputs.tags }}
+                  labels: ${{ steps.meta.outputs.labels }}
+
+            - name: Generate Artifact Attestation for Backend
+              if: steps.check-push.outputs.should-push == 'true'
+              uses: actions/attest-build-provenance@v3
+              with:
+                  subject-name: ${{ env.REGISTRY }}/sieve-backend
+                  subject-digest: ${{ steps.push.outputs.digest }}
+                  push-to-registry: true
+
+    build-and-publish-frontend-docker-image:
+        name: Build and Publish Frontend Docker Image
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v6
+
+            - name: Set Up QEMU
+              uses: docker/setup-qemu-action@v3
+
+            - name: Set Up Docker Buildx
+              uses: docker/setup-buildx-action@v3
+
+            # Only push artifacts on the default development branch or on a new tag
+            - name: Determine If Artifacts Should Be Pushed To The Registry
+              id: check-push
+              run: |
+                  echo "should-push=${{ github.ref_type == 'tag' || (github.ref_type == 'branch' && github.ref_name == inputs.default-branch) }}" >> $GITHUB_OUTPUT
+
+            - name: Login to GitHub Container Registry
+              if: steps.check-push.outputs.should-push == 'true'
+              uses: docker/login-action@v3
+              with:
+                  registry: ${{ env.REGISTRY }}
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+
+            # This step uses metadata-action to extract tags and labels that will be
+            # applied to the specified image. The `id` "meta" allows the output of
+            # this step to be referenced in a subsequent step. The `images` value
+            # provides the base name for the tags and labels.
+            # We add the following tags
+            # - version tags: for v1.2.3 -> v1, v1.2, v1.2.3
+            # - latest tags: for develop -> latest-dev; for latest tag -> latest
+            - name: Extract metadata (tags, labels) for Docker
+              id: meta
+              uses: docker/metadata-action@v5
+              with:
+                  images: ${{ env.REGISTRY }}/sieve-frontend
+                  tags: |
+                      type=semver,pattern=v{{version}},enable=${{ github.ref_type == 'tag' }}
+                      type=semver,pattern=v{{major}}.{{minor}},enable=${{ github.ref_type == 'tag' }}
+                      type=semver,pattern=v{{major}},enable=${{ github.ref_type == 'tag' }}
+                      type=raw,value=latest-dev,enable=${{ github.ref_name == inputs.default-branch }}
+                      type=raw,value=latest,enable=${{ github.ref_type == 'tag' }}
+                  flavor: |
+                      latest=false
+
+            - name: Build and Push Frontend Docker Image
+              id: push
+              uses: docker/build-push-action@v6
+              with:
+                  context: ./apps/frontend
+                  file: ./apps/frontend/Dockerfile
+                  push: ${{ steps.check-push.outputs.should-push == 'true' }}
+                  # Only build for ARM when we intend to publish the image, as the emulation takes a lot of time
+                  platforms: ${{ steps.check-push.outputs.should-push == 'true' && 'linux/amd64,linux/arm64' || 'linux/amd64' }}
+                  tags: ${{ steps.meta.outputs.tags }}
+                  labels: ${{ steps.meta.outputs.labels }}
+
+            - name: Generate Artifact Attestation for Frontend
+              if: steps.check-push.outputs.should-push == 'true'
+              uses: actions/attest-build-provenance@v3
+              with:
+                  subject-name: ${{ env.REGISTRY }}/sieve-frontend
+                  subject-digest: ${{ steps.push.outputs.digest }}
+                  push-to-registry: true
