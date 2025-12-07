@@ -9,10 +9,10 @@ on:
             - Code Quality Checks Frontend
             - Docker
             - Verify Docker Compose (default profile)
-            - Lint and Publish Wiki
         types:
             - completed
     workflow_dispatch:
+    pull_request:
     push:
         branches:
             - main
@@ -22,7 +22,7 @@ jobs:
     snowballr-deploy:
         name: Deploy to Remote Server
         runs-on: ubuntu-latest
-        if: ${{ github.event.workflow_run.conclusion == 'success' }} # Only run if upstream workflow succeeded
+        # if: ${{ github.event.workflow_run.conclusion == 'success' }} # Only run if upstream workflow succeeded
         steps:
             - name: Checkout Repository
               uses: actions/checkout@v6
@@ -37,10 +37,10 @@ jobs:
                   chmod 600 ~/.ssh/id_rsa
 
             - name: Copy Config Files
-              run: scp ./{Caddyfile,docker-compose.yml} "${{ vars.REMOTE_USER }}@${{ vars.REMOTE_DOMAIN }}:${{ vars.WORK_DIR }}/"
+              run: scp ./{Caddyfile,deploy-compose.yml} "${{ vars.REMOTE_USER }}@${{ vars.REMOTE_DOMAIN }}:${{ vars.WORK_DIR }}/"
 
             - name: Login on Remote Machine
               run: ssh "${{ vars.REMOTE_USER }}@${{ vars.REMOTE_DOMAIN }}" -- 'docker login ghcr.io -u "${{ github.actor }}" -p "${{ secrets.GITHUB_TOKEN }}"'
 
             - name: Start Docker Compose on Remote Machine
-              run: ssh "${{ vars.REMOTE_USER }}@${{ vars.REMOTE_DOMAIN }}" -- 'cd "${{ vars.WORK_DIR }}" && export WORK_DIR="${{ vars.WORK_DIR }}" && export PROD_DOMAIN="${{ vars.REMOTE_DOMAIN }}" && export REMOTE_FLOWS_DOMAIN="${{ vars.REMOTE_FLOWS_DOMAIN }}" && docker compose up -d --pull always'
+              run: ssh "${{ vars.REMOTE_USER }}@${{ vars.REMOTE_DOMAIN }}" -- 'cd "${{ vars.WORK_DIR }}" && export WORK_DIR="${{ vars.WORK_DIR }}" && export PROD_DOMAIN="${{ vars.REMOTE_DOMAIN }}" && export REMOTE_FLOW_DOMAIN="${{ vars.REMOTE_FLOW_DOMAIN }}" && docker compose -f deploy-compose.yml up -d --pull always'
