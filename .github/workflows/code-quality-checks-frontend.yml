@@ -14,10 +14,10 @@ env:
 
 jobs:
     linting:
-        name: Linting Frontend
+        name: Lint Frontend
         runs-on: ubuntu-latest
         steps:
-            - name: Checkout Code
+            - name: Checkout Repository
               uses: actions/checkout@v6
 
             - name: Setup Frontend
@@ -30,6 +30,6 @@ jobs:
               run: npm run license-check
               working-directory: ${{ env.working_directory }}
 
-            - name: Linting
+            - name: Lint Files
               run: npm run lint
               working-directory: ${{ env.working_directory }}
