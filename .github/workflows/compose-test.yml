@@ -29,6 +29,8 @@ jobs:
                   DB_NAME: postgres
                   BETTER_AUTH_SECRET: better-auth-secret-placeholder01
                   BETTER_AUTH_URL: http://localhost:5175
+                  LANGFLOW_BASE_URL: https://sieve-flows.informatik.uni-ulm.de
+                  LANGFLOW_API_KEY: langflow-api-key-placeholder
                   NEXT_PUBLIC_API_URL: http://localhost:5175
 
             - name: Verify backend health
