@@ -20,7 +20,7 @@ jobs:
               uses: actions/checkout@v6
 
             - name: Setup
-              uses: ./.github/workflows/setup_ai_backend/
+              uses: ./.github/workflows/setup-ai-backend/
 
             - name: Run Pytest
               run: uv run pytest
@@ -34,7 +34,7 @@ jobs:
               uses: actions/checkout@v6
 
             - name: Setup
-              uses: ./.github/workflows/setup_ai_backend/
+              uses: ./.github/workflows/setup-ai-backend/
 
             - name: Run ruff
               run: uv run ruff check --output-format=github
@@ -48,7 +48,7 @@ jobs:
               uses: actions/checkout@v6
 
             - name: Setup
-              uses: ./.github/workflows/setup_ai_backend/
+              uses: ./.github/workflows/setup-ai-backend/
 
             - name: Run ty
               run: uv run ty check --output-format=github

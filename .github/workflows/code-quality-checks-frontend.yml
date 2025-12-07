@@ -14,10 +14,10 @@ env:
 
 jobs:
     linting:
-        name: Linting Frontend
+        name: Lint Frontend
         runs-on: ubuntu-latest
         steps:
-            - name: Checkout Code
+            - name: Checkout Repository
               uses: actions/checkout@v6
 
             - name: Setup Frontend
