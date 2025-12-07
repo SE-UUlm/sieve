@@ -30,7 +30,9 @@ jobs:
             - name: Determine If Artifacts Should Be Pushed To The Registry
               id: check-push
               run: |
-                  echo "should-push=${{ github.ref_type == 'tag' || (github.ref_type == 'branch' && github.ref_name == 'develop') }}" >> $GITHUB_OUTPUT
+                  echo ${{ github.ref_type }}
+                  echo ${{ github.ref_name }}
+                  echo "should-push=${{ github.ref_type == 'tag' || (github.ref_type == 'branch' && github.ref_name == 'feat/85-feature-automated-deploy-workflow') }}" >> $GITHUB_OUTPUT
 
             - name: Login to GitHub Container Registry
               if: steps.check-push.outputs.should-push == 'true'
@@ -56,7 +58,7 @@ jobs:
                       type=semver,pattern=v{{version}},enable=${{ github.ref_type == 'tag' }}
                       type=semver,pattern=v{{major}}.{{minor}},enable=${{ github.ref_type == 'tag' }}
                       type=semver,pattern=v{{major}},enable=${{ github.ref_type == 'tag' }}
-                      type=raw,value=latest-dev,enable=${{ github.ref_name == inputs.default-branch }}
+                      type=raw,value=latest-dev,enable=${{ github.ref_name == 'feat/85-feature-automated-deploy-workflow' }}
                       type=raw,value=latest,enable=${{ github.ref_type == 'tag' }}
                   flavor: |
                       latest=false
@@ -98,7 +100,7 @@ jobs:
             - name: Determine If Artifacts Should Be Pushed To The Registry
               id: check-push
               run: |
-                  echo "should-push=${{ github.ref_type == 'tag' || (github.ref_type == 'branch' && github.ref_name == inputs.default-branch) }}" >> $GITHUB_OUTPUT
+                  echo "should-push=${{ github.ref_type == 'tag' || (github.ref_type == 'branch' && github.ref_name == 'feat/85-feature-automated-deploy-workflow') }}" >> $GITHUB_OUTPUT
 
             - name: Login to GitHub Container Registry
               if: steps.check-push.outputs.should-push == 'true'
@@ -124,7 +126,7 @@ jobs:
                       type=semver,pattern=v{{version}},enable=${{ github.ref_type == 'tag' }}
                       type=semver,pattern=v{{major}}.{{minor}},enable=${{ github.ref_type == 'tag' }}
                       type=semver,pattern=v{{major}},enable=${{ github.ref_type == 'tag' }}
-                      type=raw,value=latest-dev,enable=${{ github.ref_name == inputs.default-branch }}
+                      type=raw,value=latest-dev,enable=${{ github.ref_name == 'feat/85-feature-automated-deploy-workflow' }}
                       type=raw,value=latest,enable=${{ github.ref_type == 'tag' }}
                   flavor: |
                       latest=false
