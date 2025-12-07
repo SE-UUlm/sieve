@@ -1,10 +1,11 @@
 sieve-flows.informatik.uni-ulm.de {
-        reverse_proxy host.docker.internal:7860
+    reverse_proxy host.docker.internal:7860
 }
 
 sieve.informatik.uni-ulm.de {
-        @docs path /docs*
-        reverse_proxy @docs localhost:8001
+    handle_path /docs/* {
+        reverse_proxy http://backend:5175
+    }
 
-        reverse_proxy localhost:8000
+    reverse_proxy http://frontend:3000
 }
