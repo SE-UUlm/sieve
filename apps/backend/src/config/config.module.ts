@@ -18,6 +18,9 @@ import Joi from "joi";
                           DB_USERNAME: Joi.string().required(),
                           DB_PASSWORD: Joi.string().required(),
                           DB_NAME: Joi.string().required(),
+
+                          LANGFLOW_BASE_URL: Joi.string().required(),
+                          LANGFLOW_API_KEY: Joi.string().required(),
                       }),
         }),
     ],
