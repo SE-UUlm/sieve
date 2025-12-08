@@ -33,7 +33,7 @@
         "@thallesp/nestjs-better-auth": "^2.2.0",
         "better-auth": "^1.4.5",
         "class-transformer": "^0.5.1",
-        "class-validator": "^0.14.2",
+        "class-validator": "^0.14.3",
         "joi": "^18.0.1",
         "orval": "^7.16.1",
         "pg": "^8.16.3",
