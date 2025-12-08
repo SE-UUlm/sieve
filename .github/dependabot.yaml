@@ -13,7 +13,7 @@ updates:
     - package-ecosystem: "npm"
       directory: "/apps/backend"
       schedule:
-          interval: "weekly"
+          interval: "monthly"
       groups:
           nestjs:
               patterns:
@@ -31,7 +31,7 @@ updates:
     - package-ecosystem: "npm"
       directory: "/apps/frontend"
       schedule:
-          interval: "weekly"
+          interval: "monthly"
       groups:
           react-stack:
               patterns:
