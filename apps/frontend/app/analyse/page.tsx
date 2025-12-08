@@ -18,7 +18,6 @@ const formSchema = z.object({
 });
 
 const AnalysePage = () => {
-    const [jobId, setJobId] = useState<string | null>(null);
     const [emailResult, setEmailResult] = useState<string>("");
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -30,11 +29,7 @@ const AnalysePage = () => {
 
     async function onSubmit(data: z.infer<typeof formSchema>) {
         setEmailResult("");
-        const result = await emailControllerSubmitEmail({
-            body: data.emailContent,
-        });
         toast("Email submitted", {
-            description: JSON.stringify(result, null, 2),
             position: "bottom-right",
             classNames: {
                 content: "flex flex-col gap-2",
@@ -44,22 +39,25 @@ const AnalysePage = () => {
             } as CSSProperties,
         });
 
-        setJobId((result.data as any).jobId);
-    }
+        const result = await emailControllerSubmitEmail({
+            body: data.emailContent,
+        });
 
-    useEffect(() => {
-        if (jobId !== null) {
-            const interval = setInterval(async () => {
-                const result = await jobControllerGetJobResult(jobId);
-                if (result.status === 200) {
-                    setJobId(null);
-                    setEmailResult(JSON.stringify((result.data as any).output));
-                    clearInterval(interval);
-                }
-            }, 1000);
-            return () => clearInterval(interval);
+        if (result.status === 201) {
+            setEmailResult(result.data.data);
+        } else {
+            toast("Error submitting email", {
+                description: JSON.stringify(result, null, 2),
+                position: "bottom-right",
+                classNames: {
+                    content: "flex flex-col gap-2",
+                },
+                style: {
+                    "--border-radius": "calc(var(--radius)  + 4px)",
+                } as CSSProperties,
+            });
         }
-    }, [jobId]);
+    }
 
     const { data: session, isPending, error } = authClient.useSession();
 
