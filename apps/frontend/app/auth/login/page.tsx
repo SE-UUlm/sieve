@@ -1,7 +1,13 @@
+"use client";
+import AlreadyLoggedIn from "@/components/auth/AlreadyLoggedIn";
 import LoginForm from "@/components/auth/LoginForm";
+import { authClient } from "@/lib/auth-client";
 
 const LoginPage = () => {
-    // TODO: Show already logged in text when already logged in
+    const { data: session } = authClient.useSession();
+    // TODO: Loading indicator
+    if (session) return <AlreadyLoggedIn />;
+
     return <LoginForm />;
 };
 
