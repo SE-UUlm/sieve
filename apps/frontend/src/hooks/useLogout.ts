@@ -1,4 +1,5 @@
 import { authClient } from "@/lib/auth-client";
+import { redirect } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -14,6 +15,7 @@ const useLogout = () => {
                     // Not quite optimal, because get-session is called twice. But it seems to be the most robust way
                     await refetch();
                     setPending(false);
+                    redirect("/");
                 },
                 onError: async (error) => {
                     console.log(error);
