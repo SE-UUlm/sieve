@@ -18,9 +18,9 @@ const formSchema = z.object({
         .min(3, "Name must be at least 3 characters.")
         .max(100, "Name must be at most 100 characters."),
     email: z
-        .email()
+        .email("Invalid email")
         .min(3, "Email must be at least 3 characters.")
-        .max(254, "Email must be at most 64 characters."),
+        .max(254, "Email must be at most 254 characters."),
     password: z
         .string()
         .min(3, "Password must be at least 3 characters.")
@@ -123,7 +123,7 @@ const SignUpForm = () => {
                                         type="password"
                                         id={passwordId}
                                         aria-invalid={fieldState.invalid}
-                                        autoComplete="current-password"
+                                        autoComplete="new-password"
                                         disabled={isSubmitting}
                                     />
                                     {fieldState.invalid && (

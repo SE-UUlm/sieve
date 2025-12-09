@@ -18,7 +18,6 @@ const useLogout = () => {
                     redirect("/", RedirectType.push);
                 },
                 onError: async (error) => {
-                    console.log(error);
                     toast.error("Error while logging out", {
                         description: error.error.message,
                     });

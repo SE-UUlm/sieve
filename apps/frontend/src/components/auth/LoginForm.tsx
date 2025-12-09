@@ -13,9 +13,9 @@ import { authClient } from "@/lib/auth-client";
 
 const formSchema = z.object({
     email: z
-        .string()
+        .email("Invalid email")
         .min(3, "Email must be at least 3 characters.")
-        .max(254, "Email must be at most 64 characters."),
+        .max(254, "Email must be at most 254 characters."),
     password: z
         .string()
         .min(3, "Password must be at least 3 characters.")
