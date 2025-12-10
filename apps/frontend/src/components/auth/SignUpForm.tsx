@@ -17,10 +17,7 @@ const formSchema = z.object({
         .string()
         .min(3, "Name must be at least 3 characters.")
         .max(100, "Name must be at most 100 characters."),
-    email: z
-        .email("Invalid email")
-        .min(3, "Email must be at least 3 characters.")
-        .max(254, "Email must be at most 254 characters."),
+    email: z.email("Invalid email").max(254, "Email must be at most 254 characters."),
     password: z
         .string()
         .min(3, "Password must be at least 3 characters.")
