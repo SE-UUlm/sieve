@@ -32,6 +32,9 @@ services:
 
             BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
             BETTER_AUTH_URL: ${BETTER_AUTH_URL}
+
+            LANGFLOW_BASE_URL: ${LANGFLOW_BASE_URL}
+            LANGFLOW_API_KEY: ${LANGFLOW_API_KEY}
         ports:
             - ${BACKEND_PORT}:${BACKEND_PORT}
         depends_on:
@@ -53,6 +56,9 @@ services:
 
             BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
             BETTER_AUTH_URL: ${BETTER_AUTH_URL}
+
+            LANGFLOW_BASE_URL: ${LANGFLOW_BASE_URL}
+            LANGFLOW_API_KEY: ${LANGFLOW_API_KEY}
         ports:
             - ${BACKEND_PORT}:${BACKEND_PORT}
 

@@ -1,21 +1,57 @@
-import { Body, Controller, Post } from "@nestjs/common";
+import { Body, Controller, HttpException, HttpStatus, Logger, Post } from "@nestjs/common";
 import { ApiCookieAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { CreateEmailDto } from "./dto/create-email.dto";
-import { JobDto } from "../job/dto/job.dto";
+import { LangflowService } from "../langflow/langflow.service";
 
-// TODO: Remove eslint-disable when implementing methods
-/* eslint-disable @typescript-eslint/no-unused-vars */
 @ApiTags("Emails")
 @Controller("emails")
 export class EmailController {
+    constructor(private readonly langflowService: LangflowService) {}
+
     @Post()
     @ApiCookieAuth("apiKeyCookie")
     @ApiOperation({ summary: "Submit an email for processing" })
-    @ApiResponse({ status: 201, description: "Successfully submitted", type: JobDto })
+    // TODO: Temporarily return response directly until jobs and emails are properly implemented
+    @ApiResponse({
+        status: 201,
+        description: "Successfully submitted",
+        schema: {
+            type: "object",
+            properties: {
+                data: {
+                    type: "string",
+                },
+            },
+            required: ["data"],
+        },
+    })
     @ApiResponse({ status: 400, description: "Bad Request" })
     @ApiResponse({ status: 401, description: "Unauthorized" })
-    submitEmail(@Body() dto: CreateEmailDto): Promise<JobDto> {
-        // TODO: Implement email upload logic
-        return Promise.resolve({} as JobDto);
+    @ApiResponse({
+        status: 500,
+        description: "Langflow processing failed",
+        schema: {
+            type: "object",
+            properties: {
+                message: { type: "string" },
+                details: { type: "string" },
+            },
+        },
+    })
+    async submitEmail(@Body() dto: CreateEmailDto): Promise<{ data: string }> {
+        try {
+            const response = await this.langflowService.runFlow(dto.body);
+            return { data: response.message };
+        } catch (error) {
+            Logger.error("Error running Langflow flow:", error);
+
+            throw new HttpException(
+                {
+                    message: "Failed to process email",
+                    details: error instanceof Error ? error.message : error,
+                },
+                HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+        }
     }
 }

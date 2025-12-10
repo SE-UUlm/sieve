@@ -15,13 +15,17 @@ import type {
     UseMutationResult,
 } from "@tanstack/react-query";
 
-import type { CreateEmailDto, JobDto } from ".././models";
+import type {
+    CreateEmailDto,
+    EmailControllerSubmitEmail201,
+    EmailControllerSubmitEmail500,
+} from ".././models";
 
 /**
  * @summary Submit an email for processing
  */
 export type emailControllerSubmitEmailResponse201 = {
-    data: JobDto;
+    data: EmailControllerSubmitEmail201;
     status: 201;
 };
 
@@ -35,12 +39,18 @@ export type emailControllerSubmitEmailResponse401 = {
     status: 401;
 };
 
+export type emailControllerSubmitEmailResponse500 = {
+    data: EmailControllerSubmitEmail500;
+    status: 500;
+};
+
 export type emailControllerSubmitEmailResponseSuccess = emailControllerSubmitEmailResponse201 & {
     headers: Headers;
 };
 export type emailControllerSubmitEmailResponseError = (
     | emailControllerSubmitEmailResponse400
     | emailControllerSubmitEmailResponse401
+    | emailControllerSubmitEmailResponse500
 ) & {
     headers: Headers;
 };
@@ -71,7 +81,7 @@ export const emailControllerSubmitEmail = async (
 };
 
 export const getEmailControllerSubmitEmailMutationOptions = <
-    TError = void,
+    TError = void | EmailControllerSubmitEmail500,
     TContext = unknown,
 >(options?: {
     mutation?: UseMutationOptions<
@@ -110,12 +120,15 @@ export type EmailControllerSubmitEmailMutationResult = NonNullable<
     Awaited<ReturnType<typeof emailControllerSubmitEmail>>
 >;
 export type EmailControllerSubmitEmailMutationBody = CreateEmailDto;
-export type EmailControllerSubmitEmailMutationError = void;
+export type EmailControllerSubmitEmailMutationError = void | EmailControllerSubmitEmail500;
 
 /**
  * @summary Submit an email for processing
  */
-export const useEmailControllerSubmitEmail = <TError = void, TContext = unknown>(options?: {
+export const useEmailControllerSubmitEmail = <
+    TError = void | EmailControllerSubmitEmail500,
+    TContext = unknown,
+>(options?: {
     mutation?: UseMutationOptions<
         Awaited<ReturnType<typeof emailControllerSubmitEmail>>,
         TError,

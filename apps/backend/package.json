@@ -21,6 +21,7 @@
         "generate:client": "npm run build && node dist/scripts/generate-client.js"
     },
     "dependencies": {
+        "@datastax/langflow-client": "^0.4.1",
         "@nestjs/common": "^11.1.9",
         "@nestjs/config": "^4.0.2",
         "@nestjs/core": "^11.1.9",

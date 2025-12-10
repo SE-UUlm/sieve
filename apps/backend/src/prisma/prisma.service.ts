@@ -13,9 +13,9 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
         const database = configService.get<string>("DB_NAME")!;
 
         const connectionString = `postgresql://${username}:${password}@${host}:${port}/${database}`;
-        const pool = new PrismaPg({ connectionString: connectionString });
+        const adapter = new PrismaPg({ connectionString: connectionString });
 
-        super({ adapter: pool, log: ["info", "query", "warn", "error"] });
+        super({ adapter: adapter, log: ["info", "query", "warn", "error"] });
     }
 
     async onModuleInit() {
