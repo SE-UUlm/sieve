@@ -35,6 +35,8 @@ services:
 
             LANGFLOW_BASE_URL: ${LANGFLOW_BASE_URL}
             LANGFLOW_API_KEY: ${LANGFLOW_API_KEY}
+
+            TRUSTED_ORIGINS: ${TRUSTED_ORIGINS}
         ports:
             - ${BACKEND_PORT}:${BACKEND_PORT}
         depends_on:
