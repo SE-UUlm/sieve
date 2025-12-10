@@ -3,15 +3,13 @@ import { Controller, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
 import * as z from "zod";
-import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { CSSProperties, useEffect, useId, useState } from "react";
-import Link from "next/link";
+import { Field, FieldError, FieldGroup } from "@/components/ui/field";
+import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
-import { emailControllerSubmitEmail, jobControllerGetJobResult } from "@/lib/client";
+import { useEmailControllerSubmitEmail } from "@/lib/client";
 import { redirect, RedirectType } from "next/navigation";
+import { Spinner } from "@/components/ui/spinner";
 
 const formSchema = z.object({
     emailContent: z.string().min(1, "Email content must be at least 1 character."),
@@ -27,45 +25,38 @@ const AnalysePage = () => {
         },
     });
 
-    async function onSubmit(data: z.infer<typeof formSchema>) {
-        setEmailResult("");
-        toast("Email submitted", {
-            position: "bottom-right",
-            classNames: {
-                content: "flex flex-col gap-2",
+    const { mutate, isPending } = useEmailControllerSubmitEmail({
+        mutation: {
+            onMutate: () => {
+                setEmailResult("");
             },
-            style: {
-                "--border-radius": "calc(var(--radius)  + 4px)",
-            } as CSSProperties,
-        });
+            onSuccess: (data) => {
+                if (data.status === 201) setEmailResult(data.data.data);
+                else setEmailResult("Error");
+            },
+            onError: () => {
+                setEmailResult("Error");
+            },
+        },
+    });
 
-        const result = await emailControllerSubmitEmail({
-            body: data.emailContent,
-        });
+    const {
+        data: session,
+        isPending: isSessionPending,
+        error: sessionError,
+    } = authClient.useSession();
 
-        if (result.status === 201) {
-            setEmailResult(result.data.data);
-        } else {
-            toast("Error submitting email", {
-                description: JSON.stringify(result, null, 2),
-                position: "bottom-right",
-                classNames: {
-                    content: "flex flex-col gap-2",
-                },
-                style: {
-                    "--border-radius": "calc(var(--radius)  + 4px)",
-                } as CSSProperties,
-            });
-        }
-    }
-
-    const { data: session, isPending, error } = authClient.useSession();
-
-    if (!isPending && !error && !session?.user) redirect("/auth/login", RedirectType.push);
+    if (!isSessionPending && !sessionError && !session?.user)
+        redirect("/auth/login", RedirectType.push);
 
     return (
         <main className="mx-auto flex max-w-6xl flex-col gap-12 p-4 lg:p-24">
-            <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+            <form
+                onSubmit={form.handleSubmit((data) =>
+                    mutate({ data: { body: data.emailContent } }),
+                )}
+                className="flex flex-col gap-4"
+            >
                 <h1>Analyse Email</h1>
                 <FieldGroup>
                     <Controller
@@ -77,13 +68,15 @@ const AnalysePage = () => {
                                     placeholder="Paste your email here"
                                     {...field}
                                     aria-invalid={fieldState.invalid}
+                                    disabled={isPending}
                                 />
                                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                             </Field>
                         )}
                     />
                 </FieldGroup>
-                <Button type="submit" size="lg">
+                <Button type="submit" size="lg" disabled={isPending}>
+                    {isPending && <Spinner />}
                     Analyse
                 </Button>
             </form>
