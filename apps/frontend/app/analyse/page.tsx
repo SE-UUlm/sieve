@@ -31,11 +31,12 @@ const AnalysePage = () => {
                 setEmailResult("");
             },
             onSuccess: (data) => {
+                // TODO it is probably better to define our own use Hook and treat the errors correctly (or maby configure it in orval config if possible)
                 if (data.status === 201) setEmailResult(data.data.data);
-                else setEmailResult("Error");
+                else setEmailResult("Failed to analyze email. Please try again.");
             },
             onError: () => {
-                setEmailResult("Error");
+                setEmailResult("Failed to analyze email. Please try again.");
             },
         },
     });
