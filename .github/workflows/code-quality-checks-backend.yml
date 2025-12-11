@@ -14,10 +14,10 @@ env:
 
 jobs:
     linting:
-        name: Linting Backend
+        name: Lint Backend
         runs-on: ubuntu-latest
         steps:
-            - name: Checkout Code
+            - name: Checkout Repository
               uses: actions/checkout@v6
 
             - name: Setup Backend
@@ -30,12 +30,12 @@ jobs:
               run: npm run license-check
               working-directory: ${{ env.working_directory }}
 
-            - name: Linting
+            - name: Lint Files
               run: npm run lint
               working-directory: ${{ env.working_directory }}
 
     check-client-generation:
-        name: Check Client Generation
+        name: Verify Client Generation
         runs-on: ubuntu-latest
         steps:
             - name: Checkout Code
@@ -51,7 +51,7 @@ jobs:
               run: npm run generate:client
               working-directory: ${{ env.working_directory }}
 
-            - name: Make sure client is up to date
+            - name: Verify Client Is Up to Date
               run: |
                   if [[ -n "$(git status --porcelain)" ]]; then
                     echo "Client is not up to date. Please run 'npm run generate:client' in Backend and commit the changes."
