@@ -186,3 +186,6 @@ $RECYCLE.BIN/
 
 # Environment variables
 .env
+
+docker-compose.override.yaml
+compose.override.yaml
