@@ -189,3 +189,6 @@ $RECYCLE.BIN/
 
 docker-compose.override.yaml
 compose.override.yaml
+
+# DB
+db-data
