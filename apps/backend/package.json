@@ -17,7 +17,7 @@
         "test:cov": "jest --coverage",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
         "test:e2e": "jest --config ./test/jest-e2e.json",
-        "license-check": "license-checker --onlyAllow --customPath ../../.license-checker.json --summary",
+        "license-check": "license-checker-rseidelsohn --onlyAllow --customPath ../../.license-checker.json --summary",
         "generate:client": "npm run build && node dist/scripts/generate-client.js"
     },
     "dependencies": {
@@ -30,7 +30,7 @@
         "@nestjs/terminus": "^11.0.0",
         "@prisma/adapter-pg": "^7.2.0",
         "@prisma/client": "^7.2.0",
-        "@scalar/nestjs-api-reference": "^1.0.6",
+        "@scalar/nestjs-api-reference": "^1.0.13",
         "@thallesp/nestjs-better-auth": "^2.2.0",
         "better-auth": "^1.4.5",
         "class-transformer": "^0.5.1",
@@ -56,7 +56,7 @@
         "eslint-plugin-prettier": "^5.2.2",
         "globals": "^16.5.0",
         "jest": "^30.0.0",
-        "license-checker": "^25.0.1",
+        "license-checker-rseidelsohn": "^4.4.2",
         "prettier": "^3.7.4",
         "prisma": "^7.2.0",
         "source-map-support": "^0.5.21",
