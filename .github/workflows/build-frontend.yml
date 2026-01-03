@@ -17,10 +17,10 @@ jobs:
         name: Build Frontend
         runs-on: ubuntu-latest
         steps:
-            - name: Checkout Code
+            - name: Checkout Repository
               uses: actions/checkout@v6
 
-            - name: Setup
+            - name: Setup Environment
               uses: ./.github/workflows/setup/
               with:
                   node_version: ${{ env.node_version }}
@@ -36,7 +36,7 @@ jobs:
                   restore-keys: |
                       ${{ runner.os }}-nextjs-${{ hashFiles('apps/frontend/package-lock.json') }}-
 
-            - name: Build Application
+            - name: Build Frontend
               run: npm run build
               working-directory: ${{ env.working_directory }}
 
@@ -44,7 +44,7 @@ jobs:
               uses: actions/upload-artifact@v6
               if: ${{ !cancelled() }}
               with:
-                  name: frontend-build-artifact
+                  name: Frontend Build Artifact
                   path: apps/frontend/.next
                   include-hidden-files: true
                   if-no-files-found: error

@@ -1,0 +1,11 @@
+sieve-flows.informatik.uni-ulm.de {
+    reverse_proxy host.docker.internal:7860
+}
+
+sieve.informatik.uni-ulm.de {
+    handle_path /docs/* {
+        reverse_proxy http://backend:5175
+    }
+
+    reverse_proxy http://frontend:3000
+}

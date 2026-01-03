@@ -10,20 +10,20 @@ on:
 
 jobs:
     linting:
-        name: Linting Markdown
+        name: Lint Markdown
         runs-on: ubuntu-latest
         steps:
-            - name: Checkout code
+            - name: Checkout Repository
               uses: actions/checkout@v6
 
             - name: Setup Node.js
               uses: actions/setup-node@v6
 
-            - name: Install dependencies
+            - name: Install Dependencies
               shell: bash
               run: npm install -g markdownlint-cli@0.45.0
 
-            - name: Get branch name
+            - name: Retrieve Branch Name
               id: get_branch_name
               run: |
                   BRANCH_NAME=""
@@ -34,13 +34,13 @@ jobs:
                   fi
                   echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
 
-            - name: Lint Markdown files
+            - name: Lint Markdown Files
               run: npx markdownlint --config .github/markdownlint.json **/*.md
 
             # To verify whether the wiki links are up-to-date, we replace them with links to the current branch
             # In case, we change the path of a file we link to in the wiki, this would result in a broken link on this branch
             # If we wouldn't check this, the broken link would only be noticed on the develop branch
-            - name: Replace GitHub URLs to develop with current branch
+            - name: Replace GitHub URLs With Current Branch
               run: node scripts/wiki-replace-github-urls.js ${{ steps.get_branch_name.outputs.branch_name }}
 
             - name: Check for Broken Links in README
@@ -61,13 +61,13 @@ jobs:
         permissions:
             contents: write
         steps:
-            - name: Checkout code
+            - name: Checkout Repository
               uses: actions/checkout@v6
 
-            - name: Add auto-generated hint to wiki markdown files
+            - name: Add Auto-Generated Hint to Wiki Files
               run: bash scripts/add_auto_gen_wiki_hint.sh
 
-            - name: Publish the Wiki
+            - name: Publish Wiki
               uses: Andrew-Chen-Wang/github-wiki-action@v5
               with:
                   path: "wiki/"
