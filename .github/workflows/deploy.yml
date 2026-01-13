@@ -1,6 +1,6 @@
 name: Deploy
 
-on:
+on: # TOODO ?
     workflow_run:
         workflows:
             - Build Backend
@@ -19,7 +19,7 @@ on:
             - develop
 
 jobs:
-    snowballr-deploy:
+    sieve-deploy:
         name: Deploy to Remote Server
         runs-on: ubuntu-latest
         # if: ${{ github.event.workflow_run.conclusion == 'success' }} # Only run if upstream workflow succeeded
@@ -39,7 +39,7 @@ jobs:
             - name: Copy Config Files
               run: scp ./{Caddyfile,deploy-compose.yml} "${{ vars.REMOTE_USER }}@${{ vars.REMOTE_DOMAIN }}:${{ vars.WORK_DIR }}/"
 
-            - name: Login on Remote Machine
+            - name: Login on Remote Machine # TODO wsl. unnötig
               run: ssh "${{ vars.REMOTE_USER }}@${{ vars.REMOTE_DOMAIN }}" -- 'docker login ghcr.io -u "${{ github.actor }}" -p "${{ secrets.GITHUB_TOKEN }}"'
 
             - name: Start Docker Compose on Remote Machine
