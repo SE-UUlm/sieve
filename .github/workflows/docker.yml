@@ -54,7 +54,7 @@ jobs:
               id: meta
               uses: docker/metadata-action@v5
               with:
-                  images: ${{ env.REGISTRY }}/sieve-backend
+                  images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-backend
                   tags: |
                       type=semver,pattern=v{{version}},enable=${{ github.ref_type == 'tag' }}
                       type=semver,pattern=v{{major}}.{{minor}},enable=${{ github.ref_type == 'tag' }}
@@ -72,7 +72,8 @@ jobs:
                   file: ./apps/backend/Dockerfile
                   push: ${{ steps.check-push.outputs.should-push == 'true' }}
                   # Only build for ARM when we intend to publish the image, as the emulation takes a lot of time
-                  platforms: ${{ steps.check-push.outputs.should-push == 'true' && 'linux/amd64,linux/arm64' || 'linux/amd64' }}
+                  platforms: "linux/amd64"
+                  #platforms: ${{ steps.check-push.outputs.should-push == 'true' && 'linux/amd64,linux/arm64' || 'linux/amd64' }} TODO
                   tags: ${{ steps.meta.outputs.tags }}
                   labels: ${{ steps.meta.outputs.labels }}
 
@@ -80,7 +81,7 @@ jobs:
               if: steps.check-push.outputs.should-push == 'true'
               uses: actions/attest-build-provenance@v3
               with:
-                  subject-name: ${{ env.REGISTRY }}/sieve-backend
+                  subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-backend
                   subject-digest: ${{ steps.push.outputs.digest }}
                   push-to-registry: true
 
@@ -122,7 +123,7 @@ jobs:
               id: meta
               uses: docker/metadata-action@v5
               with:
-                  images: ${{ env.REGISTRY }}/sieve-frontend
+                  images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-frontend
                   tags: |
                       type=semver,pattern=v{{version}},enable=${{ github.ref_type == 'tag' }}
                       type=semver,pattern=v{{major}}.{{minor}},enable=${{ github.ref_type == 'tag' }}
@@ -140,7 +141,8 @@ jobs:
                   file: ./apps/frontend/Dockerfile
                   push: ${{ steps.check-push.outputs.should-push == 'true' }}
                   # Only build for ARM when we intend to publish the image, as the emulation takes a lot of time
-                  platforms: ${{ steps.check-push.outputs.should-push == 'true' && 'linux/amd64,linux/arm64' || 'linux/amd64' }}
+                  platforms: "linux/amd64"
+                  #platforms: ${{ steps.check-push.outputs.should-push == 'true' && 'linux/amd64,linux/arm64' || 'linux/amd64' }} TODO
                   tags: ${{ steps.meta.outputs.tags }}
                   labels: ${{ steps.meta.outputs.labels }}
 
@@ -148,6 +150,6 @@ jobs:
               if: steps.check-push.outputs.should-push == 'true'
               uses: actions/attest-build-provenance@v3
               with:
-                  subject-name: ${{ env.REGISTRY }}/sieve-frontend
+                  subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-frontend
                   subject-digest: ${{ steps.push.outputs.digest }}
                   push-to-registry: true
