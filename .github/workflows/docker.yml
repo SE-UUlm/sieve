@@ -5,6 +5,7 @@ on:
         branches:
             - main
             - develop
+            - feat/85-feature-automated-deploy-workflow # TODO
     pull_request:
     workflow_dispatch:
 
@@ -33,7 +34,7 @@ jobs:
                   echo ${{ github.ref_type }}
                   echo ${{ github.ref_name }}
                   echo "should-push=${{ github.ref_type == 'tag' || (github.ref_type == 'branch' && github.ref_name == 'feat/85-feature-automated-deploy-workflow') }}" >> $GITHUB_OUTPUT
-
+              # TODO
             - name: Login to GitHub Container Registry
               if: steps.check-push.outputs.should-push == 'true'
               uses: docker/login-action@v3
