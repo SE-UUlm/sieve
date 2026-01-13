@@ -1,0 +1,26 @@
+services:
+    db:
+        image: postgres:16-alpine3.22
+        restart: ${RESTART_POLICY:-no}
+        env_file: db.env
+        volumes:
+            - ${WORK_DIR:?error}:/var/lib/postgresql/data
+        networks:
+            - sieve-network
+
+    backend:
+        image: ghcr.io/sieve-dev/sieve-backend:latest
+        env_file: backend.env
+        networks:
+            - sieve-network
+
+    frontend:
+        image: ghcr.io/sieve-dev/sieve-frontend:latest
+        env_file: frontend.env
+        networks:
+            - sieve-network
+
+networks:
+    sieve-network:
+        driver: bridge
+        internal: true
