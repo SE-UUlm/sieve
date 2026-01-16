@@ -1,11 +1,11 @@
 {
     "default": true,
     "line-length": {
-        "line_length": 120,
+        "line_length": 150,
         "tables": false
     },
     "indentation": {
-        "indent": 4
+        "indent": 2
     },
     "first-line-heading": false
 }
