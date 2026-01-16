@@ -1,4 +1,4 @@
-{
+const config = {
     "$schema": "https://json.schemastore.org/prettierrc",
     "useTabs": false,
     "tabWidth": 4,
@@ -14,3 +14,5 @@
         }
     ]
 }
+
+export default config;
