@@ -2,7 +2,13 @@
 
 ## Getting Started
 
-First, run the Frontend development server:
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the Frontend development server:
 
 ```bash
 npm run dev
