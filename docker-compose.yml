@@ -18,7 +18,7 @@ services:
             start_interval: 2s # start first healthcheck after 2s
 
     backend:
-        profiles: [""]
+        profiles: ["", "backend-only"]
         build:
             context: ./apps/backend
         environment:
@@ -39,51 +39,12 @@ services:
             TRUSTED_ORIGINS: ${TRUSTED_ORIGINS}
         ports:
             - ${BACKEND_PORT}:${BACKEND_PORT}
-        depends_on:
-            db:
-                condition: service_healthy
-
-    backend-only:
-        profiles: ["backend-only"]
-        build:
-            context: ./apps/backend
-        environment:
-            BACKEND_PORT: ${BACKEND_PORT}
-
-            DB_HOST: db
-            DB_PORT: 5432
-            DB_USERNAME: ${DB_USERNAME}
-            DB_PASSWORD: ${DB_PASSWORD}
-            DB_NAME: ${DB_NAME}
-
-            BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
-            BETTER_AUTH_URL: ${BETTER_AUTH_URL}
-
-            LANGFLOW_BASE_URL: ${LANGFLOW_BASE_URL}
-            LANGFLOW_API_KEY: ${LANGFLOW_API_KEY}
-        ports:
-            - ${BACKEND_PORT}:${BACKEND_PORT}
 
     frontend:
-        profiles: [""]
+        profiles: ["", "frontend-only"]
         build:
             context: ./apps/frontend
         environment:
             NODE_ENV: production
-            # Backend API URL for frontend to connect to backend service
-            NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:5175}
-        ports:
-            - ${FRONTEND_PORT:-3000}:3000
-        depends_on:
-            - backend
-
-    frontend-only:
-        profiles: ["frontend-only"]
-        build:
-            context: ./apps/frontend
-        environment:
-            NODE_ENV: production
-            # Backend API URL for frontend to connect to backend service
-            NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:5175}
         ports:
             - ${FRONTEND_PORT:-3000}:3000

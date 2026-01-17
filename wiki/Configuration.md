@@ -9,23 +9,23 @@ cp .env.example .env
 
 ### Environment Variables Table
 
-| Variable              |      Required      |         Default         | Description                                  |
-| --------------------- | :----------------: | :---------------------: | -------------------------------------------- |
-| `BACKEND_PORT`        | :white_check_mark: |            -            | The port where the backend is served.        |
-| `FRONTEND_PORT`       |                    |          3000           | The port where the frontend is served.       |
-| `NEXT_PUBLIC_API_URL` |                    | `http://localhost:5175` | The backend API URL used by the frontend.    |
-| `DB_USERNAME`         | :white_check_mark: |            -            | The username for the database.               |
-| `DB_PASSWORD`         | :white_check_mark: |            -            | The password for the database.               |
-| `DB_HOST`             | :white_check_mark: |            -            | The host of the database.                    |
-| `DB_PORT`             | :white_check_mark: |            -            | The port of the database.                    |
-| `DB_NAME`             | :white_check_mark: |            -            | The name of the database.                    |
-| `RESTART_POLICY`      |                    |        `always`         | The database container restart policy.       |
-| `BETTER_AUTH_SECRET`  | :white_check_mark: |            -            | The secret for Better Auth.                  |
-| `BETTER_AUTH_URL`     | :white_check_mark: | `http://localhost:5175` | Base URL for Better Auth.                    |
-| `TRUSTED_ORIGINS`     |                    | `http://localhost:3000` | Comma-separated list of trusted origins.     |
-| `LANGFLOW_BASE_URL`   | :white_check_mark: |            -            | Base URL for Langflow instance.              |
-| `LANGFLOW_API_KEY`    | :white_check_mark: |            -            | API key for Langflow instance.               |
-| `ENABLE_MOCK`         |                    |         `false`         | Enable API mocking for frontend development. |
+| Variable              |      Required      |         Default         | Description                                                                       |
+| --------------------- | :----------------: | :---------------------: | --------------------------------------------------------------------------------- |
+| `BACKEND_PORT`        | :white_check_mark: |            -            | The port where the backend is served.                                             |
+| `FRONTEND_PORT`       |                    |          3000           | The port where the frontend is served.                                            |
+| `NEXT_PUBLIC_API_URL` |                    | `http://localhost:5175` | The backend API URL used by the frontend. Only works in dev mode or at build time |
+| `DB_USERNAME`         | :white_check_mark: |            -            | The username for the database.                                                    |
+| `DB_PASSWORD`         | :white_check_mark: |            -            | The password for the database.                                                    |
+| `DB_HOST`             | :white_check_mark: |            -            | The host of the database.                                                         |
+| `DB_PORT`             | :white_check_mark: |            -            | The port of the database.                                                         |
+| `DB_NAME`             | :white_check_mark: |            -            | The name of the database.                                                         |
+| `RESTART_POLICY`      |                    |        `always`         | The database container restart policy.                                            |
+| `BETTER_AUTH_SECRET`  | :white_check_mark: |            -            | The secret for Better Auth.                                                       |
+| `BETTER_AUTH_URL`     | :white_check_mark: | `http://localhost:5175` | Base URL for Better Auth.                                                         |
+| `TRUSTED_ORIGINS`     |                    | `http://localhost:3000` | Comma-separated list of trusted origins.                                          |
+| `LANGFLOW_BASE_URL`   | :white_check_mark: |            -            | Base URL for Langflow instance.                                                   |
+| `LANGFLOW_API_KEY`    | :white_check_mark: |            -            | API key for Langflow instance.                                                    |
+| `ENABLE_MOCK`         |                    |         `false`         | Enable API mocking for frontend development.                                      |
 
 ## Building from Source
 
