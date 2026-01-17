@@ -40,14 +40,15 @@ For a detailed guide on all configuration options, see the
    ```
 
    This will start:
-
    - PostgreSQL database on port 5432
    - Backend API on port 5175 (configurable via `BACKEND_PORT`)
    - Frontend on port 3000 (configurable via `FRONTEND_PORT`)
 
 4. Access the application:
-   - Frontend: `http://localhost:3000`
    - Backend API: `http://localhost:5175`
+   - Frontend: `http://localhost:3000`
+     - Backend is also accessible at `http://localhost:3000/api`
+     - This proxying is configured in `next.config.ts`
 
 ### Running Individual Services
 
@@ -91,7 +92,15 @@ If you prefer more control over the development environment, you can build and r
 
 3. Configure environment variables (copy `.env.example` to `.env` and edit as needed)
 
-4. Run the backend:
+4. Push Prisma schema to database:
+
+   ```bash
+   npx prisma db push
+   ```
+
+   This is only necessary the first time and after a schema change.
+
+5. Run the backend:
 
    **Option A** - Development mode (auto-reload on file changes):
 
@@ -134,6 +143,12 @@ If you prefer more control over the development environment, you can build and r
    ```
 
    This starts the Next.js development server with hot module replacement.
+
+   To enable API mocking (backend not needed for very simple tests), the following command can be used:
+
+   ```bash
+   ENABLE_MOCK=true npm run dev
+   ```
 
    **Option B** - Production mode:
 
