@@ -36,7 +36,7 @@
         "class-transformer": "^0.5.1",
         "class-validator": "^0.14.3",
         "joi": "^18.0.1",
-        "orval": "^7.17.2",
+        "orval": "^7.18.0",
         "pg": "^8.16.3",
         "reflect-metadata": "^0.2.2",
         "rxjs": "^7.8.1"
