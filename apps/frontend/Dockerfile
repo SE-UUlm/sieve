@@ -43,6 +43,8 @@ COPY . .
 
 # Disable Next.js telemetry during build
 ENV NEXT_TELEMETRY_DISABLED=1
+# Set API URL for proxying because rewrites are compiled statically and cannot be changed at runtime
+ENV NEXT_PUBLIC_API_URL=http://backend:5175
 
 # Run the build script.
 RUN npm run build

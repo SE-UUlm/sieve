@@ -5,7 +5,9 @@ const nextConfig: NextConfig = {
         return [
             {
                 source: "/api/:path*",
-                destination: "http://localhost:5175/api/:path*", // Proxy /api from Frontend to /api in Backend, also needed for Mocking because Mock works by intercepting outgoing requests
+                // Proxy /api from Frontend to /api in Backend, also needed for Mocking because Mock works by intercepting outgoing requests
+                // Change the env variable only works in dev mode or at build time, not at runtime
+                destination: `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5175"}/api/:path*`,
             },
         ];
     },
