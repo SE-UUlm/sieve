@@ -6,14 +6,17 @@ authors = [
     {name = "Moritz Beck (Birkenstab)",email = "git@birkenstab.de"}
 ]
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10,<4.0"
 dependencies = [
-    "fastapi[standard] (>=0.128.0,<0.129.0)"
+    "fastapi[standard] (>=0.128.0,<0.129.0)",
+    "langchain (>=1.2.7,<2.0.0)",
+    "langchain-openai (>=1.1.7,<2.0.0)",
+    "python-dotenv (>=1.2.1,<2.0.0)",
+    "pydantic (>=2.12.5,<3.0.0)"
 ]
 
 [tool.poetry]
 packages = [{include = "ai_backend", from = "src"}]
-package-mode = false
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

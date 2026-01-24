@@ -1,5 +1,9 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from dotenv import load_dotenv
+load_dotenv()
+from ai_backend.agent import run_analyze_email_agent
+
 
 class Email(BaseModel):
     body: str
@@ -13,5 +17,6 @@ def read_root():
 
 
 @app.post("/analyze-email")
-def analyze_email(email: Email):
-    return {"status": "success", "result": email}
+async def analyze_email(email: Email):
+    result = await run_analyze_email_agent(email.body)
+    return {"status": "success", "result": result}
