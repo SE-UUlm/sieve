@@ -1,4 +1,8 @@
-# Getting Started
+## Description
+
+The AI-Backend handles all LLM and agent related tasks.
+
+## Getting Started
 
 1. Prerequisites:
    - Python 3.10 or higher
@@ -20,12 +24,18 @@
 
    Copy `.env.example` to `.env` and set the `OPENAI_API_KEY` variable.
 
-5. Start ai-backend in dev mode with auto-reload:
+5. Start AI-Backend in dev mode with auto-reload:
 
    ```bash
    poetry run fastapi dev --entrypoint ai_backend.main:app
    ```
 
-## Swagger
+## Run Tests
 
-http://localhost:8000/docs
+```bash
+poetry run pytest
+```
+
+## Swagger OpenAPI
+
+API documentation is available at http://localhost:8000/docs

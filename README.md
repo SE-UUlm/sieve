@@ -6,7 +6,7 @@ SIEVE is a web application that automatically structures, analyzes, and enriches
 knowledge. Relevant contents are extracted via an LLM-based backend and transformed into structured data, enabling
 faster processing and supporting standardized workflows.
 
-This repository contains the backend, as well as the frontend of the SIEVE application.
+This repository contains the backend, the frontend and the ai-backend of the SIEVE application.
 
 ## Getting Started
 
@@ -27,8 +27,10 @@ docker compose up
 ```
 
 The application will be available at:
+
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:5175
+- AI-Backend: http://localhost:8000
 
 For detailed setup instructions, building from source, and configuration options, see the
 [Getting Started](https://github.com/SE-UUlm/sieve/wiki/Getting-Started) guide.

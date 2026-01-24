@@ -4,9 +4,9 @@ The overall architecture of the SIEVE project is depicted in the following diagr
 
 ![Overall Architecture](./assets/architecture.svg)
 
-Langflow handles LLM calls and all AI related tasks.
+The AI-Backend handles LLM calls and all AI related tasks.
 The backend is responsible for handling all database interactions and orchestrating the LLM calls.
-The frontend is only directly talking to the backend and not to Langflow.
+The frontend is only directly talking to the backend and not to the AI-Backend.
 
 ## Database Schema
 
@@ -30,3 +30,11 @@ The frontend is a Next.js TypeScript application. It uses the following technolo
 - React Query
 - BetterAuth
 - ShadCN UI
+
+## AI-Backend
+
+The AI-Backend is a Python API application. It uses the following technologies:
+
+- FastAPI for the http server
+- Langchain for the LLM calls and agent orchestration
+- Pydantic for data validation

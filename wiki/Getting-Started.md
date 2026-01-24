@@ -43,12 +43,14 @@ For a detailed guide on all configuration options, see the
    - PostgreSQL database on port 5432
    - Backend API on port 5175 (configurable via `BACKEND_PORT`)
    - Frontend on port 3000 (configurable via `FRONTEND_PORT`)
+   - AI-Backend on port 8000
 
 4. Access the application:
    - Backend API: `http://localhost:5175`
    - Frontend: `http://localhost:3000`
      - Backend is also accessible at `http://localhost:3000/api`
      - This proxying is configured in `next.config.ts`
+   - AI-Backend: `http://localhost:8000`
 
 ### Running Individual Services
 
@@ -70,6 +72,12 @@ You can also run services individually using Docker Compose profiles:
 
   ```bash
   docker compose --profile frontend-only up
+  ```
+
+- Run only the ai-backend:
+
+  ```bash
+  docker compose --profile ai-backend-only up
   ```
 
 ## Building from Source
@@ -158,3 +166,37 @@ If you prefer more control over the development environment, you can build and r
    ```
 
    This builds the optimized production bundle and starts the production server.
+
+### AI-Backend
+
+1. Prerequisites:
+   - Python 3.10 or higher
+
+2. Install Poetry
+
+   Options:
+   - Homebrew (MacOS): `brew install poetry`
+   - Other System Package Managers
+   - Other Options: [Poetry Docs](https://python-poetry.org/docs/#installation)
+
+3. Navigate to the AI-Backend directory:
+
+   ```bash
+   cd apps/ai-backend
+   ```
+
+4. Install dependencies
+
+   ```bash
+   poetry install
+   ```
+
+5. Configure environment variables
+
+   Copy `.env.example` to `.env` and set the `OPENAI_API_KEY` variable.
+
+6. Start AI-Backend in dev mode with auto-reload:
+
+   ```bash
+   poetry run fastapi dev --entrypoint ai_backend.main:app
+   ```
