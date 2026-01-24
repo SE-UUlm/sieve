@@ -1,9 +1,9 @@
 import { Module } from "@nestjs/common";
 import { EmailController } from "./email.controller";
-import { LangflowModule } from "../langflow/langflow.module";
+import { AiBackendModule } from "../ai-backend/ai-backend.module";
 
 @Module({
-    imports: [LangflowModule],
+    imports: [AiBackendModule],
     controllers: [EmailController],
 })
 export class EmailModule {}

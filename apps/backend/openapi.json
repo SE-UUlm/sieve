@@ -3532,7 +3532,7 @@
                     "400": { "description": "Bad Request" },
                     "401": { "description": "Unauthorized" },
                     "500": {
-                        "description": "Langflow processing failed",
+                        "description": "AiBackend processing failed",
                         "content": {
                             "application/json": {
                                 "schema": {

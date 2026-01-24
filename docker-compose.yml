@@ -33,8 +33,7 @@ services:
             BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
             BETTER_AUTH_URL: ${BETTER_AUTH_URL}
 
-            LANGFLOW_BASE_URL: ${LANGFLOW_BASE_URL}
-            LANGFLOW_API_KEY: ${LANGFLOW_API_KEY}
+            AI_BACKEND_URL: "http://ai-backend:8000"
 
             TRUSTED_ORIGINS: ${TRUSTED_ORIGINS}
         ports:

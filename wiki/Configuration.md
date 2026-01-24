@@ -23,8 +23,7 @@ cp .env.example .env
 | `BETTER_AUTH_SECRET`  | :white_check_mark: |            -            | The secret for Better Auth.                                                       |
 | `BETTER_AUTH_URL`     | :white_check_mark: | `http://localhost:5175` | Base URL for Better Auth.                                                         |
 | `TRUSTED_ORIGINS`     |                    | `http://localhost:3000` | Comma-separated list of trusted origins.                                          |
-| `LANGFLOW_BASE_URL`   | :white_check_mark: |            -            | Base URL for Langflow instance.                                                   |
-| `LANGFLOW_API_KEY`    | :white_check_mark: |            -            | API key for Langflow instance.                                                    |
+| `AI_BACKEND_URL`      | :white_check_mark: |            -            | Base URL for AI-Backend instance.                                                 |
 | `ENABLE_MOCK`         |                    |         `false`         | Enable API mocking for frontend development.                                      |
 
 ## Building from Source
@@ -53,8 +52,7 @@ Backend-specific environment variables:
 | `BETTER_AUTH_SECRET` | :white_check_mark: |            -            | The secret for Better Auth.              |
 | `BETTER_AUTH_URL`    | :white_check_mark: | `http://localhost:5175` | Base URL for Better Auth.                |
 | `TRUSTED_ORIGINS`    |                    | `http://localhost:3000` | Comma-separated list of trusted origins. |
-| `LANGFLOW_BASE_URL`  | :white_check_mark: |            -            | Base URL for Langflow instance.          |
-| `LANGFLOW_API_KEY`   | :white_check_mark: |            -            | API key for Langflow instance.           |
+| `AI_BACKEND_URL`     | :white_check_mark: |            -            | Base URL for AI-Backend instance.        |
 
 ### Frontend
 
