@@ -1,0 +1,13 @@
+name: Setup
+description: Setup AI Backend Environment
+runs:
+    using: composite
+    steps:
+        - name: Set up Python
+          uses: actions/setup-python@v5
+          with:
+              python-version: "3.10"
+
+        - name: Install UV
+          run: pip install uv
+          shell: bash

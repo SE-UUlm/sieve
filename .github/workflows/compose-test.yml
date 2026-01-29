@@ -29,9 +29,9 @@ jobs:
                   DB_NAME: postgres
                   BETTER_AUTH_SECRET: better-auth-secret-placeholder01
                   BETTER_AUTH_URL: http://localhost:5175
-                  LANGFLOW_BASE_URL: https://sieve-flows.informatik.uni-ulm.de
-                  LANGFLOW_API_KEY: langflow-api-key-placeholder
+                  AI_BACKEND_URL: http://localhost:8000
                   NEXT_PUBLIC_API_URL: http://localhost:5175
+                  OPENAI_API_KEY: sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
             - name: Verify backend health
               run: |
@@ -42,3 +42,7 @@ jobs:
             - name: Verify frontend availability
               run: |
                   curl -f http://localhost:3000 || (docker compose logs && exit 1)
+
+            - name: Verify ai-backend availability
+              run: |
+                  curl -f http://localhost:8000 || (docker compose logs && exit 1)

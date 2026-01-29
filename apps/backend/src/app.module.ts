@@ -8,7 +8,7 @@ import { EmailModule } from "./email/email.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { AuthModule } from "@thallesp/nestjs-better-auth";
 import { auth } from "./lib/auth";
-import { LangflowModule } from "./langflow/langflow.module";
+import { AiBackendModule } from "./ai-backend/ai-backend.module";
 
 @Module({
     imports: [
@@ -20,7 +20,7 @@ import { LangflowModule } from "./langflow/langflow.module";
         EmailModule,
         PrismaModule,
         AuthModule.forRoot({ auth }),
-        LangflowModule,
+        AiBackendModule,
     ],
 })
 export class AppModule {}

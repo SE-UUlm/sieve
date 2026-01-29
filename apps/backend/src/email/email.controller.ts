@@ -1,12 +1,12 @@
 import { Body, Controller, HttpException, HttpStatus, Logger, Post } from "@nestjs/common";
 import { ApiCookieAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { CreateEmailDto } from "./dto/create-email.dto";
-import { LangflowService } from "../langflow/langflow.service";
+import { AiBackendService } from "../ai-backend/ai-backend.service";
 
 @ApiTags("Emails")
 @Controller("emails")
 export class EmailController {
-    constructor(private readonly langflowService: LangflowService) {}
+    constructor(private readonly aiBackendService: AiBackendService) {}
 
     @Post()
     @ApiCookieAuth("apiKeyCookie")
@@ -29,7 +29,7 @@ export class EmailController {
     @ApiResponse({ status: 401, description: "Unauthorized" })
     @ApiResponse({
         status: 500,
-        description: "Langflow processing failed",
+        description: "AiBackend processing failed",
         schema: {
             type: "object",
             properties: {
@@ -40,10 +40,10 @@ export class EmailController {
     })
     async submitEmail(@Body() dto: CreateEmailDto): Promise<{ data: string }> {
         try {
-            const response = await this.langflowService.runFlow(dto.body);
+            const response = await this.aiBackendService.runFlow(dto.body);
             return { data: response.message };
         } catch (error) {
-            Logger.error("Error running Langflow flow:", error);
+            Logger.error("Error running AiBackend agent:", error);
 
             throw new HttpException(
                 {

@@ -1,15 +1,15 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { LangflowService } from "./langflow.service";
+import { AiBackendService } from "./ai-backend.service";
 
-describe("LangflowService", () => {
-    let service: LangflowService;
+describe("AiBackendService", () => {
+    let service: AiBackendService;
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
-            providers: [LangflowService],
+            providers: [AiBackendService],
         }).compile();
 
-        service = module.get<LangflowService>(LangflowService);
+        service = module.get<AiBackendService>(AiBackendService);
     });
 
     it("should be defined", () => {
