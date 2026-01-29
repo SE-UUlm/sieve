@@ -24,24 +24,9 @@ jobs:
               with:
                   python-version: "3.10"
 
-            - name: Install Poetry
-              run: pip install poetry
-
-            - name: Configure Poetry
-              run: |
-                  poetry config virtualenvs.create true
-                  poetry config virtualenvs.in-project true
-
-            - name: Cache Poetry virtualenv
-              uses: actions/cache@v4
-              with:
-                  path: ${{ env.working_directory }}/.venv
-                  key: venv-${{ runner.os }}-${{ hashFiles(format('{0}/poetry.lock', env.working_directory)) }}
-
-            - name: Install dependencies
-              run: poetry install --no-interaction
-              working-directory: ${{ env.working_directory }}
+            - name: Install UV
+              run: pip install uv
 
             - name: Run Pytest
-              run: poetry run pytest
+              run: uv run pytest
               working-directory: ${{ env.working_directory }}

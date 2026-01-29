@@ -5,49 +5,43 @@ The AI-Backend handles all LLM and agent related tasks.
 ## Getting Started
 
 1. Prerequisites:
+   - Python 3.10 or higher
 
-    - Python 3.10 or higher
+2. Install uv
 
-2. Install Poetry
+   Options:
+   - Homebrew (MacOS): `brew install uv`
+   - Other System Package Managers
+   - Other options: https://docs.astral.sh/uv/getting-started/installation/
 
-    Options:
+3. Configure environment variables
 
-    - Homebrew (MacOS): `brew install poetry`
-    - Other System Package Managers
-    - Other Options: https://python-poetry.org/docs/
+   Copy `.env.example` to `.env` and set the `OPENAI_API_KEY` variable.
 
-3. Install dependencies
+4. Start AI-Backend in dev mode with auto-reload:
 
-    ```bash
-    poetry install
-    ```
+   ```bash
+   uv run dev
+   ```
 
-4. Configure environment variables
-
-    Copy `.env.example` to `.env` and set the `OPENAI_API_KEY` variable.
-
-5. Start AI-Backend in dev mode with auto-reload:
-
-    ```bash
-    poetry run dev
-    ```
+   Dependencies are automatically installed
 
 ## Run Tests
 
 ```bash
-poetry run test
+uv run test
 ```
 
 ## Run Linter
 
 ```bash
-poetry run lint
+uv run lint
 ```
 
 ## Run Formatter
 
 ```bash
-poetry run format
+uv run format
 ```
 
 ## Swagger OpenAPI

@@ -172,12 +172,12 @@ If you prefer more control over the development environment, you can build and r
 1. Prerequisites:
    - Python 3.10 or higher
 
-2. Install Poetry
+2. Install uv
 
    Options:
-   - Homebrew (MacOS): `brew install poetry`
+   - Homebrew (MacOS): `brew install uv`
    - Other System Package Managers
-   - Other Options: [Poetry Docs](https://python-poetry.org/docs/#installation)
+   - Other options: [UV Docs](https://docs.astral.sh/uv/getting-started/installation/)
 
 3. Navigate to the AI-Backend directory:
 
@@ -185,18 +185,14 @@ If you prefer more control over the development environment, you can build and r
    cd apps/ai-backend
    ```
 
-4. Install dependencies
-
-   ```bash
-   poetry install
-   ```
-
-5. Configure environment variables
+4. Configure environment variables
 
    Copy `.env.example` to `.env` and set the `OPENAI_API_KEY` variable.
 
-6. Start AI-Backend in dev mode with auto-reload:
+5. Start AI-Backend in dev mode with auto-reload:
 
    ```bash
-   poetry run fastapi dev --entrypoint ai_backend.main:app
+   uv run dev
    ```
+
+   Dependencies are automatically installed

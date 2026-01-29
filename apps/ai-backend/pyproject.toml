@@ -3,33 +3,30 @@ name = "ai-backend"
 version = "0.1.0"
 description = ""
 authors = [
-    {name = "Moritz Beck (Birkenstab)",email = "git@birkenstab.de"}
+    {name = "Moritz Beck (Birkenstab)", email = "git@birkenstab.de"}
 ]
 readme = "README.md"
 requires-python = ">=3.10,<4.0"
 dependencies = [
-    "fastapi[standard] (>=0.128.0,<0.129.0)",
-    "langchain (>=1.2.7,<2.0.0)",
-    "langchain-openai (>=1.1.7,<2.0.0)",
-    "python-dotenv (>=1.2.1,<2.0.0)",
-    "pydantic (>=2.12.5,<3.0.0)"
+    "fastapi[standard]>=0.128.0,<0.129.0",
+    "langchain>=1.2.7,<2.0.0",
+    "langchain-openai>=1.1.7,<2.0.0",
+    "python-dotenv>=1.2.1,<2.0.0",
+    "pydantic>=2.12.5,<3.0.0",
 ]
 
-[tool.poetry]
-packages = [{include = "ai_backend", from = "src"}]
-
-[build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
-
-[dependency-groups]
-dev = [
-    "pytest (>=9.0.2,<10.0.0)",
-    "ruff (>=0.14.14,<0.15.0)"
-]
-
-[tool.poetry.scripts]
+[project.scripts]
 dev = "tasks:dev"
 test = "tasks:test"
 lint = "tasks:lint"
 format = "tasks:format"
+
+[build-system]
+requires = ["uv_build>=0.9.27,<0.10.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+    "ruff>=0.14.14",
+]

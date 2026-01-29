@@ -1,24 +1,20 @@
 FROM python:3.10-alpine AS base
 
 ENV VIRTUAL_ENV=/app/.venv \
-    PATH="/app/.venv/bin:$PATH"
+    PATH="/app/.venv/bin:$PATH" \
+    UV_NO_DEV=1
 
 
 FROM base AS builder
 
-ENV POETRY_NO_INTERACTION=1 \
-    POETRY_VIRTUALENVS_IN_PROJECT=1 \
-    POETRY_VIRTUALENVS_CREATE=1 \
-    POETRY_CACHE_DIR=/tmp/poetry_cache
-
 WORKDIR /app
 
-# Install Poetry
-RUN pip install poetry==2
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:0.9.27 /uv /uvx /bin/
 
 # Install dependencies
-COPY pyproject.toml poetry.lock ./
-RUN poetry install --only main --no-root
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-install-project
 
 
 FROM base AS runtime
