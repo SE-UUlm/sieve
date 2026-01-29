@@ -30,3 +30,22 @@ jobs:
             - name: Run Pytest
               run: uv run pytest
               working-directory: ${{ env.working_directory }}
+
+    linting:
+        name: Linting AI-Backend
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v6
+
+            - name: Set up Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.10"
+
+            - name: Install UV
+              run: pip install uv
+
+            - name: Run Pytest
+              run: uv run ruff check --output-format=github
+              working-directory: ${{ env.working_directory }}
