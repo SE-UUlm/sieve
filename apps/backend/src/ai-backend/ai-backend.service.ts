@@ -32,9 +32,14 @@ export class AiBackendService implements OnModuleInit {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({ body: input }),
+                signal: AbortSignal.timeout(30000),
             });
 
             Logger.log("AiBackend execution finished");
+
+            if (!response.ok) {
+                throw new Error("AiBackend returned an error " + response.status);
+            }
 
             const data = (await response.json()) as { data: string };
 

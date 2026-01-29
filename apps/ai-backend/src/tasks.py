@@ -2,27 +2,27 @@ import subprocess
 import sys
 
 
-def runCommand(command):
+def run_command(command):
     sys.exit(  # Pass exit code of script to exit code of this python script
         subprocess.run(command).returncode
     )
 
 
 def dev():
-    runCommand(["fastapi", "dev", "--entrypoint", "ai_backend.main:app"])
+    run_command(["fastapi", "dev", "--entrypoint", "ai_backend.main:app"])
 
 
 def test():
-    runCommand(["pytest"])
+    run_command(["pytest"])
 
 
 def lint():
-    runCommand(["ruff", "check"])
+    run_command(["ruff", "check"])
 
 
 def format():
-    runCommand(["ruff", "format"])
+    run_command(["ruff", "format"])
 
 
 def typecheck():
-    runCommand(["ty", "check"])
+    run_command(["ty", "check"])

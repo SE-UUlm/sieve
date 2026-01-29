@@ -37,7 +37,7 @@ class ProductInquiry(BaseModel):
 
 class Issue(BaseModel):
     product_name: str
-    issue: str = Field(description="Ah short summary of the issue")
+    issue: str = Field(description="A short summary of the issue")
 
 
 class ProductSupport(BaseModel):
