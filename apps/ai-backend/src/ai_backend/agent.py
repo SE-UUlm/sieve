@@ -47,8 +47,11 @@ class ProductSupport(BaseModel):
     issues: list[Issue]
 
 
+ResponseFormatData = Union[ProductInquiry, ProductSupport, Complaint, Other]
+
+
 class ResponseFormat(BaseModel):
-    data: Union[ProductInquiry, ProductSupport, Complaint, Other]
+    data: ResponseFormatData
 
 
 model = init_chat_model(
@@ -67,7 +70,7 @@ agent = create_agent(
 )
 
 
-async def run_analyze_email_agent(email: str):
+async def run_analyze_email_agent(email: str) -> ResponseFormatData:
     conversation = [HumanMessage(email)]
     result = await agent.ainvoke({"messages": conversation})
     pprint.pp(result)

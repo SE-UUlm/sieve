@@ -22,3 +22,7 @@ def lint():
 
 def format():
     runCommand(["ruff", "format"])
+
+
+def typecheck():
+    runCommand(["ty", "check"])

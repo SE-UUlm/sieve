@@ -44,6 +44,12 @@ uv run lint
 uv run format
 ```
 
+## Run Type Checker
+
+```bash
+uv run typecheck
+```
+
 ## Swagger OpenAPI
 
 API documentation is available at http://localhost:8000/docs
