@@ -41,7 +41,7 @@
         "eslint-config-next": "16.1.6",
         "eslint-config-prettier": "^10.1.8",
         "license-checker": "^25.0.1",
-        "msw": "^2.12.2",
+        "msw": "^2.12.7",
         "prettier": "3.7.4",
         "prettier-plugin-tailwindcss": "^0.7.2",
         "tailwindcss": "^4.1.17",
