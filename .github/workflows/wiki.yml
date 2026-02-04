@@ -19,9 +19,9 @@ jobs:
             - name: Setup Node.js
               uses: actions/setup-node@v6
 
-            - name: Install dependencies
+            - name: Install pnpm
               shell: bash
-              run: npm install -g markdownlint-cli@0.45.0
+              run: npm install -g pnpm
 
             - name: Get branch name
               id: get_branch_name
@@ -35,7 +35,7 @@ jobs:
                   echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
 
             - name: Lint Markdown files
-              run: npx markdownlint --config .github/markdownlint.json **/*.md
+              run: pnpm dlx markdownlint-cli@0.45.0 --config .github/markdownlint.json **/*.md
 
             # To verify whether the wiki links are up-to-date, we replace them with links to the current branch
             # In case, we change the path of a file we link to in the wiki, this would result in a broken link on this branch

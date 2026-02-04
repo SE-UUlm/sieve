@@ -27,9 +27,9 @@ jobs:
                   working-directory: ${{ env.working_directory }}
 
             - name: Run License Check
-              run: npm run license-check
+              run: pnpm run license-check
               working-directory: ${{ env.working_directory }}
 
             - name: Linting
-              run: npm run lint
+              run: pnpm run lint
               working-directory: ${{ env.working_directory }}
