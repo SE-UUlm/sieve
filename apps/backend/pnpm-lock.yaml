@@ -54,7 +54,7 @@ importers:
         specifier: ^18.0.1
         version: 18.0.2
       orval:
-        specifier: ^7.18.0
+        specifier: ^7.21.0
         version: 7.21.0(openapi-types@12.1.3)(typescript@5.9.3)
       pg:
         specifier: ^8.16.3
