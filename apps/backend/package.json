@@ -5,13 +5,13 @@
     "packageManager": "pnpm@10.28.2",
     "scripts": {
         "build": "nest build",
-        "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
         "start": "nest start",
         "dev": "nest start --watch",
         "debug": "nest start --debug --watch",
         "prod": "node dist/src/main.js",
-        "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
-        "lint:fix": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+        "lint": "biome check",
+        "lint:fix": "biome check --fix --unsafe",
+        "format": "biome format --write",
         "test": "jest",
         "test:watch": "jest --watch",
         "test:cov": "jest --coverage",
@@ -42,6 +42,7 @@
         "rxjs": "^7.8.2"
     },
     "devDependencies": {
+        "@biomejs/biome": "2.3.14",
         "@eslint/eslintrc": "^3.3.3",
         "@eslint/js": "^9.39.2",
         "@nestjs/cli": "^11.0.16",
