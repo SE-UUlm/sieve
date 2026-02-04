@@ -28,7 +28,11 @@ runs:
           with:
               node-version: ${{ inputs.node_version }}
 
+        - name: Install pnpm
+          shell: bash
+          run: npm install -g pnpm
+
         - name: Install dependencies
           shell: bash
-          run: npm ci
+          run: pnpm install --frozen-lockfile
           working-directory: ${{ inputs.working-directory }}

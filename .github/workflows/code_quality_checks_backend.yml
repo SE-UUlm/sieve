@@ -27,11 +27,11 @@ jobs:
                   working-directory: ${{ env.working_directory }}
 
             - name: Run License Check
-              run: npm run license-check
+              run: pnpm run license-check
               working-directory: ${{ env.working_directory }}
 
             - name: Linting
-              run: npm run lint
+              run: pnpm run lint
               working-directory: ${{ env.working_directory }}
 
     check-client-generation:
@@ -48,13 +48,13 @@ jobs:
                   working-directory: ${{ env.working_directory }}
 
             - name: Run Client Generation
-              run: npm run generate:client
+              run: pnpm run generate:client
               working-directory: ${{ env.working_directory }}
 
             - name: Make sure client is up to date
               run: |
                   if [[ -n "$(git status --porcelain)" ]]; then
-                    echo "Client is not up to date. Please run 'npm run generate:client' in Backend and commit the changes."
+                    echo "Client is not up to date. Please run 'pnpm run generate:client' in Backend and commit the changes."
                     echo "Uncommitted changes to client:"
                     git --no-pager diff
                     exit 1

@@ -92,10 +92,10 @@ If you prefer more control over the development environment, you can build and r
    cd apps/backend
    ```
 
-2. Install all dependencies using `npm`:
+2. Install all dependencies using `pnpm`:
 
    ```bash
-   npm install
+   pnpm install
    ```
 
 3. Configure environment variables (copy `.env.example` to `.env` and edit as needed)
@@ -103,7 +103,7 @@ If you prefer more control over the development environment, you can build and r
 4. Push Prisma schema to database:
 
    ```bash
-   npx prisma db push
+   pnpm exec prisma db push
    ```
 
    This is only necessary the first time and after a schema change.
@@ -113,7 +113,7 @@ If you prefer more control over the development environment, you can build and r
    **Option A** - Development mode (auto-reload on file changes):
 
    ```bash
-   npm run dev
+   pnpm run dev
    ```
 
    This runs the NestJS server using `ts-node` and watches for file changes.
@@ -121,8 +121,8 @@ If you prefer more control over the development environment, you can build and r
    **Option B** - Production mode (compiled output):
 
    ```bash
-   npm run build
-   npm run prod
+   pnpm run build
+   pnpm run prod
    ```
 
    This first compiles the TypeScript source to JavaScript in the `/dist` directory,
@@ -136,10 +136,10 @@ If you prefer more control over the development environment, you can build and r
    cd apps/frontend
    ```
 
-2. Install all dependencies using `npm`:
+2. Install all dependencies using `pnpm`:
 
    ```bash
-   npm install
+   pnpm install
    ```
 
 3. Run the frontend:
@@ -147,7 +147,7 @@ If you prefer more control over the development environment, you can build and r
    **Option A** - Development mode (with hot reload):
 
    ```bash
-   npm run dev
+   pnpm run dev
    ```
 
    This starts the Next.js development server with hot module replacement.
@@ -155,14 +155,14 @@ If you prefer more control over the development environment, you can build and r
    To enable API mocking (backend not needed for very simple tests), the following command can be used:
 
    ```bash
-   ENABLE_MOCK=true npm run dev
+   ENABLE_MOCK=true pnpm run dev
    ```
 
    **Option B** - Production mode:
 
    ```bash
-   npm run build
-   npm run start
+   pnpm run build
+   pnpm run start
    ```
 
    This builds the optimized production bundle and starts the production server.
