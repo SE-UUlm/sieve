@@ -19,6 +19,7 @@ services:
 
     backend:
         profiles: ["", "backend-only"]
+        image: ghcr.io/se-uulm/sieve-backend:latest
         build:
             context: ./apps/backend
         environment:
@@ -41,6 +42,7 @@ services:
 
     frontend:
         profiles: ["", "frontend-only"]
+        image: ghcr.io/se-uulm/sieve-frontend:latest
         build:
             context: ./apps/frontend
         environment:
@@ -50,6 +52,7 @@ services:
 
     ai-backend:
         profiles: ["", "ai-backend-only"]
+        image: ghcr.io/se-uulm/sieve-ai-backend:latest
         build:
             context: ./apps/ai-backend
         environment:

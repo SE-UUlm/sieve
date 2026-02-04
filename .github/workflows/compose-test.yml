@@ -2,8 +2,11 @@ name: Verify Docker Compose (default profile)
 
 on:
     push:
-        branches: [main]
+        branches:
+            - main
+            - develop
     pull_request:
+    workflow_dispatch:
 
 jobs:
     compose-verify:
