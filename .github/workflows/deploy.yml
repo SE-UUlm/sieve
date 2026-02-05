@@ -6,7 +6,8 @@ on:
             - Docker
         types:
             - completed
-        branches: [develop]
+        branches:
+            - develop
 
 concurrency:
     group: deploy
