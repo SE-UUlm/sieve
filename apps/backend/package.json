@@ -18,7 +18,7 @@
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
         "test:e2e": "jest --config ./test/jest-e2e.json",
         "license-check": "license-checker-rseidelsohn --onlyAllow --customPath ../../.license-checker.json --summary",
-        "generate:client": "pnpm run build && node dist/scripts/generate-client.js"
+        "generate:client": "pnpm run build && node dist/scripts/generate-client.js && biome format --write openapi.json"
     },
     "dependencies": {
         "@nestjs/common": "^11.1.13",
