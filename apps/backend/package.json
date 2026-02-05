@@ -60,6 +60,7 @@
         "ts-loader": "^9.5.4",
         "ts-node": "^10.9.2",
         "tsconfig-paths": "^4.2.0",
+        "tsx": "^4.21.0",
         "typescript": "^5.9.3"
     },
     "jest": {
@@ -78,5 +79,8 @@
         ],
         "coverageDirectory": "../coverage",
         "testEnvironment": "node"
+    },
+    "prisma": {
+        "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
     }
 }
