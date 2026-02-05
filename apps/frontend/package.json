@@ -37,7 +37,7 @@
         "@faker-js/faker": "^9.9.0",
         "@tailwindcss/postcss": "^4.1.18",
         "@types/node": "^24.10.10",
-        "@types/react": "19.2.10",
+        "@types/react": "19.2.13",
         "@types/react-dom": "19.2.3",
         "license-checker": "^25.0.1",
         "msw": "^2.12.8",
