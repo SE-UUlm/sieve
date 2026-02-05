@@ -37,12 +37,7 @@ updates:
               patterns:
                   - "react*"
                   - "@types/react*"
-          next:
-              patterns:
-                  - "next"
-                  - "eslint-config-next"
           tailwind:
               patterns:
                   - "tailwind*"
                   - "@tailwindcss/*"
-                  - "prettier-plugin-tailwindcss"
