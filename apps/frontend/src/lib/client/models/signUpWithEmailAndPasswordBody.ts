@@ -10,16 +10,16 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
  */
 
 export type SignUpWithEmailAndPasswordBody = {
-    /** The name of the user */
-    name: string;
-    /** The email of the user */
-    email: string;
-    /** The password of the user */
-    password: string;
-    /** The profile image URL of the user */
-    image?: string;
-    /** The URL to use for email verification callback */
-    callbackURL?: string;
-    /** If this is false, the session will not be remembered. Default is `true`. */
-    rememberMe?: boolean;
+  /** The name of the user */
+  name: string;
+  /** The email of the user */
+  email: string;
+  /** The password of the user */
+  password: string;
+  /** The profile image URL of the user */
+  image?: string;
+  /** The URL to use for email verification callback */
+  callbackURL?: string;
+  /** If this is false, the session will not be remembered. Default is `true`. */
+  rememberMe?: boolean;
 };

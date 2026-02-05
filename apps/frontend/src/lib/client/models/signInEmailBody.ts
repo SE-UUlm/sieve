@@ -8,16 +8,16 @@
 Therefore, the 'Default' tag is used for endpoints that are related to user authentication and session management.
  * OpenAPI spec version: 0.1.0
  */
-import type { SignInEmailBodyCallbackURL } from "./signInEmailBodyCallbackURL";
-import type { SignInEmailBodyRememberMe } from "./signInEmailBodyRememberMe";
+import type { SignInEmailBodyCallbackURL } from './signInEmailBodyCallbackURL';
+import type { SignInEmailBodyRememberMe } from './signInEmailBodyRememberMe';
 
 export type SignInEmailBody = {
-    /** Email of the user */
-    email: string;
-    /** Password of the user */
-    password: string;
-    /** Callback URL to use as a redirect for email verification */
-    callbackURL?: SignInEmailBodyCallbackURL;
-    /** If this is false, the session will not be remembered. Default is `true`. */
-    rememberMe?: SignInEmailBodyRememberMe;
+  /** Email of the user */
+  email: string;
+  /** Password of the user */
+  password: string;
+  /** Callback URL to use as a redirect for email verification */
+  callbackURL?: SignInEmailBodyCallbackURL;
+  /** If this is false, the session will not be remembered. Default is `true`. */
+  rememberMe?: SignInEmailBodyRememberMe;
 };

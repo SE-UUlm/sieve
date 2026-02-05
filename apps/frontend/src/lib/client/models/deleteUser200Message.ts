@@ -12,10 +12,11 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
 /**
  * Status message of the deletion process
  */
-export type DeleteUser200Message = (typeof DeleteUser200Message)[keyof typeof DeleteUser200Message];
+export type DeleteUser200Message = typeof DeleteUser200Message[keyof typeof DeleteUser200Message];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const DeleteUser200Message = {
-    User_deleted: "User deleted",
-    Verification_email_sent: "Verification email sent",
+  User_deleted: 'User deleted',
+  Verification_email_sent: 'Verification email sent',
 } as const;

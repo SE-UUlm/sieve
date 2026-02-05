@@ -8,11 +8,11 @@
 Therefore, the 'Default' tag is used for endpoints that are related to user authentication and session management.
  * OpenAPI spec version: 0.1.0
  */
-import type { ChangeEmailBodyCallbackURL } from "./changeEmailBodyCallbackURL";
+import type { ChangeEmailBodyCallbackURL } from './changeEmailBodyCallbackURL';
 
 export type ChangeEmailBody = {
-    /** The new email address to set must be a valid email address */
-    newEmail: string;
-    /** The URL to redirect to after email verification */
-    callbackURL?: ChangeEmailBodyCallbackURL;
+  /** The new email address to set must be a valid email address */
+  newEmail: string;
+  /** The URL to redirect to after email verification */
+  callbackURL?: ChangeEmailBodyCallbackURL;
 };

@@ -6,7 +6,11 @@
         "tags": ["Default"],
         "description": "Sign in with a social provider",
         "operationId": "socialSignIn",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -19,12 +23,16 @@
                     "type": ["string", "null"],
                     "description": "Callback URL to redirect to after the user has signed in"
                   },
-                  "newUserCallbackURL": { "type": ["string", "null"] },
+                  "newUserCallbackURL": {
+                    "type": ["string", "null"]
+                  },
                   "errorCallbackURL": {
                     "type": ["string", "null"],
                     "description": "Callback URL to redirect to if an error happens"
                   },
-                  "provider": { "type": "string" },
+                  "provider": {
+                    "type": "string"
+                  },
                   "disableRedirect": {
                     "type": ["boolean", "null"],
                     "description": "Disable automatic redirection to the provider. Useful for handling the redirection yourself"
@@ -67,7 +75,9 @@
                     "type": ["string", "null"],
                     "description": "The login hint to use for the authorization code request"
                   },
-                  "additionalData": { "type": ["string", "null"] }
+                  "additionalData": {
+                    "type": ["string", "null"]
+                  }
                 },
                 "required": ["provider"]
               }
@@ -83,13 +93,20 @@
                   "type": "object",
                   "description": "Session response when idToken is provided",
                   "properties": {
-                    "token": { "type": "string" },
+                    "token": {
+                      "type": "string"
+                    },
                     "user": {
                       "type": "object",
                       "$ref": "#/components/schemas/User"
                     },
-                    "url": { "type": "string" },
-                    "redirect": { "type": "boolean", "enum": [false] }
+                    "url": {
+                      "type": "string"
+                    },
+                    "redirect": {
+                      "type": "boolean",
+                      "enum": [false]
+                    }
                   },
                   "required": ["redirect", "token", "user"]
                 }
@@ -101,7 +118,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -113,7 +134,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -125,7 +150,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -136,7 +165,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -147,7 +180,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -158,7 +195,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -172,7 +213,11 @@
         "tags": ["Default"],
         "description": "Get the current session",
         "operationId": "getSession",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [],
         "responses": {
           "200": {
@@ -183,8 +228,12 @@
                   "type": "object",
                   "nullable": true,
                   "properties": {
-                    "session": { "$ref": "#/components/schemas/Session" },
-                    "user": { "$ref": "#/components/schemas/User" }
+                    "session": {
+                      "$ref": "#/components/schemas/Session"
+                    },
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    }
                   },
                   "required": ["session", "user"]
                 }
@@ -196,7 +245,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -208,7 +261,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -220,7 +277,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -231,7 +292,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -242,7 +307,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -253,7 +322,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -267,12 +340,19 @@
         "tags": ["Default"],
         "description": "Sign out the current user",
         "operationId": "signOut",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [],
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": { "type": "object", "properties": {} }
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
             }
           }
         },
@@ -283,7 +363,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "success": { "type": "boolean" } }
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    }
+                  }
                 }
               }
             }
@@ -293,7 +377,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -305,7 +393,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -317,7 +409,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -328,7 +424,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -339,7 +439,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -350,7 +454,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -364,7 +472,11 @@
         "tags": ["Default"],
         "description": "Sign up a user using email and password",
         "operationId": "signUpWithEmailAndPassword",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [],
         "requestBody": {
           "content": {
@@ -472,7 +584,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -484,7 +600,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -496,7 +616,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -507,7 +631,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -519,7 +647,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }
@@ -529,7 +661,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -540,7 +676,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -554,7 +694,11 @@
         "tags": ["Default"],
         "description": "Sign in with email and password",
         "operationId": "signInEmail",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -595,12 +739,18 @@
                   "type": "object",
                   "description": "Session response when idToken is provided",
                   "properties": {
-                    "redirect": { "type": "boolean", "enum": [false] },
+                    "redirect": {
+                      "type": "boolean",
+                      "enum": [false]
+                    },
                     "token": {
                       "type": "string",
                       "description": "Session token"
                     },
-                    "url": { "type": "string", "nullable": true },
+                    "url": {
+                      "type": "string",
+                      "nullable": true
+                    },
                     "user": {
                       "type": "object",
                       "$ref": "#/components/schemas/User"
@@ -616,7 +766,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -628,7 +782,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -640,7 +798,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -651,7 +813,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -662,7 +828,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -673,7 +843,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -687,7 +861,11 @@
         "tags": ["Default"],
         "description": "Reset the password for a user",
         "operationId": "resetPassword",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -717,7 +895,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "status": { "type": "boolean" } }
+                  "properties": {
+                    "status": {
+                      "type": "boolean"
+                    }
+                  }
                 }
               }
             }
@@ -727,7 +909,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -739,7 +925,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -751,7 +941,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -762,7 +956,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -773,7 +971,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -784,7 +986,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -798,7 +1004,11 @@
         "tags": ["Default"],
         "description": "Verify the current user's password",
         "operationId": "verifyPassword",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -824,7 +1034,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "status": { "type": "boolean" } }
+                  "properties": {
+                    "status": {
+                      "type": "boolean"
+                    }
+                  }
                 }
               }
             }
@@ -834,7 +1048,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -846,7 +1064,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -858,7 +1080,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -869,7 +1095,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -880,7 +1110,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -891,7 +1125,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -904,21 +1142,29 @@
       "get": {
         "tags": ["Default"],
         "description": "Verify the email of the user",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "token",
             "in": "query",
             "description": "The token to verify the email",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "callbackURL",
             "in": "query",
             "description": "The URL to redirect to after email verification",
             "required": false,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -948,7 +1194,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -960,7 +1210,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -972,7 +1226,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -983,7 +1241,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -994,7 +1256,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -1005,7 +1271,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -1019,7 +1289,11 @@
         "tags": ["Default"],
         "description": "Send a verification email to the user",
         "operationId": "sendVerificationEmail",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [],
         "requestBody": {
           "content": {
@@ -1084,7 +1358,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -1096,7 +1374,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -1107,7 +1389,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -1118,7 +1404,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -1129,7 +1419,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -1142,7 +1436,11 @@
       "post": {
         "tags": ["Default"],
         "operationId": "changeEmail",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -1198,7 +1496,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -1210,7 +1512,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -1222,7 +1528,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -1233,7 +1543,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -1245,7 +1559,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }
@@ -1255,7 +1573,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -1266,7 +1588,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -1280,7 +1606,11 @@
         "tags": ["Default"],
         "description": "Change the password of the user",
         "operationId": "changePassword",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -1377,7 +1707,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -1389,7 +1723,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -1401,7 +1739,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -1412,7 +1754,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -1423,7 +1769,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -1434,7 +1784,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -1448,7 +1802,11 @@
         "tags": ["Default"],
         "description": "Update the current user",
         "operationId": "updateUser",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [],
         "requestBody": {
           "content": {
@@ -1492,7 +1850,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -1504,7 +1866,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -1516,7 +1882,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -1527,7 +1897,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -1538,7 +1912,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -1549,7 +1927,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -1563,7 +1945,11 @@
         "tags": ["Default"],
         "description": "Delete the user",
         "operationId": "deleteUser",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [],
         "requestBody": {
           "content": {
@@ -1616,7 +2002,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -1628,7 +2018,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -1640,7 +2034,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -1651,7 +2049,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -1662,7 +2064,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -1673,7 +2079,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -1687,7 +2097,11 @@
         "tags": ["Default"],
         "description": "Send a password reset email to the user",
         "operationId": "requestPasswordReset",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -1718,8 +2132,12 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "status": { "type": "boolean" },
-                    "message": { "type": "string" }
+                    "status": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
                   }
                 }
               }
@@ -1730,7 +2148,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -1742,7 +2164,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -1754,7 +2180,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -1765,7 +2195,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -1776,7 +2210,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -1787,7 +2225,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -1801,21 +2243,29 @@
         "tags": ["Default"],
         "description": "Redirects the user to the callback URL with the token",
         "operationId": "resetPasswordCallback",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "token",
             "in": "path",
             "required": true,
             "description": "The token to reset the password",
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "callbackURL",
             "in": "query",
             "required": true,
             "description": "The URL to redirect the user to reset their password",
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -1825,7 +2275,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "token": { "type": "string" } }
+                  "properties": {
+                    "token": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }
@@ -1835,7 +2289,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -1847,7 +2305,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -1859,7 +2321,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -1870,7 +2336,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -1881,7 +2351,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -1892,7 +2366,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -1906,7 +2384,11 @@
         "tags": ["Default"],
         "description": "List all active sessions for the user",
         "operationId": "listUserSessions",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [],
         "responses": {
           "200": {
@@ -1915,7 +2397,9 @@
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": { "$ref": "#/components/schemas/Session" }
+                  "items": {
+                    "$ref": "#/components/schemas/Session"
+                  }
                 }
               }
             }
@@ -1925,7 +2409,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -1937,7 +2425,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -1949,7 +2441,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -1960,7 +2456,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -1971,7 +2471,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -1982,7 +2486,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -1995,7 +2503,11 @@
       "post": {
         "tags": ["Default"],
         "description": "Revoke a single session",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [],
         "requestBody": {
           "content": {
@@ -2036,7 +2548,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -2048,7 +2564,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -2060,7 +2580,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -2071,7 +2595,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -2082,7 +2610,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -2093,7 +2625,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -2106,12 +2642,19 @@
       "post": {
         "tags": ["Default"],
         "description": "Revoke all sessions for the user",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [],
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": { "type": "object", "properties": {} }
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
             }
           }
         },
@@ -2138,7 +2681,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -2150,7 +2697,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -2162,7 +2713,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -2173,7 +2728,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -2184,7 +2743,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -2195,7 +2758,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -2208,12 +2775,19 @@
       "post": {
         "tags": ["Default"],
         "description": "Revoke all other sessions for the user except the current one",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [],
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": { "type": "object", "properties": {} }
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
             }
           }
         },
@@ -2240,7 +2814,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -2252,7 +2830,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -2264,7 +2846,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -2275,7 +2861,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -2286,7 +2876,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -2297,7 +2891,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -2311,7 +2909,11 @@
         "tags": ["Default"],
         "description": "Link a social account to the user",
         "operationId": "linkSocialAccount",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -2324,19 +2926,33 @@
                     "type": ["string", "null"],
                     "description": "The URL to redirect to after the user has signed in"
                   },
-                  "provider": { "type": "string" },
+                  "provider": {
+                    "type": "string"
+                  },
                   "idToken": {
                     "type": ["object", "null"],
                     "properties": {
-                      "token": { "type": "string" },
-                      "nonce": { "type": ["string", "null"] },
-                      "accessToken": { "type": ["string", "null"] },
-                      "refreshToken": { "type": ["string", "null"] },
-                      "scopes": { "type": ["array", "null"] }
+                      "token": {
+                        "type": "string"
+                      },
+                      "nonce": {
+                        "type": ["string", "null"]
+                      },
+                      "accessToken": {
+                        "type": ["string", "null"]
+                      },
+                      "refreshToken": {
+                        "type": ["string", "null"]
+                      },
+                      "scopes": {
+                        "type": ["array", "null"]
+                      }
                     },
                     "required": ["token"]
                   },
-                  "requestSignUp": { "type": ["boolean", "null"] },
+                  "requestSignUp": {
+                    "type": ["boolean", "null"]
+                  },
                   "scopes": {
                     "type": ["array", "null"],
                     "description": "Additional scopes to request from the provider"
@@ -2349,7 +2965,9 @@
                     "type": ["boolean", "null"],
                     "description": "Disable automatic redirection to the provider. Useful for handling the redirection yourself"
                   },
-                  "additionalData": { "type": ["string", "null"] }
+                  "additionalData": {
+                    "type": ["string", "null"]
+                  }
                 },
                 "required": ["provider"]
               }
@@ -2372,7 +2990,9 @@
                       "type": "boolean",
                       "description": "Indicates if the user should be redirected to the authorization URL"
                     },
-                    "status": { "type": "boolean" }
+                    "status": {
+                      "type": "boolean"
+                    }
                   },
                   "required": ["redirect"]
                 }
@@ -2384,7 +3004,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -2396,7 +3020,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -2408,7 +3036,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -2419,7 +3051,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -2430,7 +3066,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -2441,7 +3081,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -2455,7 +3099,11 @@
         "tags": ["Default"],
         "description": "List all accounts linked to the user",
         "operationId": "listUserAccounts",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [],
         "responses": {
           "200": {
@@ -2467,8 +3115,12 @@
                   "items": {
                     "type": "object",
                     "properties": {
-                      "id": { "type": "string" },
-                      "providerId": { "type": "string" },
+                      "id": {
+                        "type": "string"
+                      },
+                      "providerId": {
+                        "type": "string"
+                      },
                       "createdAt": {
                         "type": "string",
                         "format": "date-time"
@@ -2477,11 +3129,17 @@
                         "type": "string",
                         "format": "date-time"
                       },
-                      "accountId": { "type": "string" },
-                      "userId": { "type": "string" },
+                      "accountId": {
+                        "type": "string"
+                      },
+                      "userId": {
+                        "type": "string"
+                      },
                       "scopes": {
                         "type": "array",
-                        "items": { "type": "string" }
+                        "items": {
+                          "type": "string"
+                        }
                       }
                     },
                     "required": [
@@ -2503,7 +3161,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -2515,7 +3177,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -2527,7 +3193,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -2538,7 +3208,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -2549,7 +3223,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -2560,7 +3238,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -2573,7 +3255,11 @@
       "get": {
         "tags": ["Default"],
         "description": "Callback to complete user deletion with verification token",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "token",
@@ -2620,7 +3306,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -2632,7 +3322,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -2644,7 +3338,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -2655,7 +3353,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -2666,7 +3368,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -2677,7 +3383,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -2690,7 +3400,11 @@
       "post": {
         "tags": ["Default"],
         "description": "Unlink an account",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -2699,8 +3413,12 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "providerId": { "type": "string" },
-                  "accountId": { "type": ["string", "null"] }
+                  "providerId": {
+                    "type": "string"
+                  },
+                  "accountId": {
+                    "type": ["string", "null"]
+                  }
                 },
                 "required": ["providerId"]
               }
@@ -2714,7 +3432,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "status": { "type": "boolean" } }
+                  "properties": {
+                    "status": {
+                      "type": "boolean"
+                    }
+                  }
                 }
               }
             }
@@ -2724,7 +3446,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -2736,7 +3462,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -2748,7 +3478,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -2759,7 +3493,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -2770,7 +3508,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -2781,7 +3523,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -2794,7 +3540,11 @@
       "post": {
         "tags": ["Default"],
         "description": "Refresh the access token using a refresh token",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -2829,10 +3579,18 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "tokenType": { "type": "string" },
-                    "idToken": { "type": "string" },
-                    "accessToken": { "type": "string" },
-                    "refreshToken": { "type": "string" },
+                    "tokenType": {
+                      "type": "string"
+                    },
+                    "idToken": {
+                      "type": "string"
+                    },
+                    "accessToken": {
+                      "type": "string"
+                    },
+                    "refreshToken": {
+                      "type": "string"
+                    },
                     "accessTokenExpiresAt": {
                       "type": "string",
                       "format": "date-time"
@@ -2854,7 +3612,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -2866,7 +3628,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -2877,7 +3643,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -2888,7 +3658,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -2899,7 +3673,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -2912,7 +3690,11 @@
       "post": {
         "tags": ["Default"],
         "description": "Get a valid access token, doing a refresh if needed",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -2947,9 +3729,15 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "tokenType": { "type": "string" },
-                    "idToken": { "type": "string" },
-                    "accessToken": { "type": "string" },
+                    "tokenType": {
+                      "type": "string"
+                    },
+                    "idToken": {
+                      "type": "string"
+                    },
+                    "accessToken": {
+                      "type": "string"
+                    },
                     "accessTokenExpiresAt": {
                       "type": "string",
                       "format": "date-time"
@@ -2967,7 +3755,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -2979,7 +3771,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -2990,7 +3786,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -3001,7 +3801,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -3012,7 +3816,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -3025,7 +3833,11 @@
       "get": {
         "tags": ["Default"],
         "description": "Get the account info provided by the provider",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [],
         "responses": {
           "200": {
@@ -3038,11 +3850,21 @@
                     "user": {
                       "type": "object",
                       "properties": {
-                        "id": { "type": "string" },
-                        "name": { "type": "string" },
-                        "email": { "type": "string" },
-                        "image": { "type": "string" },
-                        "emailVerified": { "type": "boolean" }
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "email": {
+                          "type": "string"
+                        },
+                        "image": {
+                          "type": "string"
+                        },
+                        "emailVerified": {
+                          "type": "boolean"
+                        }
                       },
                       "required": ["id", "emailVerified"]
                     },
@@ -3063,7 +3885,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -3075,7 +3901,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -3087,7 +3917,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -3098,7 +3932,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -3109,7 +3947,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -3120,7 +3962,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -3133,7 +3979,11 @@
       "get": {
         "tags": ["Default"],
         "description": "Check if the API is working",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [],
         "responses": {
           "200": {
@@ -3158,7 +4008,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -3170,7 +4024,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -3182,7 +4040,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -3193,7 +4055,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -3204,7 +4070,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -3215,7 +4085,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -3228,7 +4102,11 @@
       "get": {
         "tags": ["Default"],
         "description": "Displays an error page",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [],
         "responses": {
           "200": {
@@ -3247,7 +4125,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -3259,7 +4141,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } },
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["message"]
                 }
               }
@@ -3271,7 +4157,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -3282,7 +4172,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -3293,7 +4187,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -3304,7 +4202,11 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "message": { "type": "string" } }
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -3325,14 +4227,25 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "status": { "type": "string", "example": "ok" },
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    },
                     "info": {
                       "type": "object",
-                      "example": { "database": { "status": "up" } },
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
                       "additionalProperties": {
                         "type": "object",
                         "required": ["status"],
-                        "properties": { "status": { "type": "string" } },
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
                         "additionalProperties": true
                       },
                       "nullable": true
@@ -3343,18 +4256,30 @@
                       "additionalProperties": {
                         "type": "object",
                         "required": ["status"],
-                        "properties": { "status": { "type": "string" } },
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
                         "additionalProperties": true
                       },
                       "nullable": true
                     },
                     "details": {
                       "type": "object",
-                      "example": { "database": { "status": "up" } },
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
                       "additionalProperties": {
                         "type": "object",
                         "required": ["status"],
-                        "properties": { "status": { "type": "string" } },
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
                         "additionalProperties": true
                       }
                     }
@@ -3370,14 +4295,25 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "status": { "type": "string", "example": "error" },
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
                     "info": {
                       "type": "object",
-                      "example": { "database": { "status": "up" } },
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
                       "additionalProperties": {
                         "type": "object",
                         "required": ["status"],
-                        "properties": { "status": { "type": "string" } },
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
                         "additionalProperties": true
                       },
                       "nullable": true
@@ -3393,7 +4329,11 @@
                       "additionalProperties": {
                         "type": "object",
                         "required": ["status"],
-                        "properties": { "status": { "type": "string" } },
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
                         "additionalProperties": true
                       },
                       "nullable": true
@@ -3401,7 +4341,9 @@
                     "details": {
                       "type": "object",
                       "example": {
-                        "database": { "status": "up" },
+                        "database": {
+                          "status": "up"
+                        },
                         "redis": {
                           "status": "down",
                           "message": "Could not connect"
@@ -3410,7 +4352,11 @@
                       "additionalProperties": {
                         "type": "object",
                         "required": ["status"],
-                        "properties": { "status": { "type": "string" } },
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
                         "additionalProperties": true
                       }
                     }
@@ -3433,19 +4379,25 @@
             "name": "page",
             "required": true,
             "in": "query",
-            "schema": { "type": "number" }
+            "schema": {
+              "type": "number"
+            }
           },
           {
             "name": "limit",
             "required": true,
             "in": "query",
-            "schema": { "type": "number" }
+            "schema": {
+              "type": "number"
+            }
           },
           {
             "name": "role",
             "required": true,
             "in": "query",
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -3455,15 +4407,25 @@
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": { "$ref": "#/components/schemas/SimpleUserDto" }
+                  "items": {
+                    "$ref": "#/components/schemas/SimpleUserDto"
+                  }
                 }
               }
             }
           },
-          "401": { "description": "Unauthorized" },
-          "403": { "description": "Forbidden" }
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
         },
-        "security": [{ "apiKeyCookie": [] }],
+        "security": [
+          {
+            "apiKeyCookie": []
+          }
+        ],
         "summary": "List all users (admin only)",
         "tags": ["Users"]
       }
@@ -3476,7 +4438,9 @@
             "name": "userId",
             "required": true,
             "in": "path",
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -3484,15 +4448,27 @@
             "description": "User successfully retrieved",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/UserDto" }
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
               }
             }
           },
-          "401": { "description": "Unauthorized" },
-          "403": { "description": "Forbidden" },
-          "404": { "description": "User not found" }
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "User not found"
+          }
         },
-        "security": [{ "apiKeyCookie": [] }],
+        "security": [
+          {
+            "apiKeyCookie": []
+          }
+        ],
         "summary": "Get detailed user information (admin only)",
         "tags": ["Users"]
       }
@@ -3505,19 +4481,25 @@
             "name": "page",
             "required": true,
             "in": "query",
-            "schema": { "type": "number" }
+            "schema": {
+              "type": "number"
+            }
           },
           {
             "name": "limit",
             "required": true,
             "in": "query",
-            "schema": { "type": "number" }
+            "schema": {
+              "type": "number"
+            }
           },
           {
             "name": "status",
             "required": true,
             "in": "query",
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -3527,14 +4509,22 @@
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": { "$ref": "#/components/schemas/JobDto" }
+                  "items": {
+                    "$ref": "#/components/schemas/JobDto"
+                  }
                 }
               }
             }
           },
-          "401": { "description": "Unauthorized" }
+          "401": {
+            "description": "Unauthorized"
+          }
         },
-        "security": [{ "apiKeyCookie": [] }],
+        "security": [
+          {
+            "apiKeyCookie": []
+          }
+        ],
         "summary": "List jobs (filtered by user unless admin)",
         "tags": ["Jobs"]
       }
@@ -3547,7 +4537,9 @@
             "name": "jobId",
             "required": true,
             "in": "path",
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -3555,14 +4547,24 @@
             "description": "Job successfully retrieved.",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/JobDto" }
+                "schema": {
+                  "$ref": "#/components/schemas/JobDto"
+                }
               }
             }
           },
-          "401": { "description": "Unauthorized" },
-          "404": { "description": "Job not found" }
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Job not found"
+          }
         },
-        "security": [{ "apiKeyCookie": [] }],
+        "security": [
+          {
+            "apiKeyCookie": []
+          }
+        ],
         "summary": "Get detailed job information",
         "tags": ["Jobs"]
       }
@@ -3575,7 +4577,9 @@
             "name": "jobId",
             "required": true,
             "in": "path",
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -3583,14 +4587,24 @@
             "description": "Job result successfully retrieved.",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/JobResultDto" }
+                "schema": {
+                  "$ref": "#/components/schemas/JobResultDto"
+                }
               }
             }
           },
-          "401": { "description": "Unauthorized" },
-          "404": { "description": "Job or result not found" }
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Job or result not found"
+          }
         },
-        "security": [{ "apiKeyCookie": [] }],
+        "security": [
+          {
+            "apiKeyCookie": []
+          }
+        ],
         "summary": "Get job result output",
         "tags": ["Jobs"]
       }
@@ -3603,7 +4617,9 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/CreateEmailDto" }
+              "schema": {
+                "$ref": "#/components/schemas/CreateEmailDto"
+              }
             }
           }
         },
@@ -3614,14 +4630,22 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "data": { "type": "string" } },
+                  "properties": {
+                    "data": {
+                      "type": "string"
+                    }
+                  },
                   "required": ["data"]
                 }
               }
             }
           },
-          "400": { "description": "Bad Request" },
-          "401": { "description": "Unauthorized" },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
           "500": {
             "description": "AiBackend processing failed",
             "content": {
@@ -3629,15 +4653,23 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "message": { "type": "string" },
-                    "details": { "type": "string" }
+                    "message": {
+                      "type": "string"
+                    },
+                    "details": {
+                      "type": "string"
+                    }
                   }
                 }
               }
             }
           }
         },
-        "security": [{ "apiKeyCookie": [] }],
+        "security": [
+          {
+            "apiKeyCookie": []
+          }
+        ],
         "summary": "Submit an email for processing",
         "tags": ["Emails"]
       }
@@ -3681,15 +4713,23 @@
       "User": {
         "type": "object",
         "properties": {
-          "id": { "type": "string" },
-          "name": { "type": "string" },
-          "email": { "type": "string" },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
           "emailVerified": {
             "type": "boolean",
             "default": false,
             "readOnly": true
           },
-          "image": { "type": "string" },
+          "image": {
+            "type": "string"
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time",
@@ -3700,48 +4740,94 @@
             "format": "date-time",
             "default": "Generated at runtime"
           },
-          "role": { "type": "string", "readOnly": true }
+          "role": {
+            "type": "string",
+            "readOnly": true
+          }
         },
         "required": ["name", "email", "createdAt", "updatedAt"]
       },
       "Session": {
         "type": "object",
         "properties": {
-          "id": { "type": "string" },
-          "expiresAt": { "type": "string", "format": "date-time" },
-          "token": { "type": "string" },
+          "id": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "token": {
+            "type": "string"
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time",
             "default": "Generated at runtime"
           },
-          "updatedAt": { "type": "string", "format": "date-time" },
-          "ipAddress": { "type": "string" },
-          "userAgent": { "type": "string" },
-          "userId": { "type": "string" }
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "ipAddress": {
+            "type": "string"
+          },
+          "userAgent": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          }
         },
         "required": ["expiresAt", "token", "createdAt", "updatedAt", "userId"]
       },
       "Account": {
         "type": "object",
         "properties": {
-          "id": { "type": "string" },
-          "accountId": { "type": "string" },
-          "providerId": { "type": "string" },
-          "userId": { "type": "string" },
-          "accessToken": { "type": "string" },
-          "refreshToken": { "type": "string" },
-          "idToken": { "type": "string" },
-          "accessTokenExpiresAt": { "type": "string", "format": "date-time" },
-          "refreshTokenExpiresAt": { "type": "string", "format": "date-time" },
-          "scope": { "type": "string" },
-          "password": { "type": "string" },
+          "id": {
+            "type": "string"
+          },
+          "accountId": {
+            "type": "string"
+          },
+          "providerId": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "accessToken": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          },
+          "idToken": {
+            "type": "string"
+          },
+          "accessTokenExpiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "refreshTokenExpiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "scope": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time",
             "default": "Generated at runtime"
           },
-          "updatedAt": { "type": "string", "format": "date-time" }
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
         },
         "required": [
           "accountId",
@@ -3754,10 +4840,19 @@
       "Verification": {
         "type": "object",
         "properties": {
-          "id": { "type": "string" },
-          "identifier": { "type": "string" },
-          "value": { "type": "string" },
-          "expiresAt": { "type": "string", "format": "date-time" },
+          "id": {
+            "type": "string"
+          },
+          "identifier": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time",
@@ -3848,12 +4943,16 @@
           "jobs": {
             "description": "IDs of jobs created by the user",
             "type": "array",
-            "items": { "type": "string" }
+            "items": {
+              "type": "string"
+            }
           },
           "emails": {
             "description": "IDs of emails uploaded by the user",
             "type": "array",
-            "items": { "type": "string" }
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": ["id", "name", "email", "role", "createdAt"]
@@ -3992,5 +5091,10 @@
     "description": "Documentation",
     "url": "https://github.com/SE-UUlm/sieve/wiki"
   },
-  "security": [{ "apiKeyCookie": [], "bearerAuth": [] }]
+  "security": [
+    {
+      "apiKeyCookie": [],
+      "bearerAuth": []
+    }
+  ]
 }

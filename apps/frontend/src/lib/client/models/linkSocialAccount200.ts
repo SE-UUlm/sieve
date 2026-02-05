@@ -10,9 +10,9 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
  */
 
 export type LinkSocialAccount200 = {
-    /** The authorization URL to redirect the user to */
-    url?: string;
-    /** Indicates if the user should be redirected to the authorization URL */
-    redirect: boolean;
-    status?: boolean;
+  /** The authorization URL to redirect the user to */
+  url?: string;
+  /** Indicates if the user should be redirected to the authorization URL */
+  redirect: boolean;
+  status?: boolean;
 };

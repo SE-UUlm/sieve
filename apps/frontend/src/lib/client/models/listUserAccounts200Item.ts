@@ -10,11 +10,11 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
  */
 
 export type ListUserAccounts200Item = {
-    id: string;
-    providerId: string;
-    createdAt: string;
-    updatedAt: string;
-    accountId: string;
-    userId: string;
-    scopes: string[];
+  id: string;
+  providerId: string;
+  createdAt: string;
+  updatedAt: string;
+  accountId: string;
+  userId: string;
+  scopes: string[];
 };

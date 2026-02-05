@@ -10,12 +10,12 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
  */
 
 export interface User {
-    id?: string;
-    name: string;
-    email: string;
-    readonly emailVerified?: boolean;
-    image?: string;
-    createdAt: string;
-    updatedAt: string;
-    readonly role?: string;
+  id?: string;
+  name: string;
+  email: string;
+  readonly emailVerified?: boolean;
+  image?: string;
+  createdAt: string;
+  updatedAt: string;
+  readonly role?: string;
 }

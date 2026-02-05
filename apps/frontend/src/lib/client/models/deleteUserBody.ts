@@ -10,10 +10,10 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
  */
 
 export type DeleteUserBody = {
-    /** The callback URL to redirect to after the user is deleted */
-    callbackURL?: string;
-    /** The user's password. Required if session is not fresh */
-    password?: string;
-    /** The deletion verification token */
-    token?: string;
+  /** The callback URL to redirect to after the user is deleted */
+  callbackURL?: string;
+  /** The user's password. Required if session is not fresh */
+  password?: string;
+  /** The deletion verification token */
+  token?: string;
 };

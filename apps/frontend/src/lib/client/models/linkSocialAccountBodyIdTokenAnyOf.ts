@@ -8,15 +8,15 @@
 Therefore, the 'Default' tag is used for endpoints that are related to user authentication and session management.
  * OpenAPI spec version: 0.1.0
  */
-import type { LinkSocialAccountBodyIdTokenAnyOfNonce } from "./linkSocialAccountBodyIdTokenAnyOfNonce";
-import type { LinkSocialAccountBodyIdTokenAnyOfAccessToken } from "./linkSocialAccountBodyIdTokenAnyOfAccessToken";
-import type { LinkSocialAccountBodyIdTokenAnyOfRefreshToken } from "./linkSocialAccountBodyIdTokenAnyOfRefreshToken";
-import type { LinkSocialAccountBodyIdTokenAnyOfScopes } from "./linkSocialAccountBodyIdTokenAnyOfScopes";
+import type { LinkSocialAccountBodyIdTokenAnyOfNonce } from './linkSocialAccountBodyIdTokenAnyOfNonce';
+import type { LinkSocialAccountBodyIdTokenAnyOfAccessToken } from './linkSocialAccountBodyIdTokenAnyOfAccessToken';
+import type { LinkSocialAccountBodyIdTokenAnyOfRefreshToken } from './linkSocialAccountBodyIdTokenAnyOfRefreshToken';
+import type { LinkSocialAccountBodyIdTokenAnyOfScopes } from './linkSocialAccountBodyIdTokenAnyOfScopes';
 
 export type LinkSocialAccountBodyIdTokenAnyOf = {
-    token: string;
-    nonce?: LinkSocialAccountBodyIdTokenAnyOfNonce;
-    accessToken?: LinkSocialAccountBodyIdTokenAnyOfAccessToken;
-    refreshToken?: LinkSocialAccountBodyIdTokenAnyOfRefreshToken;
-    scopes?: LinkSocialAccountBodyIdTokenAnyOfScopes;
+  token: string;
+  nonce?: LinkSocialAccountBodyIdTokenAnyOfNonce;
+  accessToken?: LinkSocialAccountBodyIdTokenAnyOfAccessToken;
+  refreshToken?: LinkSocialAccountBodyIdTokenAnyOfRefreshToken;
+  scopes?: LinkSocialAccountBodyIdTokenAnyOfScopes;
 };

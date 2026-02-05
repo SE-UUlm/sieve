@@ -8,169 +8,69 @@
 Therefore, the 'Default' tag is used for endpoints that are related to user authentication and session management.
  * OpenAPI spec version: 0.1.0
  */
-import { faker } from "@faker-js/faker";
+import {
+  faker
+} from '@faker-js/faker';
 
-import { HttpResponse, delay, http } from "msw";
-import type { RequestHandlerOptions } from "msw";
+import {
+  HttpResponse,
+  delay,
+  http
+} from 'msw';
+import type {
+  RequestHandlerOptions
+} from 'msw';
 
-import type { JobDto, JobResultDto } from ".././models";
+import type {
+  JobDto,
+  JobResultDto
+} from '.././models';
 
-export const getJobControllerGetJobsResponseMock = (): JobDto[] =>
-    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
-        id: faker.string.alpha({ length: { min: 10, max: 20 } }),
-        status: faker.helpers.arrayElement([
-            "CREATED",
-            "PENDING",
-            "PROCESSING",
-            "COMPLETED",
-        ] as const),
-        userId: faker.string.alpha({ length: { min: 10, max: 20 } }),
-        emailId: faker.string.alpha({ length: { min: 10, max: 20 } }),
-        startedAt: faker.helpers.arrayElement([
-            faker.helpers.arrayElement([`${faker.date.past().toISOString().split(".")[0]}Z`, null]),
-            undefined,
-        ]),
-        completedAt: faker.helpers.arrayElement([
-            faker.helpers.arrayElement([`${faker.date.past().toISOString().split(".")[0]}Z`, null]),
-            undefined,
-        ]),
-        createdAt: `${faker.date.past().toISOString().split(".")[0]}Z`,
-        deletedAt: faker.helpers.arrayElement([
-            faker.helpers.arrayElement([`${faker.date.past().toISOString().split(".")[0]}Z`, null]),
-            undefined,
-        ]),
-        resultId: faker.helpers.arrayElement([
-            faker.helpers.arrayElement([
-                faker.string.alpha({ length: { min: 10, max: 20 } }),
-                null,
-            ]),
-            undefined,
-        ]),
-    }));
 
-export const getJobControllerGetJobByIdResponseMock = (
-    overrideResponse: Partial<JobDto> = {},
-): JobDto => ({
-    id: faker.string.alpha({ length: { min: 10, max: 20 } }),
-    status: faker.helpers.arrayElement(["CREATED", "PENDING", "PROCESSING", "COMPLETED"] as const),
-    userId: faker.string.alpha({ length: { min: 10, max: 20 } }),
-    emailId: faker.string.alpha({ length: { min: 10, max: 20 } }),
-    startedAt: faker.helpers.arrayElement([
-        faker.helpers.arrayElement([`${faker.date.past().toISOString().split(".")[0]}Z`, null]),
-        undefined,
-    ]),
-    completedAt: faker.helpers.arrayElement([
-        faker.helpers.arrayElement([`${faker.date.past().toISOString().split(".")[0]}Z`, null]),
-        undefined,
-    ]),
-    createdAt: `${faker.date.past().toISOString().split(".")[0]}Z`,
-    deletedAt: faker.helpers.arrayElement([
-        faker.helpers.arrayElement([`${faker.date.past().toISOString().split(".")[0]}Z`, null]),
-        undefined,
-    ]),
-    resultId: faker.helpers.arrayElement([
-        faker.helpers.arrayElement([faker.string.alpha({ length: { min: 10, max: 20 } }), null]),
-        undefined,
-    ]),
-    ...overrideResponse,
-});
+export const getJobControllerGetJobsResponseMock = (): JobDto[] => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({id: faker.string.alpha({length: {min: 10, max: 20}}), status: faker.helpers.arrayElement(['CREATED','PENDING','PROCESSING','COMPLETED'] as const), userId: faker.string.alpha({length: {min: 10, max: 20}}), emailId: faker.string.alpha({length: {min: 10, max: 20}}), startedAt: faker.helpers.arrayElement([faker.helpers.arrayElement([`${faker.date.past().toISOString().split('.')[0]}Z`, null]), undefined]), completedAt: faker.helpers.arrayElement([faker.helpers.arrayElement([`${faker.date.past().toISOString().split('.')[0]}Z`, null]), undefined]), createdAt: `${faker.date.past().toISOString().split('.')[0]}Z`, deletedAt: faker.helpers.arrayElement([faker.helpers.arrayElement([`${faker.date.past().toISOString().split('.')[0]}Z`, null]), undefined]), resultId: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), undefined])})))
 
-export const getJobControllerGetJobResultResponseMock = (
-    overrideResponse: Partial<JobResultDto> = {},
-): JobResultDto => ({
-    id: faker.string.alpha({ length: { min: 10, max: 20 } }),
-    jobId: faker.string.alpha({ length: { min: 10, max: 20 } }),
-    status: faker.helpers.arrayElement(["SUCCESS", "FAILURE"] as const),
-    output: {},
-    createdAt: `${faker.date.past().toISOString().split(".")[0]}Z`,
-    deletedAt: faker.helpers.arrayElement([
-        faker.helpers.arrayElement([`${faker.date.past().toISOString().split(".")[0]}Z`, null]),
-        undefined,
-    ]),
-    ...overrideResponse,
-});
+export const getJobControllerGetJobByIdResponseMock = (overrideResponse: Partial< JobDto > = {}): JobDto => ({id: faker.string.alpha({length: {min: 10, max: 20}}), status: faker.helpers.arrayElement(['CREATED','PENDING','PROCESSING','COMPLETED'] as const), userId: faker.string.alpha({length: {min: 10, max: 20}}), emailId: faker.string.alpha({length: {min: 10, max: 20}}), startedAt: faker.helpers.arrayElement([faker.helpers.arrayElement([`${faker.date.past().toISOString().split('.')[0]}Z`, null]), undefined]), completedAt: faker.helpers.arrayElement([faker.helpers.arrayElement([`${faker.date.past().toISOString().split('.')[0]}Z`, null]), undefined]), createdAt: `${faker.date.past().toISOString().split('.')[0]}Z`, deletedAt: faker.helpers.arrayElement([faker.helpers.arrayElement([`${faker.date.past().toISOString().split('.')[0]}Z`, null]), undefined]), resultId: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), undefined]), ...overrideResponse})
 
-export const getJobControllerGetJobsMockHandler = (
-    overrideResponse?:
-        | JobDto[]
-        | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<JobDto[]> | JobDto[]),
-    options?: RequestHandlerOptions,
-) => {
-    return http.get(
-        "*/jobs",
-        async (info) => {
-            await delay(500);
+export const getJobControllerGetJobResultResponseMock = (overrideResponse: Partial< JobResultDto > = {}): JobResultDto => ({id: faker.string.alpha({length: {min: 10, max: 20}}), jobId: faker.string.alpha({length: {min: 10, max: 20}}), status: faker.helpers.arrayElement(['SUCCESS','FAILURE'] as const), output: {}, createdAt: `${faker.date.past().toISOString().split('.')[0]}Z`, deletedAt: faker.helpers.arrayElement([faker.helpers.arrayElement([`${faker.date.past().toISOString().split('.')[0]}Z`, null]), undefined]), ...overrideResponse})
 
-            return new HttpResponse(
-                JSON.stringify(
-                    overrideResponse !== undefined
-                        ? typeof overrideResponse === "function"
-                            ? await overrideResponse(info)
-                            : overrideResponse
-                        : getJobControllerGetJobsResponseMock(),
-                ),
-                { status: 200, headers: { "Content-Type": "application/json" } },
-            );
-        },
-        options,
-    );
-};
 
-export const getJobControllerGetJobByIdMockHandler = (
-    overrideResponse?:
-        | JobDto
-        | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<JobDto> | JobDto),
-    options?: RequestHandlerOptions,
-) => {
-    return http.get(
-        "*/jobs/:jobId",
-        async (info) => {
-            await delay(500);
+export const getJobControllerGetJobsMockHandler = (overrideResponse?: JobDto[] | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<JobDto[]> | JobDto[]), options?: RequestHandlerOptions) => {
+  return http.get('*/jobs', async (info) => {await delay(500);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined
+    ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
+    : getJobControllerGetJobsResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  }, options)
+}
 
-            return new HttpResponse(
-                JSON.stringify(
-                    overrideResponse !== undefined
-                        ? typeof overrideResponse === "function"
-                            ? await overrideResponse(info)
-                            : overrideResponse
-                        : getJobControllerGetJobByIdResponseMock(),
-                ),
-                { status: 200, headers: { "Content-Type": "application/json" } },
-            );
-        },
-        options,
-    );
-};
+export const getJobControllerGetJobByIdMockHandler = (overrideResponse?: JobDto | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<JobDto> | JobDto), options?: RequestHandlerOptions) => {
+  return http.get('*/jobs/:jobId', async (info) => {await delay(500);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined
+    ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
+    : getJobControllerGetJobByIdResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  }, options)
+}
 
-export const getJobControllerGetJobResultMockHandler = (
-    overrideResponse?:
-        | JobResultDto
-        | ((
-              info: Parameters<Parameters<typeof http.get>[1]>[0],
-          ) => Promise<JobResultDto> | JobResultDto),
-    options?: RequestHandlerOptions,
-) => {
-    return http.get(
-        "*/jobs/:jobId/result",
-        async (info) => {
-            await delay(500);
-
-            return new HttpResponse(
-                JSON.stringify(
-                    overrideResponse !== undefined
-                        ? typeof overrideResponse === "function"
-                            ? await overrideResponse(info)
-                            : overrideResponse
-                        : getJobControllerGetJobResultResponseMock(),
-                ),
-                { status: 200, headers: { "Content-Type": "application/json" } },
-            );
-        },
-        options,
-    );
-};
+export const getJobControllerGetJobResultMockHandler = (overrideResponse?: JobResultDto | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<JobResultDto> | JobResultDto), options?: RequestHandlerOptions) => {
+  return http.get('*/jobs/:jobId/result', async (info) => {await delay(500);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined
+    ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
+    : getJobControllerGetJobResultResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  }, options)
+}
 export const getJobsMock = () => [
-    getJobControllerGetJobsMockHandler(),
-    getJobControllerGetJobByIdMockHandler(),
-    getJobControllerGetJobResultMockHandler(),
-];
+  getJobControllerGetJobsMockHandler(),
+  getJobControllerGetJobByIdMockHandler(),
+  getJobControllerGetJobResultMockHandler()
+]

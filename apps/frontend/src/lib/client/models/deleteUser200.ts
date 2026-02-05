@@ -8,11 +8,11 @@
 Therefore, the 'Default' tag is used for endpoints that are related to user authentication and session management.
  * OpenAPI spec version: 0.1.0
  */
-import type { DeleteUser200Message } from "./deleteUser200Message";
+import type { DeleteUser200Message } from './deleteUser200Message';
 
 export type DeleteUser200 = {
-    /** Indicates if the operation was successful */
-    success: boolean;
-    /** Status message of the deletion process */
-    message: DeleteUser200Message;
+  /** Indicates if the operation was successful */
+  success: boolean;
+  /** Status message of the deletion process */
+  message: DeleteUser200Message;
 };

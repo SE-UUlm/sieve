@@ -10,16 +10,16 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
  */
 
 export interface CreateEmailDto {
-    /**
-     * Sender of the email
-     * @nullable
-     */
-    sender?: string | null;
-    /**
-     * Subject of the email
-     * @nullable
-     */
-    subject?: string | null;
-    /** Body of the email */
-    body: string;
+  /**
+   * Sender of the email
+   * @nullable
+   */
+  sender?: string | null;
+  /**
+   * Subject of the email
+   * @nullable
+   */
+  subject?: string | null;
+  /** Body of the email */
+  body: string;
 }

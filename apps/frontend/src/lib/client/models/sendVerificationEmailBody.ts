@@ -10,11 +10,11 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
  */
 
 export type SendVerificationEmailBody = {
-    /** The email to send the verification email to */
-    email: string;
-    /**
-     * The URL to use for email verification callback
-     * @nullable
-     */
-    callbackURL?: string | null;
+  /** The email to send the verification email to */
+  email: string;
+  /**
+   * The URL to use for email verification callback
+   * @nullable
+   */
+  callbackURL?: string | null;
 };

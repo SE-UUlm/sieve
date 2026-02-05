@@ -8,15 +8,15 @@
 Therefore, the 'Default' tag is used for endpoints that are related to user authentication and session management.
  * OpenAPI spec version: 0.1.0
  */
-import type { HealthControllerCheck200Info } from "./healthControllerCheck200Info";
-import type { HealthControllerCheck200Error } from "./healthControllerCheck200Error";
-import type { HealthControllerCheck200Details } from "./healthControllerCheck200Details";
+import type { HealthControllerCheck200Info } from './healthControllerCheck200Info';
+import type { HealthControllerCheck200Error } from './healthControllerCheck200Error';
+import type { HealthControllerCheck200Details } from './healthControllerCheck200Details';
 
 export type HealthControllerCheck200 = {
-    status?: string;
-    /** @nullable */
-    info?: HealthControllerCheck200Info;
-    /** @nullable */
-    error?: HealthControllerCheck200Error;
-    details?: HealthControllerCheck200Details;
+  status?: string;
+  /** @nullable */
+  info?: HealthControllerCheck200Info;
+  /** @nullable */
+  error?: HealthControllerCheck200Error;
+  details?: HealthControllerCheck200Details;
 };

@@ -10,10 +10,10 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
  */
 
 export interface Verification {
-    id?: string;
-    identifier: string;
-    value: string;
-    expiresAt: string;
-    createdAt: string;
-    updatedAt: string;
+  id?: string;
+  identifier: string;
+  value: string;
+  expiresAt: string;
+  createdAt: string;
+  updatedAt: string;
 }

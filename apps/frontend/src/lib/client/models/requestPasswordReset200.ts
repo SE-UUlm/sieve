@@ -10,6 +10,6 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
  */
 
 export type RequestPasswordReset200 = {
-    status?: boolean;
-    message?: string;
+  status?: boolean;
+  message?: string;
 };

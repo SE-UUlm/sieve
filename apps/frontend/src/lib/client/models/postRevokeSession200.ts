@@ -10,6 +10,6 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
  */
 
 export type PostRevokeSession200 = {
-    /** Indicates if the session was revoked successfully */
-    status: boolean;
+  /** Indicates if the session was revoked successfully */
+  status: boolean;
 };

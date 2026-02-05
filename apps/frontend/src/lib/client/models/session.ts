@@ -10,12 +10,12 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
  */
 
 export interface Session {
-    id?: string;
-    expiresAt: string;
-    token: string;
-    createdAt: string;
-    updatedAt: string;
-    ipAddress?: string;
-    userAgent?: string;
-    userId: string;
+  id?: string;
+  expiresAt: string;
+  token: string;
+  createdAt: string;
+  updatedAt: string;
+  ipAddress?: string;
+  userAgent?: string;
+  userId: string;
 }

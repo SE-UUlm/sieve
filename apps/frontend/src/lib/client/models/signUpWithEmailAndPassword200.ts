@@ -8,13 +8,13 @@
 Therefore, the 'Default' tag is used for endpoints that are related to user authentication and session management.
  * OpenAPI spec version: 0.1.0
  */
-import type { SignUpWithEmailAndPassword200User } from "./signUpWithEmailAndPassword200User";
+import type { SignUpWithEmailAndPassword200User } from './signUpWithEmailAndPassword200User';
 
 export type SignUpWithEmailAndPassword200 = {
-    /**
-     * Authentication token for the session
-     * @nullable
-     */
-    token?: string | null;
-    user: SignUpWithEmailAndPassword200User;
+  /**
+   * Authentication token for the session
+   * @nullable
+   */
+  token?: string | null;
+  user: SignUpWithEmailAndPassword200User;
 };
