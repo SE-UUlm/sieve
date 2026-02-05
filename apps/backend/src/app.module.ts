@@ -1,14 +1,14 @@
 import { Module } from "@nestjs/common";
-import { HealthModule } from "./health/health.module";
+import { AuthModule } from "@thallesp/nestjs-better-auth";
+import { AiBackendModule } from "./ai-backend/ai-backend.module";
 import { AppConfigModule } from "./config/config.module";
-import { UserModule } from "./user/user.module";
+import { EmailModule } from "./email/email.module";
+import { HealthModule } from "./health/health.module";
 import { JobModule } from "./job/job.module";
 import { JobResultModule } from "./job-result/job-result.module";
-import { EmailModule } from "./email/email.module";
-import { PrismaModule } from "./prisma/prisma.module";
-import { AuthModule } from "@thallesp/nestjs-better-auth";
 import { auth } from "./lib/auth";
-import { AiBackendModule } from "./ai-backend/ai-backend.module";
+import { PrismaModule } from "./prisma/prisma.module";
+import { UserModule } from "./user/user.module";
 
 @Module({
   imports: [

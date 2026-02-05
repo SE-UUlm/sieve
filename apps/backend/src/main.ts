@@ -1,8 +1,8 @@
+import { RequestMethod, ValidationPipe } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
-import { ConfigService } from "@nestjs/config";
 import { setupSwagger } from "./swagger.config";
-import { RequestMethod, ValidationPipe } from "@nestjs/common";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -14,13 +14,14 @@ async function bootstrap() {
   });
 
   const configService = app.get(ConfigService);
-  const port = configService.get<number>("BACKEND_PORT");
+  // biome-ignore lint/style/noNonNullAssertion: config is validated on startup
+  const port = configService.get<number>("BACKEND_PORT")!;
 
   await setupSwagger(app);
 
   app.useGlobalPipes(new ValidationPipe());
 
-  await app.listen(port!);
+  await app.listen(port);
 }
 
 bootstrap().catch((err) => {

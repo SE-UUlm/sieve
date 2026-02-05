@@ -6,8 +6,8 @@ import {
   IsOptional,
   IsUUID,
 } from "class-validator";
-import { EXAMPLE_USER_ID } from "../../common/examples.constants";
 import { JobResultStatus } from "../../../prisma/client/enums";
+import { EXAMPLE_USER_ID } from "../../common/examples.constants";
 
 export class JobResultDto {
   // TODO: replace with actual UUID version once implemented
@@ -38,6 +38,7 @@ export class JobResultDto {
 
   @ApiProperty({ description: "JSON output of the job", type: Object })
   @IsObject()
+  // biome-ignore lint/suspicious/noExplicitAny: output is a dynamic JSON payload from jobs
   output!: any;
 
   @ApiProperty({

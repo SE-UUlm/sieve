@@ -1,15 +1,15 @@
 "use client";
-import { Controller, useForm } from "react-hook-form";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Field, FieldError, FieldGroup } from "@/components/ui/field";
+import { RedirectType, redirect } from "next/navigation";
 import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
+import { Field, FieldError, FieldGroup } from "@/components/ui/field";
+import { Spinner } from "@/components/ui/spinner";
+import { Textarea } from "@/components/ui/textarea";
 import { authClient } from "@/lib/auth-client";
 import { useEmailControllerSubmitEmail } from "@/lib/client";
-import { redirect, RedirectType } from "next/navigation";
-import { Spinner } from "@/components/ui/spinner";
 
 const formSchema = z.object({
   emailContent: z

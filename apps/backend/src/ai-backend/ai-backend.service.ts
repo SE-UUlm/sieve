@@ -8,6 +8,7 @@ export class AiBackendService implements OnModuleInit {
   constructor(private configService: ConfigService) {}
 
   onModuleInit() {
+    // biome-ignore lint/style/noNonNullAssertion: config is validated on startup
     this.aiBackendUrl = this.configService.get<string>("AI_BACKEND_URL")!;
     if (!this.aiBackendUrl.endsWith("/")) {
       this.aiBackendUrl += "/";
@@ -38,7 +39,7 @@ export class AiBackendService implements OnModuleInit {
       Logger.log("AiBackend execution finished");
 
       if (!response.ok) {
-        throw new Error("AiBackend returned an error " + response.status);
+        throw new Error(`AiBackend returned an error ${response.status}`);
       }
 
       const data = (await response.json()) as { data: string };

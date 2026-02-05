@@ -9,8 +9,8 @@ import {
   IsString,
   IsUUID,
 } from "class-validator";
-import { EXAMPLE_USER_ID } from "../../common/examples.constants";
 import { UserRole } from "../../../prisma/client/enums";
+import { EXAMPLE_USER_ID } from "../../common/examples.constants";
 
 export class UserDto {
   // TODO: replace with actual UUID version once implemented

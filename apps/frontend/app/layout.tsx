@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 import "./globals.css";
+import { Toaster } from "@/components/ui/sonner";
 import NavBar from "./_components/NavBar";
 import Providers from "./providers";
-import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "Sieve",

@@ -12,8 +12,8 @@ import {
   ApiResponse,
   ApiTags,
 } from "@nestjs/swagger";
-import { CreateEmailDto } from "./dto/create-email.dto";
 import { AiBackendService } from "../ai-backend/ai-backend.service";
+import { CreateEmailDto } from "./dto/create-email.dto";
 
 @ApiTags("Emails")
 @Controller("emails")

@@ -5,10 +5,10 @@ import {
   ApiResponse,
   ApiTags,
 } from "@nestjs/swagger";
-import { UserDto } from "./dto/user.dto";
-import { SimpleUserDto } from "./dto/simple-user.dto";
-import { UserRole } from "../../prisma/client/enums";
 import { Roles } from "@thallesp/nestjs-better-auth";
+import { UserRole } from "../../prisma/client/enums";
+import { SimpleUserDto } from "./dto/simple-user.dto";
+import { UserDto } from "./dto/user.dto";
 
 // TODO: Remove eslint-disable when implementing methods
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -30,9 +30,9 @@ export class UserController {
   @ApiResponse({ status: 401, description: "Unauthorized" })
   @ApiResponse({ status: 403, description: "Forbidden" })
   getUsers(
-    @Query("page") page?: number,
-    @Query("limit") limit?: number,
-    @Query("role") role?: UserRole,
+    @Query("page") _page?: number,
+    @Query("limit") _limit?: number,
+    @Query("role") _role?: UserRole,
   ): Promise<SimpleUserDto[]> {
     // TODO: Implement user retrieval logic
     return Promise.resolve([]);
@@ -50,7 +50,7 @@ export class UserController {
   @ApiResponse({ status: 401, description: "Unauthorized" })
   @ApiResponse({ status: 403, description: "Forbidden" })
   @ApiResponse({ status: 404, description: "User not found" })
-  getUserById(@Param("userId") userId: string): Promise<UserDto> {
+  getUserById(@Param("userId") _userId: string): Promise<UserDto> {
     // TODO: Implement user retrieval by ID logic
     return Promise.resolve({} as UserDto);
   }

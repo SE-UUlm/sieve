@@ -1,8 +1,8 @@
+import { ConfigService } from "@nestjs/config";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { PrismaService } from "../prisma/prisma.service";
-import { ConfigService } from "@nestjs/config";
 import { openAPI } from "better-auth/plugins";
+import { PrismaService } from "../prisma/prisma.service";
 
 const configService = new ConfigService();
 const trustedOriginsEnv = configService.get<string>("TRUSTED_ORIGINS");

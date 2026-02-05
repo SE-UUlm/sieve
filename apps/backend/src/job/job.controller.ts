@@ -5,9 +5,9 @@ import {
   ApiResponse,
   ApiTags,
 } from "@nestjs/swagger";
-import { JobDto } from "./dto/job.dto";
-import { JobResultDto } from "../job-result/dto/job-result.dto";
 import { JobStatus } from "../../prisma/client/enums";
+import { JobResultDto } from "../job-result/dto/job-result.dto";
+import { JobDto } from "./dto/job.dto";
 
 // TODO: Remove eslint-disable when implementing methods
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -24,9 +24,9 @@ export class JobController {
   })
   @ApiResponse({ status: 401, description: "Unauthorized" })
   getJobs(
-    @Query("page") page?: number,
-    @Query("limit") limit?: number,
-    @Query("status") status?: JobStatus,
+    @Query("page") _page?: number,
+    @Query("limit") _limit?: number,
+    @Query("status") _status?: JobStatus,
   ): Promise<JobDto[]> {
     // TODO: Implement job retrieval logic
     return Promise.resolve([]);
@@ -42,7 +42,7 @@ export class JobController {
   })
   @ApiResponse({ status: 401, description: "Unauthorized" })
   @ApiResponse({ status: 404, description: "Job not found" })
-  getJobById(@Param("jobId") jobId: string): Promise<JobDto> {
+  getJobById(@Param("jobId") _jobId: string): Promise<JobDto> {
     // TODO: Implement job retrieval by ID logic
     return Promise.resolve({} as JobDto);
   }
@@ -57,7 +57,7 @@ export class JobController {
   })
   @ApiResponse({ status: 401, description: "Unauthorized" })
   @ApiResponse({ status: 404, description: "Job or result not found" })
-  getJobResult(@Param("jobId") jobId: string): Promise<JobResultDto> {
+  getJobResult(@Param("jobId") _jobId: string): Promise<JobResultDto> {
     // TODO: Implement job result retrieval logic
     return Promise.resolve({} as JobResultDto);
   }

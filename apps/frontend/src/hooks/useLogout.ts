@@ -1,7 +1,7 @@
-import { authClient } from "@/lib/auth-client";
-import { redirect, RedirectType } from "next/navigation";
+import { RedirectType, redirect } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { authClient } from "@/lib/auth-client";
 
 const useLogout = () => {
   const { refetch } = authClient.useSession();

@@ -1,8 +1,10 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
+import { RedirectType, redirect } from "next/navigation";
+import { useId, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import * as z from "zod";
-
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -18,10 +20,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { useId, useState } from "react";
-import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
-import { redirect, RedirectType } from "next/navigation";
 
 const formSchema = z.object({
   name: z

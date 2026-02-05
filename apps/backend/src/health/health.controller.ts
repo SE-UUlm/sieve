@@ -1,12 +1,12 @@
 import { Controller, Get } from "@nestjs/common";
+import { ApiOperation, ApiTags } from "@nestjs/swagger";
 import {
   HealthCheck,
   HealthCheckService,
   PrismaHealthIndicator,
 } from "@nestjs/terminus";
-import { ApiOperation, ApiTags } from "@nestjs/swagger";
-import { PrismaService } from "../prisma/prisma.service";
 import { AllowAnonymous } from "@thallesp/nestjs-better-auth";
+import { PrismaService } from "../prisma/prisma.service";
 
 @ApiTags("Health")
 @Controller("health")

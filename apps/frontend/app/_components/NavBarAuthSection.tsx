@@ -1,8 +1,8 @@
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import useLogout from "@/hooks/useLogout";
 import { authClient } from "@/lib/auth-client";
-import Link from "next/link";
 
 const NavBarAuthSection = () => {
   const { data: session, isPending, error } = authClient.useSession();

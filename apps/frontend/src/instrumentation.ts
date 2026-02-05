@@ -1,8 +1,8 @@
 import { setupServer } from "msw/node";
-import { getJobsMock } from "@/lib/client/jobs/jobs.msw";
-import { getUsersMock } from "@/lib/client/users/users.msw";
 import { getEmailsMock } from "@/lib/client/emails/emails.msw";
 import { getHealthMock } from "@/lib/client/health/health.msw";
+import { getJobsMock } from "@/lib/client/jobs/jobs.msw";
+import { getUsersMock } from "@/lib/client/users/users.msw";
 import { getDefaultMock } from "./lib/client/default/default.msw";
 
 export async function register() {

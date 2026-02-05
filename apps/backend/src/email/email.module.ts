@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
-import { EmailController } from "./email.controller";
 import { AiBackendModule } from "../ai-backend/ai-backend.module";
+import { EmailController } from "./email.controller";
 
 @Module({
   imports: [AiBackendModule],

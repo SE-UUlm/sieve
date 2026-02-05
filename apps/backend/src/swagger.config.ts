@@ -1,5 +1,9 @@
-import { INestApplication } from "@nestjs/common";
-import { DocumentBuilder, OpenAPIObject, SwaggerModule } from "@nestjs/swagger";
+import type { INestApplication } from "@nestjs/common";
+import {
+  DocumentBuilder,
+  type OpenAPIObject,
+  SwaggerModule,
+} from "@nestjs/swagger";
 import { apiReference } from "@scalar/nestjs-api-reference";
 import { auth } from "./lib/auth";
 
@@ -142,8 +146,12 @@ export function mergeOpenApiDocs(
   if (secondary.tags) {
     const tagMap = new Map<string, (typeof secondary.tags)[number]>();
 
-    secondary.tags.forEach((tag) => tagMap.set(tag.name, tag));
-    primary.tags?.forEach((tag) => tagMap.set(tag.name, tag));
+    secondary.tags.forEach((tag) => {
+      tagMap.set(tag.name, tag);
+    });
+    primary.tags?.forEach((tag) => {
+      tagMap.set(tag.name, tag);
+    });
     out.tags = Array.from(tagMap.values());
   }
 
