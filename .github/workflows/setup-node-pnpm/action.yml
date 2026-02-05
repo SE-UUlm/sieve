@@ -1,5 +1,5 @@
-name: Setup
-description: Setup CI/CD pipeline environment
+name: Setup Node + pnpm
+description: Setup Node.js and pnpm
 inputs:
     node_version:
         description: "Node.js version"
