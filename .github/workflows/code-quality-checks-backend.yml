@@ -30,7 +30,7 @@ jobs:
               run: pnpm run license-check
               working-directory: ${{ env.working_directory }}
 
-            - name: Linting
+            - name: Lint
               run: pnpm run lint
               working-directory: ${{ env.working_directory }}
 

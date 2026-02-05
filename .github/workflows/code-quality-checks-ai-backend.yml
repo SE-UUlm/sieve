@@ -30,7 +30,7 @@ jobs:
               working-directory: ${{ env.working_directory }}
 
     linting:
-        name: Linting AI-Backend
+        name: Lint AI-Backend
         runs-on: ubuntu-latest
         steps:
             - name: Checkout Code
@@ -46,7 +46,7 @@ jobs:
               working-directory: ${{ env.working_directory }}
 
     type-checking:
-        name: Type-Checking AI-Backend
+        name: Type-Check AI-Backend
         runs-on: ubuntu-latest
         steps:
             - name: Checkout Code
