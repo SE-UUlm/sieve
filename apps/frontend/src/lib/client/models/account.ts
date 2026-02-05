@@ -10,17 +10,17 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
  */
 
 export interface Account {
-    id?: string;
-    accountId: string;
-    providerId: string;
-    userId: string;
-    accessToken?: string;
-    refreshToken?: string;
-    idToken?: string;
-    accessTokenExpiresAt?: string;
-    refreshTokenExpiresAt?: string;
-    scope?: string;
-    password?: string;
-    createdAt: string;
-    updatedAt: string;
+  id?: string;
+  accountId: string;
+  providerId: string;
+  userId: string;
+  accessToken?: string;
+  refreshToken?: string;
+  idToken?: string;
+  accessTokenExpiresAt?: string;
+  refreshTokenExpiresAt?: string;
+  scope?: string;
+  password?: string;
+  createdAt: string;
+  updatedAt: string;
 }

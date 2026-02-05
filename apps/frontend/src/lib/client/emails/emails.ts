@@ -8,141 +8,129 @@
 Therefore, the 'Default' tag is used for endpoints that are related to user authentication and session management.
  * OpenAPI spec version: 0.1.0
  */
-import { useMutation } from "@tanstack/react-query";
+import {
+  useMutation
+} from '@tanstack/react-query';
 import type {
-    MutationFunction,
-    UseMutationOptions,
-    UseMutationResult,
-} from "@tanstack/react-query";
+  MutationFunction,
+  UseMutationOptions,
+  UseMutationResult
+} from '@tanstack/react-query';
 
 import type {
-    CreateEmailDto,
-    EmailControllerSubmitEmail201,
-    EmailControllerSubmitEmail500,
-} from ".././models";
+  CreateEmailDto,
+  EmailControllerSubmitEmail201,
+  EmailControllerSubmitEmail500
+} from '.././models';
+
+
+
+
 
 /**
  * @summary Submit an email for processing
  */
 export type emailControllerSubmitEmailResponse201 = {
-    data: EmailControllerSubmitEmail201;
-    status: 201;
-};
+  data: EmailControllerSubmitEmail201
+  status: 201
+}
 
 export type emailControllerSubmitEmailResponse400 = {
-    data: void;
-    status: 400;
-};
+  data: void
+  status: 400
+}
 
 export type emailControllerSubmitEmailResponse401 = {
-    data: void;
-    status: 401;
-};
+  data: void
+  status: 401
+}
 
 export type emailControllerSubmitEmailResponse500 = {
-    data: EmailControllerSubmitEmail500;
-    status: 500;
+  data: EmailControllerSubmitEmail500
+  status: 500
+}
+    
+export type emailControllerSubmitEmailResponseSuccess = (emailControllerSubmitEmailResponse201) & {
+  headers: Headers;
+};
+export type emailControllerSubmitEmailResponseError = (emailControllerSubmitEmailResponse400 | emailControllerSubmitEmailResponse401 | emailControllerSubmitEmailResponse500) & {
+  headers: Headers;
 };
 
-export type emailControllerSubmitEmailResponseSuccess = emailControllerSubmitEmailResponse201 & {
-    headers: Headers;
-};
-export type emailControllerSubmitEmailResponseError = (
-    | emailControllerSubmitEmailResponse400
-    | emailControllerSubmitEmailResponse401
-    | emailControllerSubmitEmailResponse500
-) & {
-    headers: Headers;
-};
-
-export type emailControllerSubmitEmailResponse =
-    | emailControllerSubmitEmailResponseSuccess
-    | emailControllerSubmitEmailResponseError;
+export type emailControllerSubmitEmailResponse = (emailControllerSubmitEmailResponseSuccess | emailControllerSubmitEmailResponseError)
 
 export const getEmailControllerSubmitEmailUrl = () => {
-    return `/api/emails`;
-};
 
-export const emailControllerSubmitEmail = async (
-    createEmailDto: CreateEmailDto,
-    options?: RequestInit,
-): Promise<emailControllerSubmitEmailResponse> => {
-    const res = await fetch(getEmailControllerSubmitEmailUrl(), {
-        ...options,
-        method: "POST",
-        headers: { "Content-Type": "application/json", ...options?.headers },
-        body: JSON.stringify(createEmailDto),
-    });
 
-    const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
 
-    const data: emailControllerSubmitEmailResponse["data"] = body ? JSON.parse(body) : {};
-    return { data, status: res.status, headers: res.headers } as emailControllerSubmitEmailResponse;
-};
+  return `/api/emails`
+}
 
-export const getEmailControllerSubmitEmailMutationOptions = <
-    TError = void | EmailControllerSubmitEmail500,
-    TContext = unknown,
->(options?: {
-    mutation?: UseMutationOptions<
-        Awaited<ReturnType<typeof emailControllerSubmitEmail>>,
-        TError,
-        { data: CreateEmailDto },
-        TContext
-    >;
-    fetch?: RequestInit;
-}): UseMutationOptions<
-    Awaited<ReturnType<typeof emailControllerSubmitEmail>>,
-    TError,
-    { data: CreateEmailDto },
-    TContext
-> => {
-    const mutationKey = ["emailControllerSubmitEmail"];
-    const { mutation: mutationOptions, fetch: fetchOptions } = options
-        ? options.mutation && "mutationKey" in options.mutation && options.mutation.mutationKey
-            ? options
-            : { ...options, mutation: { ...options.mutation, mutationKey } }
-        : { mutation: { mutationKey }, fetch: undefined };
+export const emailControllerSubmitEmail = async (createEmailDto: CreateEmailDto, options?: RequestInit): Promise<emailControllerSubmitEmailResponse> => {
+  
+  const res = await fetch(getEmailControllerSubmitEmailUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      createEmailDto,)
+  }
+)
 
-    const mutationFn: MutationFunction<
-        Awaited<ReturnType<typeof emailControllerSubmitEmail>>,
-        { data: CreateEmailDto }
-    > = (props) => {
-        const { data } = props ?? {};
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: emailControllerSubmitEmailResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as emailControllerSubmitEmailResponse
+}
 
-        return emailControllerSubmitEmail(data, fetchOptions);
-    };
 
-    return { mutationFn, ...mutationOptions };
-};
 
-export type EmailControllerSubmitEmailMutationResult = NonNullable<
-    Awaited<ReturnType<typeof emailControllerSubmitEmail>>
->;
-export type EmailControllerSubmitEmailMutationBody = CreateEmailDto;
-export type EmailControllerSubmitEmailMutationError = void | EmailControllerSubmitEmail500;
 
-/**
+export const getEmailControllerSubmitEmailMutationOptions = <TError = void | EmailControllerSubmitEmail500,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof emailControllerSubmitEmail>>, TError,{data: CreateEmailDto}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof emailControllerSubmitEmail>>, TError,{data: CreateEmailDto}, TContext> => {
+
+const mutationKey = ['emailControllerSubmitEmail'];
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, fetch: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof emailControllerSubmitEmail>>, {data: CreateEmailDto}> = (props) => {
+          const {data} = props ?? {};
+
+          return  emailControllerSubmitEmail(data,fetchOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type EmailControllerSubmitEmailMutationResult = NonNullable<Awaited<ReturnType<typeof emailControllerSubmitEmail>>>
+    export type EmailControllerSubmitEmailMutationBody = CreateEmailDto
+    export type EmailControllerSubmitEmailMutationError = void | EmailControllerSubmitEmail500
+
+    /**
  * @summary Submit an email for processing
  */
-export const useEmailControllerSubmitEmail = <
-    TError = void | EmailControllerSubmitEmail500,
-    TContext = unknown,
->(options?: {
-    mutation?: UseMutationOptions<
+export const useEmailControllerSubmitEmail = <TError = void | EmailControllerSubmitEmail500,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof emailControllerSubmitEmail>>, TError,{data: CreateEmailDto}, TContext>, fetch?: RequestInit}
+ ): UseMutationResult<
         Awaited<ReturnType<typeof emailControllerSubmitEmail>>,
         TError,
-        { data: CreateEmailDto },
+        {data: CreateEmailDto},
         TContext
-    >;
-    fetch?: RequestInit;
-}): UseMutationResult<
-    Awaited<ReturnType<typeof emailControllerSubmitEmail>>,
-    TError,
-    { data: CreateEmailDto },
-    TContext
-> => {
-    const mutationOptions = getEmailControllerSubmitEmailMutationOptions(options);
+      > => {
 
-    return useMutation(mutationOptions);
-};
+      const mutationOptions = getEmailControllerSubmitEmailMutationOptions(options);
+
+      return useMutation(mutationOptions);
+    }
+    

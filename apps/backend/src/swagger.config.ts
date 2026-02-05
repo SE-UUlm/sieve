@@ -1,5 +1,9 @@
-import { INestApplication } from "@nestjs/common";
-import { DocumentBuilder, OpenAPIObject, SwaggerModule } from "@nestjs/swagger";
+import type { INestApplication } from "@nestjs/common";
+import {
+    DocumentBuilder,
+    type OpenAPIObject,
+    SwaggerModule,
+} from "@nestjs/swagger";
 import { apiReference } from "@scalar/nestjs-api-reference";
 import { auth } from "./lib/auth";
 
@@ -24,7 +28,9 @@ export async function setupSwagger(app: INestApplication): Promise<void> {
  * @param app The NestJS application instance.
  * @returns The combined OpenAPI document.
  */
-export async function createDocument(app: INestApplication): Promise<OpenAPIObject> {
+export async function createDocument(
+    app: INestApplication,
+): Promise<OpenAPIObject> {
     const config = new DocumentBuilder()
         .setTitle("SIEVE")
         .setDescription(
@@ -37,11 +43,20 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
         )
         .setVersion("0.1.0")
         .setOpenAPIVersion("3.1.1")
-        .setLicense("GPLv3-or-later", "https://www.gnu.org/licenses/gpl-3.0.html")
-        .setExternalDoc("Documentation", "https://github.com/SE-UUlm/sieve/wiki")
+        .setLicense(
+            "GPLv3-or-later",
+            "https://www.gnu.org/licenses/gpl-3.0.html",
+        )
+        .setExternalDoc(
+            "Documentation",
+            "https://github.com/SE-UUlm/sieve/wiki",
+        )
         // TODO: Replace with 'Authentication' once better-auth supports customizing tag names
         //       Description is currently overwritten by the Better Auth plugin
-        .addTag("Default", "Endpoints for user authentication and session management.")
+        .addTag(
+            "Default",
+            "Endpoints for user authentication and session management.",
+        )
         .addTag(
             "Users",
             "Endpoints for listing and inspecting users. Accessible only to users with admin roles.",
@@ -54,11 +69,15 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
             "Jobs",
             "Endpoints to list or inspect background processing jobs created by the user.",
         )
-        .addTag("Health", "Endpoint to check the health status of the SIEVE backend service.")
+        .addTag(
+            "Health",
+            "Endpoint to check the health status of the SIEVE backend service.",
+        )
         .build();
 
     const nestDocument = SwaggerModule.createDocument(app, config);
-    const betterAuthSchema = (await auth.api.generateOpenAPISchema()) as OpenAPIObject;
+    const betterAuthSchema =
+        (await auth.api.generateOpenAPISchema()) as OpenAPIObject;
 
     return mergeOpenApiDocs(nestDocument, betterAuthSchema);
 }
@@ -69,7 +88,10 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
  * @param primary The `primary` document takes precedence: conflicts are resolved in favor of `primary`.
  * @param secondary The `secondary` document appends missing paths, components, and tags.
  */
-export function mergeOpenApiDocs(primary: OpenAPIObject, secondary: OpenAPIObject): OpenAPIObject {
+export function mergeOpenApiDocs(
+    primary: OpenAPIObject,
+    secondary: OpenAPIObject,
+): OpenAPIObject {
     const out: OpenAPIObject = { ...primary };
 
     // Paths
@@ -116,7 +138,9 @@ export function mergeOpenApiDocs(primary: OpenAPIObject, secondary: OpenAPIObjec
     if (secondary.security) {
         const primarySecurity = out.security || [];
 
-        const existingKeys = new Set(primarySecurity.flatMap((s) => Object.keys(s)));
+        const existingKeys = new Set(
+            primarySecurity.flatMap((s) => Object.keys(s)),
+        );
         const uniqueSecondarySecurity = secondary.security.filter((sec) => {
             return !Object.keys(sec).some((key) => existingKeys.has(key));
         });
@@ -128,8 +152,12 @@ export function mergeOpenApiDocs(primary: OpenAPIObject, secondary: OpenAPIObjec
     if (secondary.tags) {
         const tagMap = new Map<string, (typeof secondary.tags)[number]>();
 
-        secondary.tags.forEach((tag) => tagMap.set(tag.name, tag));
-        primary.tags?.forEach((tag) => tagMap.set(tag.name, tag));
+        secondary.tags.forEach((tag) => {
+            tagMap.set(tag.name, tag);
+        });
+        primary.tags?.forEach((tag) => {
+            tagMap.set(tag.name, tag);
+        });
         out.tags = Array.from(tagMap.values());
     }
 

@@ -8,14 +8,14 @@
 Therefore, the 'Default' tag is used for endpoints that are related to user authentication and session management.
  * OpenAPI spec version: 0.1.0
  */
-import type { PostGetAccessTokenBodyAccountId } from "./postGetAccessTokenBodyAccountId";
-import type { PostGetAccessTokenBodyUserId } from "./postGetAccessTokenBodyUserId";
+import type { PostGetAccessTokenBodyAccountId } from './postGetAccessTokenBodyAccountId';
+import type { PostGetAccessTokenBodyUserId } from './postGetAccessTokenBodyUserId';
 
 export type PostGetAccessTokenBody = {
-    /** The provider ID for the OAuth provider */
-    providerId: string;
-    /** The account ID associated with the refresh token */
-    accountId?: PostGetAccessTokenBodyAccountId;
-    /** The user ID associated with the account */
-    userId?: PostGetAccessTokenBodyUserId;
+  /** The provider ID for the OAuth provider */
+  providerId: string;
+  /** The account ID associated with the refresh token */
+  accountId?: PostGetAccessTokenBodyAccountId;
+  /** The user ID associated with the account */
+  userId?: PostGetAccessTokenBodyUserId;
 };

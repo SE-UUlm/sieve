@@ -10,6 +10,6 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
  */
 
 export type PostRevokeSessionBody = {
-    /** The token to revoke */
-    token: string;
+  /** The token to revoke */
+  token: string;
 };

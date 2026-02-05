@@ -8,15 +8,15 @@
 Therefore, the 'Default' tag is used for endpoints that are related to user authentication and session management.
  * OpenAPI spec version: 0.1.0
  */
-import type { SimpleUserDtoRole } from "./simpleUserDtoRole";
+import type { SimpleUserDtoRole } from './simpleUserDtoRole';
 
 export interface SimpleUserDto {
-    /** Unique user ID */
-    id: string;
-    /** Full name of the user */
-    name: string;
-    /** Email address of the user */
-    email: string;
-    /** Role of the user */
-    role: SimpleUserDtoRole;
+  /** Unique user ID */
+  id: string;
+  /** Full name of the user */
+  name: string;
+  /** Email address of the user */
+  email: string;
+  /** Role of the user */
+  role: SimpleUserDtoRole;
 }

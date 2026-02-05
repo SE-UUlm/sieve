@@ -8,11 +8,11 @@
 Therefore, the 'Default' tag is used for endpoints that are related to user authentication and session management.
  * OpenAPI spec version: 0.1.0
  */
-import type { RequestPasswordResetBodyRedirectTo } from "./requestPasswordResetBodyRedirectTo";
+import type { RequestPasswordResetBodyRedirectTo } from './requestPasswordResetBodyRedirectTo';
 
 export type RequestPasswordResetBody = {
-    /** The email address of the user to send a password reset email to */
-    email: string;
-    /** The URL to redirect the user to reset their password. If the token isn't valid or expired, it'll be redirected with a query parameter `?error=INVALID_TOKEN`. If the token is valid, it'll be redirected with a query parameter `?token=VALID_TOKEN */
-    redirectTo?: RequestPasswordResetBodyRedirectTo;
+  /** The email address of the user to send a password reset email to */
+  email: string;
+  /** The URL to redirect the user to reset their password. If the token isn't valid or expired, it'll be redirected with a query parameter `?error=INVALID_TOKEN`. If the token is valid, it'll be redirected with a query parameter `?token=VALID_TOKEN */
+  redirectTo?: RequestPasswordResetBodyRedirectTo;
 };

@@ -1,18 +1,20 @@
 "use client";
-import { Controller, useForm } from "react-hook-form";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Field, FieldError, FieldGroup } from "@/components/ui/field";
+import { RedirectType, redirect } from "next/navigation";
 import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
+import { Field, FieldError, FieldGroup } from "@/components/ui/field";
+import { Spinner } from "@/components/ui/spinner";
+import { Textarea } from "@/components/ui/textarea";
 import { authClient } from "@/lib/auth-client";
 import { useEmailControllerSubmitEmail } from "@/lib/client";
-import { redirect, RedirectType } from "next/navigation";
-import { Spinner } from "@/components/ui/spinner";
 
 const formSchema = z.object({
-    emailContent: z.string().min(1, "Email content must be at least 1 character."),
+    emailContent: z
+        .string()
+        .min(1, "Email content must be at least 1 character."),
 });
 
 const AnalysePage = () => {
@@ -33,7 +35,10 @@ const AnalysePage = () => {
             onSuccess: (data) => {
                 // TODO it is probably better to define our own use Hook and treat the errors correctly (or maby configure it in orval config if possible)
                 if (data.status === 201) setEmailResult(data.data.data);
-                else setEmailResult("Failed to analyze email. Please try again.");
+                else
+                    setEmailResult(
+                        "Failed to analyze email. Please try again.",
+                    );
             },
             onError: () => {
                 setEmailResult("Failed to analyze email. Please try again.");
@@ -71,7 +76,9 @@ const AnalysePage = () => {
                                     aria-invalid={fieldState.invalid}
                                     disabled={isPending}
                                 />
-                                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                                {fieldState.invalid && (
+                                    <FieldError errors={[fieldState.error]} />
+                                )}
                             </Field>
                         )}
                     />

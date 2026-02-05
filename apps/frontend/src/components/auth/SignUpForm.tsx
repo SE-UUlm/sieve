@@ -1,23 +1,35 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
+import { RedirectType, redirect } from "next/navigation";
+import { useId, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import * as z from "zod";
-
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
+import {
+    Card,
+    CardContent,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
+import {
+    Field,
+    FieldError,
+    FieldGroup,
+    FieldLabel,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { useId, useState } from "react";
-import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
-import { redirect, RedirectType } from "next/navigation";
 
 const formSchema = z.object({
     name: z
         .string()
         .min(3, "Name must be at least 3 characters.")
         .max(100, "Name must be at most 100 characters."),
-    email: z.email("Invalid email").max(254, "Email must be at most 254 characters."),
+    email: z
+        .email("Invalid email")
+        .max(254, "Email must be at most 254 characters."),
     password: z
         .string()
         .min(3, "Password must be at least 3 characters.")
@@ -74,7 +86,9 @@ const SignUpForm = () => {
                             control={control}
                             render={({ field, fieldState }) => (
                                 <Field data-invalid={fieldState.invalid}>
-                                    <FieldLabel htmlFor={nameId}>Name</FieldLabel>
+                                    <FieldLabel htmlFor={nameId}>
+                                        Name
+                                    </FieldLabel>
                                     <Input
                                         {...field}
                                         id={nameId}
@@ -84,7 +98,9 @@ const SignUpForm = () => {
                                         disabled={isSubmitting}
                                     />
                                     {fieldState.invalid && (
-                                        <FieldError errors={[fieldState.error]} />
+                                        <FieldError
+                                            errors={[fieldState.error]}
+                                        />
                                     )}
                                 </Field>
                             )}
@@ -94,7 +110,9 @@ const SignUpForm = () => {
                             control={control}
                             render={({ field, fieldState }) => (
                                 <Field data-invalid={fieldState.invalid}>
-                                    <FieldLabel htmlFor={emailId}>Email</FieldLabel>
+                                    <FieldLabel htmlFor={emailId}>
+                                        Email
+                                    </FieldLabel>
                                     <Input
                                         {...field}
                                         id={emailId}
@@ -104,7 +122,9 @@ const SignUpForm = () => {
                                         disabled={isSubmitting}
                                     />
                                     {fieldState.invalid && (
-                                        <FieldError errors={[fieldState.error]} />
+                                        <FieldError
+                                            errors={[fieldState.error]}
+                                        />
                                     )}
                                 </Field>
                             )}
@@ -114,7 +134,9 @@ const SignUpForm = () => {
                             control={control}
                             render={({ field, fieldState }) => (
                                 <Field data-invalid={fieldState.invalid}>
-                                    <FieldLabel htmlFor={passwordId}>Password</FieldLabel>
+                                    <FieldLabel htmlFor={passwordId}>
+                                        Password
+                                    </FieldLabel>
                                     <Input
                                         {...field}
                                         type="password"
@@ -124,7 +146,9 @@ const SignUpForm = () => {
                                         disabled={isSubmitting}
                                     />
                                     {fieldState.invalid && (
-                                        <FieldError errors={[fieldState.error]} />
+                                        <FieldError
+                                            errors={[fieldState.error]}
+                                        />
                                     )}
                                 </Field>
                             )}

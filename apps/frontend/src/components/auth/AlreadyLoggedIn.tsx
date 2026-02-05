@@ -15,7 +15,11 @@ const AlreadyLoggedIn = () => {
             </CardHeader>
             <CardContent>
                 <Field orientation="horizontal">
-                    <Button type="button" onClick={() => handleLogout()} disabled={isPending}>
+                    <Button
+                        type="button"
+                        onClick={() => handleLogout()}
+                        disabled={isPending}
+                    >
                         Logout
                     </Button>
                 </Field>

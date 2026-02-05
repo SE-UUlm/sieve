@@ -13,12 +13,11 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
  * Status message of the email change process
  * @nullable
  */
-export type ChangeEmail200Message =
-    | (typeof ChangeEmail200Message)[keyof typeof ChangeEmail200Message]
-    | null;
+export type ChangeEmail200Message = typeof ChangeEmail200Message[keyof typeof ChangeEmail200Message] | null;
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const ChangeEmail200Message = {
-    Email_updated: "Email updated",
-    Verification_email_sent: "Verification email sent",
+  Email_updated: 'Email updated',
+  Verification_email_sent: 'Verification email sent',
 } as const;

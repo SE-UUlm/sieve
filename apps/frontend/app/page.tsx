@@ -1,8 +1,8 @@
 "use client";
-import Hero from "./_components/Hero";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
-import Link from "next/link";
+import Hero from "./_components/Hero";
 
 export default function Home() {
     const { data: session } = authClient.useSession();

@@ -8,10 +8,10 @@
 Therefore, the 'Default' tag is used for endpoints that are related to user authentication and session management.
  * OpenAPI spec version: 0.1.0
  */
-import type { User } from "./user";
+import type { User } from './user';
 
 export type GetVerifyEmail200 = {
-    user: User;
-    /** Indicates if the email was verified successfully */
-    status: boolean;
+  user: User;
+  /** Indicates if the email was verified successfully */
+  status: boolean;
 };

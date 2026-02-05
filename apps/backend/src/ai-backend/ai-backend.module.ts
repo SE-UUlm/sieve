@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
-import { AiBackendService } from "./ai-backend.service";
 import { ConfigModule } from "@nestjs/config";
+import { AiBackendService } from "./ai-backend.service";
 
 @Module({
     imports: [ConfigModule],

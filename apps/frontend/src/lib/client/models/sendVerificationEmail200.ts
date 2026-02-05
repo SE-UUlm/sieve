@@ -10,6 +10,6 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
  */
 
 export type SendVerificationEmail200 = {
-    /** Indicates if the email was sent successfully */
-    status?: boolean;
+  /** Indicates if the email was sent successfully */
+  status?: boolean;
 };

@@ -8,37 +8,37 @@
 Therefore, the 'Default' tag is used for endpoints that are related to user authentication and session management.
  * OpenAPI spec version: 0.1.0
  */
-import type { JobDtoStatus } from "./jobDtoStatus";
+import type { JobDtoStatus } from './jobDtoStatus';
 
 export interface JobDto {
-    /** Unique job ID */
-    id: string;
-    /** Current status of the job */
-    status: JobDtoStatus;
-    /** User ID who created the job */
-    userId: string;
-    /** Email ID associated with this job */
-    emailId: string;
-    /**
-     * Job start timestamp
-     * @nullable
-     */
-    startedAt?: string | null;
-    /**
-     * Job completion timestamp
-     * @nullable
-     */
-    completedAt?: string | null;
-    /** Creation timestamp */
-    createdAt: string;
-    /**
-     * Deletion timestamp if soft-deleted
-     * @nullable
-     */
-    deletedAt?: string | null;
-    /**
-     * Associated JobResult ID, if completed
-     * @nullable
-     */
-    resultId?: string | null;
+  /** Unique job ID */
+  id: string;
+  /** Current status of the job */
+  status: JobDtoStatus;
+  /** User ID who created the job */
+  userId: string;
+  /** Email ID associated with this job */
+  emailId: string;
+  /**
+   * Job start timestamp
+   * @nullable
+   */
+  startedAt?: string | null;
+  /**
+   * Job completion timestamp
+   * @nullable
+   */
+  completedAt?: string | null;
+  /** Creation timestamp */
+  createdAt: string;
+  /**
+   * Deletion timestamp if soft-deleted
+   * @nullable
+   */
+  deletedAt?: string | null;
+  /**
+   * Associated JobResult ID, if completed
+   * @nullable
+   */
+  resultId?: string | null;
 }

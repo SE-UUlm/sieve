@@ -1,7 +1,19 @@
-import { Body, Controller, HttpException, HttpStatus, Logger, Post } from "@nestjs/common";
-import { ApiCookieAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { CreateEmailDto } from "./dto/create-email.dto";
+import {
+    Body,
+    Controller,
+    HttpException,
+    HttpStatus,
+    Logger,
+    Post,
+} from "@nestjs/common";
+import {
+    ApiCookieAuth,
+    ApiOperation,
+    ApiResponse,
+    ApiTags,
+} from "@nestjs/swagger";
 import { AiBackendService } from "../ai-backend/ai-backend.service";
+import { CreateEmailDto } from "./dto/create-email.dto";
 
 @ApiTags("Emails")
 @Controller("emails")

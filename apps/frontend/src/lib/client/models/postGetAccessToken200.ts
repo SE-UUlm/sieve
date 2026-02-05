@@ -10,8 +10,8 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
  */
 
 export type PostGetAccessToken200 = {
-    tokenType?: string;
-    idToken?: string;
-    accessToken?: string;
-    accessTokenExpiresAt?: string;
+  tokenType?: string;
+  idToken?: string;
+  accessToken?: string;
+  accessTokenExpiresAt?: string;
 };

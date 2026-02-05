@@ -1,11 +1,15 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsDateString, IsEnum, IsOptional, IsUUID } from "class-validator";
-import { EXAMPLE_USER_ID } from "../../common/examples.constants";
 import { JobStatus } from "../../../prisma/client/enums";
+import { EXAMPLE_USER_ID } from "../../common/examples.constants";
 
 export class JobDto {
     // TODO: replace with actual UUID version once implemented
-    @ApiProperty({ description: "Unique job ID", type: String, example: EXAMPLE_USER_ID })
+    @ApiProperty({
+        description: "Unique job ID",
+        type: String,
+        example: EXAMPLE_USER_ID,
+    })
     @IsUUID()
     id!: string;
 
@@ -57,7 +61,11 @@ export class JobDto {
     @IsDateString()
     completedAt?: string | null;
 
-    @ApiProperty({ description: "Creation timestamp", type: String, format: "date-time" })
+    @ApiProperty({
+        description: "Creation timestamp",
+        type: String,
+        format: "date-time",
+    })
     @IsDateString()
     createdAt!: string;
 

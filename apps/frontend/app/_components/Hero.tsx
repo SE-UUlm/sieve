@@ -9,8 +9,8 @@ const Hero = () => (
         </h1>
 
         <p className="text-lg sm:text-xl md:text-2xl">
-            Harness AI to instantly spot the products your customers want, even in a flood of
-            mixed-quality messages.
+            Harness AI to instantly spot the products your customers want, even
+            in a flood of mixed-quality messages.
         </p>
     </div>
 );

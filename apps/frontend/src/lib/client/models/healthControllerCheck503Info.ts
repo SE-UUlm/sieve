@@ -12,9 +12,7 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
 /**
  * @nullable
  */
-export type HealthControllerCheck503Info = {
-    [key: string]: {
-        status: string;
-        [key: string]: unknown;
-    };
-} | null;
+export type HealthControllerCheck503Info = {[key: string]: {
+  status: string;
+  [key: string]: unknown;
+ }} | null;

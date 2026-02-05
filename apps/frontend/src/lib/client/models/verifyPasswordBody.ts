@@ -10,6 +10,6 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
  */
 
 export type VerifyPasswordBody = {
-    /** The password to verify */
-    password: string;
+  /** The password to verify */
+  password: string;
 };

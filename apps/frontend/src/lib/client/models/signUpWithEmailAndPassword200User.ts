@@ -10,21 +10,21 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
  */
 
 export type SignUpWithEmailAndPassword200User = {
-    /** The unique identifier of the user */
-    id: string;
-    /** The email address of the user */
-    email: string;
-    /** The name of the user */
-    name: string;
-    /**
-     * The profile image URL of the user
-     * @nullable
-     */
-    image?: string | null;
-    /** Whether the email has been verified */
-    emailVerified: boolean;
-    /** When the user was created */
-    createdAt: string;
-    /** When the user was last updated */
-    updatedAt: string;
+  /** The unique identifier of the user */
+  id: string;
+  /** The email address of the user */
+  email: string;
+  /** The name of the user */
+  name: string;
+  /**
+   * The profile image URL of the user
+   * @nullable
+   */
+  image?: string | null;
+  /** Whether the email has been verified */
+  emailVerified: boolean;
+  /** When the user was created */
+  createdAt: string;
+  /** When the user was last updated */
+  updatedAt: string;
 };

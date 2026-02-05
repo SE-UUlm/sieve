@@ -12,10 +12,11 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
 /**
  * Role of the user
  */
-export type SimpleUserDtoRole = (typeof SimpleUserDtoRole)[keyof typeof SimpleUserDtoRole];
+export type SimpleUserDtoRole = typeof SimpleUserDtoRole[keyof typeof SimpleUserDtoRole];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const SimpleUserDtoRole = {
-    ADMIN: "ADMIN",
-    USER: "USER",
+  ADMIN: 'ADMIN',
+  USER: 'USER',
 } as const;

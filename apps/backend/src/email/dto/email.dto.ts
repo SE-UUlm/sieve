@@ -1,15 +1,30 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsDateString, IsEmail, IsNotEmpty, IsOptional, IsString, IsUUID } from "class-validator";
+import {
+    IsDateString,
+    IsEmail,
+    IsNotEmpty,
+    IsOptional,
+    IsString,
+    IsUUID,
+} from "class-validator";
 import { EXAMPLE_USER_ID } from "../../common/examples.constants";
 
 export class EmailDto {
     // TODO: replace with actual UUID version once implemented
-    @ApiProperty({ description: "Unique email ID", type: String, example: EXAMPLE_USER_ID })
+    @ApiProperty({
+        description: "Unique email ID",
+        type: String,
+        example: EXAMPLE_USER_ID,
+    })
     @IsUUID()
     id!: string;
 
     // TODO: replace with actual UUID version once implemented
-    @ApiProperty({ description: "User ID of the owner", type: String, example: EXAMPLE_USER_ID })
+    @ApiProperty({
+        description: "User ID of the owner",
+        type: String,
+        example: EXAMPLE_USER_ID,
+    })
     @IsUUID()
     userId!: string;
 
@@ -48,7 +63,11 @@ export class EmailDto {
     @IsNotEmpty()
     body!: string;
 
-    @ApiProperty({ description: "Creation timestamp", type: String, format: "date-time" })
+    @ApiProperty({
+        description: "Creation timestamp",
+        type: String,
+        format: "date-time",
+    })
     @IsDateString()
     createdAt!: string;
 
@@ -64,7 +83,11 @@ export class EmailDto {
     deletedAt?: string | null;
 
     // TODO: replace with actual UUID version once implemented
-    @ApiProperty({ description: "Associated job ID", type: String, example: EXAMPLE_USER_ID })
+    @ApiProperty({
+        description: "Associated job ID",
+        type: String,
+        example: EXAMPLE_USER_ID,
+    })
     @IsUUID()
     jobId!: string;
 }

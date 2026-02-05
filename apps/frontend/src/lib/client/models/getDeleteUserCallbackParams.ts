@@ -10,12 +10,12 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
  */
 
 export type GetDeleteUserCallbackParams = {
-    /**
-     * The token to verify the deletion request
-     */
-    token?: string;
-    /**
-     * The URL to redirect to after deletion
-     */
-    callbackURL?: string | null;
+/**
+ * The token to verify the deletion request
+ */
+token?: string;
+/**
+ * The URL to redirect to after deletion
+ */
+callbackURL?: string | null;
 };

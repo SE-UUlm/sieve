@@ -10,6 +10,6 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
  */
 
 export type EmailControllerSubmitEmail500 = {
-    message?: string;
-    details?: string;
+  message?: string;
+  details?: string;
 };

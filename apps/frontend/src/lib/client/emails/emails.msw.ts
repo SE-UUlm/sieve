@@ -8,45 +8,38 @@
 Therefore, the 'Default' tag is used for endpoints that are related to user authentication and session management.
  * OpenAPI spec version: 0.1.0
  */
-import { faker } from "@faker-js/faker";
+import {
+  faker
+} from '@faker-js/faker';
 
-import { HttpResponse, delay, http } from "msw";
-import type { RequestHandlerOptions } from "msw";
+import {
+  HttpResponse,
+  delay,
+  http
+} from 'msw';
+import type {
+  RequestHandlerOptions
+} from 'msw';
 
-import type { EmailControllerSubmitEmail201 } from ".././models";
+import type {
+  EmailControllerSubmitEmail201
+} from '.././models';
 
-export const getEmailControllerSubmitEmailResponseMock = (
-    overrideResponse: Partial<EmailControllerSubmitEmail201> = {},
-): EmailControllerSubmitEmail201 => ({
-    data: faker.string.alpha({ length: { min: 10, max: 20 } }),
-    ...overrideResponse,
-});
 
-export const getEmailControllerSubmitEmailMockHandler = (
-    overrideResponse?:
-        | EmailControllerSubmitEmail201
-        | ((
-              info: Parameters<Parameters<typeof http.post>[1]>[0],
-          ) => Promise<EmailControllerSubmitEmail201> | EmailControllerSubmitEmail201),
-    options?: RequestHandlerOptions,
-) => {
-    return http.post(
-        "*/emails",
-        async (info) => {
-            await delay(500);
+export const getEmailControllerSubmitEmailResponseMock = (overrideResponse: Partial< EmailControllerSubmitEmail201 > = {}): EmailControllerSubmitEmail201 => ({data: faker.string.alpha({length: {min: 10, max: 20}}), ...overrideResponse})
 
-            return new HttpResponse(
-                JSON.stringify(
-                    overrideResponse !== undefined
-                        ? typeof overrideResponse === "function"
-                            ? await overrideResponse(info)
-                            : overrideResponse
-                        : getEmailControllerSubmitEmailResponseMock(),
-                ),
-                { status: 201, headers: { "Content-Type": "application/json" } },
-            );
-        },
-        options,
-    );
-};
-export const getEmailsMock = () => [getEmailControllerSubmitEmailMockHandler()];
+
+export const getEmailControllerSubmitEmailMockHandler = (overrideResponse?: EmailControllerSubmitEmail201 | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<EmailControllerSubmitEmail201> | EmailControllerSubmitEmail201), options?: RequestHandlerOptions) => {
+  return http.post('*/emails', async (info) => {await delay(500);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined
+    ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
+    : getEmailControllerSubmitEmailResponseMock()),
+      { status: 201,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  }, options)
+}
+export const getEmailsMock = () => [
+  getEmailControllerSubmitEmailMockHandler()
+]

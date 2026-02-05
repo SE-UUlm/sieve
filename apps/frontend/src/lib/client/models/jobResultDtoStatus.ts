@@ -12,10 +12,11 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
 /**
  * Status of the job result
  */
-export type JobResultDtoStatus = (typeof JobResultDtoStatus)[keyof typeof JobResultDtoStatus];
+export type JobResultDtoStatus = typeof JobResultDtoStatus[keyof typeof JobResultDtoStatus];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const JobResultDtoStatus = {
-    SUCCESS: "SUCCESS",
-    FAILURE: "FAILURE",
+  SUCCESS: 'SUCCESS',
+  FAILURE: 'FAILURE',
 } as const;

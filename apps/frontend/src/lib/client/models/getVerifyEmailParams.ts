@@ -10,12 +10,12 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
  */
 
 export type GetVerifyEmailParams = {
-    /**
-     * The token to verify the email
-     */
-    token: string;
-    /**
-     * The URL to redirect to after email verification
-     */
-    callbackURL?: string;
+/**
+ * The token to verify the email
+ */
+token: string;
+/**
+ * The URL to redirect to after email verification
+ */
+callbackURL?: string;
 };

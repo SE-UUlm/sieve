@@ -10,11 +10,11 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
  */
 
 export type UpdateUserBody = {
-    /** The name of the user */
-    name?: string;
-    /**
-     * The image of the user
-     * @nullable
-     */
-    image?: string | null;
+  /** The name of the user */
+  name?: string;
+  /**
+   * The image of the user
+   * @nullable
+   */
+  image?: string | null;
 };

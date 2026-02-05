@@ -8,31 +8,31 @@
 Therefore, the 'Default' tag is used for endpoints that are related to user authentication and session management.
  * OpenAPI spec version: 0.1.0
  */
-import type { UserDtoRole } from "./userDtoRole";
+import type { UserDtoRole } from './userDtoRole';
 
 export interface UserDto {
-    /** Unique user ID */
-    id: string;
-    /** Full name of the user */
-    name: string;
-    /** Email address of the user */
-    email: string;
-    /** Role of the user */
-    role: UserDtoRole;
-    /** Creation timestamp */
-    createdAt: string;
-    /**
-     * Last update timestamp
-     * @nullable
-     */
-    updatedAt?: string | null;
-    /**
-     * Deletion timestamp, if soft-deleted
-     * @nullable
-     */
-    deletedAt?: string | null;
-    /** IDs of jobs created by the user */
-    jobs?: string[];
-    /** IDs of emails uploaded by the user */
-    emails?: string[];
+  /** Unique user ID */
+  id: string;
+  /** Full name of the user */
+  name: string;
+  /** Email address of the user */
+  email: string;
+  /** Role of the user */
+  role: UserDtoRole;
+  /** Creation timestamp */
+  createdAt: string;
+  /**
+   * Last update timestamp
+   * @nullable
+   */
+  updatedAt?: string | null;
+  /**
+   * Deletion timestamp, if soft-deleted
+   * @nullable
+   */
+  deletedAt?: string | null;
+  /** IDs of jobs created by the user */
+  jobs?: string[];
+  /** IDs of emails uploaded by the user */
+  emails?: string[];
 }

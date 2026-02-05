@@ -1,0 +1,32 @@
+{
+	"folders": [
+		{
+			"path": ".",
+			"name": "root"
+		},
+		{
+			"path": "apps/frontend"
+		},
+		{
+			"path": "apps/backend"
+		},
+		{
+			"path": "apps/ai-backend"
+		}
+	],
+	"settings": {
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "biomejs.biome",
+		"ty.configuration": {
+			"environment": {
+				"python": "./apps/ai-backend/.venv"
+			}
+		},
+		"[python]": {
+			"editor.defaultFormatter": "charliermarsh.ruff"
+		},
+		"[json]": {
+			"editor.defaultFormatter": "biomejs.biome"
+		},
+	}
+}

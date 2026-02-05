@@ -8,20 +8,20 @@
 Therefore, the 'Default' tag is used for endpoints that are related to user authentication and session management.
  * OpenAPI spec version: 0.1.0
  */
-import type { SocialSignInBodyIdTokenAnyOfNonce } from "./socialSignInBodyIdTokenAnyOfNonce";
-import type { SocialSignInBodyIdTokenAnyOfAccessToken } from "./socialSignInBodyIdTokenAnyOfAccessToken";
-import type { SocialSignInBodyIdTokenAnyOfRefreshToken } from "./socialSignInBodyIdTokenAnyOfRefreshToken";
-import type { SocialSignInBodyIdTokenAnyOfExpiresAt } from "./socialSignInBodyIdTokenAnyOfExpiresAt";
+import type { SocialSignInBodyIdTokenAnyOfNonce } from './socialSignInBodyIdTokenAnyOfNonce';
+import type { SocialSignInBodyIdTokenAnyOfAccessToken } from './socialSignInBodyIdTokenAnyOfAccessToken';
+import type { SocialSignInBodyIdTokenAnyOfRefreshToken } from './socialSignInBodyIdTokenAnyOfRefreshToken';
+import type { SocialSignInBodyIdTokenAnyOfExpiresAt } from './socialSignInBodyIdTokenAnyOfExpiresAt';
 
 export type SocialSignInBodyIdTokenAnyOf = {
-    /** ID token from the provider */
-    token: string;
-    /** Nonce used to generate the token */
-    nonce?: SocialSignInBodyIdTokenAnyOfNonce;
-    /** Access token from the provider */
-    accessToken?: SocialSignInBodyIdTokenAnyOfAccessToken;
-    /** Refresh token from the provider */
-    refreshToken?: SocialSignInBodyIdTokenAnyOfRefreshToken;
-    /** Expiry date of the token */
-    expiresAt?: SocialSignInBodyIdTokenAnyOfExpiresAt;
+  /** ID token from the provider */
+  token: string;
+  /** Nonce used to generate the token */
+  nonce?: SocialSignInBodyIdTokenAnyOfNonce;
+  /** Access token from the provider */
+  accessToken?: SocialSignInBodyIdTokenAnyOfAccessToken;
+  /** Refresh token from the provider */
+  refreshToken?: SocialSignInBodyIdTokenAnyOfRefreshToken;
+  /** Expiry date of the token */
+  expiresAt?: SocialSignInBodyIdTokenAnyOfExpiresAt;
 };

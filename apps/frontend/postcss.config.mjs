@@ -1,6 +1,6 @@
 const PostCssConfig = {
     plugins: {
-        '@tailwindcss/postcss': {},
+        "@tailwindcss/postcss": {},
     },
 };
 

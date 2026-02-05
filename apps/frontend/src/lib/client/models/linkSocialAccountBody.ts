@@ -8,25 +8,25 @@
 Therefore, the 'Default' tag is used for endpoints that are related to user authentication and session management.
  * OpenAPI spec version: 0.1.0
  */
-import type { LinkSocialAccountBodyCallbackURL } from "./linkSocialAccountBodyCallbackURL";
-import type { LinkSocialAccountBodyIdToken } from "./linkSocialAccountBodyIdToken";
-import type { LinkSocialAccountBodyRequestSignUp } from "./linkSocialAccountBodyRequestSignUp";
-import type { LinkSocialAccountBodyScopes } from "./linkSocialAccountBodyScopes";
-import type { LinkSocialAccountBodyErrorCallbackURL } from "./linkSocialAccountBodyErrorCallbackURL";
-import type { LinkSocialAccountBodyDisableRedirect } from "./linkSocialAccountBodyDisableRedirect";
-import type { LinkSocialAccountBodyAdditionalData } from "./linkSocialAccountBodyAdditionalData";
+import type { LinkSocialAccountBodyCallbackURL } from './linkSocialAccountBodyCallbackURL';
+import type { LinkSocialAccountBodyIdToken } from './linkSocialAccountBodyIdToken';
+import type { LinkSocialAccountBodyRequestSignUp } from './linkSocialAccountBodyRequestSignUp';
+import type { LinkSocialAccountBodyScopes } from './linkSocialAccountBodyScopes';
+import type { LinkSocialAccountBodyErrorCallbackURL } from './linkSocialAccountBodyErrorCallbackURL';
+import type { LinkSocialAccountBodyDisableRedirect } from './linkSocialAccountBodyDisableRedirect';
+import type { LinkSocialAccountBodyAdditionalData } from './linkSocialAccountBodyAdditionalData';
 
 export type LinkSocialAccountBody = {
-    /** The URL to redirect to after the user has signed in */
-    callbackURL?: LinkSocialAccountBodyCallbackURL;
-    provider: string;
-    idToken?: LinkSocialAccountBodyIdToken;
-    requestSignUp?: LinkSocialAccountBodyRequestSignUp;
-    /** Additional scopes to request from the provider */
-    scopes?: LinkSocialAccountBodyScopes;
-    /** The URL to redirect to if there is an error during the link process */
-    errorCallbackURL?: LinkSocialAccountBodyErrorCallbackURL;
-    /** Disable automatic redirection to the provider. Useful for handling the redirection yourself */
-    disableRedirect?: LinkSocialAccountBodyDisableRedirect;
-    additionalData?: LinkSocialAccountBodyAdditionalData;
+  /** The URL to redirect to after the user has signed in */
+  callbackURL?: LinkSocialAccountBodyCallbackURL;
+  provider: string;
+  idToken?: LinkSocialAccountBodyIdToken;
+  requestSignUp?: LinkSocialAccountBodyRequestSignUp;
+  /** Additional scopes to request from the provider */
+  scopes?: LinkSocialAccountBodyScopes;
+  /** The URL to redirect to if there is an error during the link process */
+  errorCallbackURL?: LinkSocialAccountBodyErrorCallbackURL;
+  /** Disable automatic redirection to the provider. Useful for handling the redirection yourself */
+  disableRedirect?: LinkSocialAccountBodyDisableRedirect;
+  additionalData?: LinkSocialAccountBodyAdditionalData;
 };

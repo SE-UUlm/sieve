@@ -10,7 +10,7 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
  */
 
 export type UserControllerGetUsersParams = {
-    page: number;
-    limit: number;
-    role: string;
+page: number;
+limit: number;
+role: string;
 };

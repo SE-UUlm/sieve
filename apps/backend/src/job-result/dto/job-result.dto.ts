@@ -1,16 +1,30 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsDateString, IsEnum, IsObject, IsOptional, IsUUID } from "class-validator";
-import { EXAMPLE_USER_ID } from "../../common/examples.constants";
+import {
+    IsDateString,
+    IsEnum,
+    IsObject,
+    IsOptional,
+    IsUUID,
+} from "class-validator";
 import { JobResultStatus } from "../../../prisma/client/enums";
+import { EXAMPLE_USER_ID } from "../../common/examples.constants";
 
 export class JobResultDto {
     // TODO: replace with actual UUID version once implemented
-    @ApiProperty({ description: "Unique JobResult ID", type: String, example: EXAMPLE_USER_ID })
+    @ApiProperty({
+        description: "Unique JobResult ID",
+        type: String,
+        example: EXAMPLE_USER_ID,
+    })
     @IsUUID()
     id!: string;
 
     // TODO: replace with actual UUID version once implemented
-    @ApiProperty({ description: "Associated Job ID", type: String, example: EXAMPLE_USER_ID })
+    @ApiProperty({
+        description: "Associated Job ID",
+        type: String,
+        example: EXAMPLE_USER_ID,
+    })
     @IsUUID()
     jobId!: string;
 
@@ -24,9 +38,14 @@ export class JobResultDto {
 
     @ApiProperty({ description: "JSON output of the job", type: Object })
     @IsObject()
+    // biome-ignore lint/suspicious/noExplicitAny: output is a dynamic JSON payload from jobs
     output!: any;
 
-    @ApiProperty({ description: "Creation timestamp", type: String, format: "date-time" })
+    @ApiProperty({
+        description: "Creation timestamp",
+        type: String,
+        format: "date-time",
+    })
     @IsDateString()
     createdAt!: string;
 

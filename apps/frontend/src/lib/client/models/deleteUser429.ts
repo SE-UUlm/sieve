@@ -10,5 +10,5 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
  */
 
 export type DeleteUser429 = {
-    message?: string;
+  message?: string;
 };

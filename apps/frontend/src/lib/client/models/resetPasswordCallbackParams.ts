@@ -10,8 +10,8 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
  */
 
 export type ResetPasswordCallbackParams = {
-    /**
-     * The URL to redirect the user to reset their password
-     */
-    callbackURL: string;
+/**
+ * The URL to redirect the user to reset their password
+ */
+callbackURL: string;
 };

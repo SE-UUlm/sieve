@@ -9,16 +9,24 @@ import {
     IsString,
     IsUUID,
 } from "class-validator";
-import { EXAMPLE_USER_ID } from "../../common/examples.constants";
 import { UserRole } from "../../../prisma/client/enums";
+import { EXAMPLE_USER_ID } from "../../common/examples.constants";
 
 export class UserDto {
     // TODO: replace with actual UUID version once implemented
-    @ApiProperty({ description: "Unique user ID", type: String, example: EXAMPLE_USER_ID })
+    @ApiProperty({
+        description: "Unique user ID",
+        type: String,
+        example: EXAMPLE_USER_ID,
+    })
     @IsUUID()
     id!: string;
 
-    @ApiProperty({ description: "Full name of the user", type: String, example: "John Doe" })
+    @ApiProperty({
+        description: "Full name of the user",
+        type: String,
+        example: "John Doe",
+    })
     @IsString()
     @IsNotEmpty()
     name!: string;
@@ -31,11 +39,19 @@ export class UserDto {
     @IsEmail()
     email!: string;
 
-    @ApiProperty({ description: "Role of the user", enum: UserRole, example: UserRole.USER })
+    @ApiProperty({
+        description: "Role of the user",
+        enum: UserRole,
+        example: UserRole.USER,
+    })
     @IsEnum(UserRole)
     role!: UserRole;
 
-    @ApiProperty({ description: "Creation timestamp", type: String, format: "date-time" })
+    @ApiProperty({
+        description: "Creation timestamp",
+        type: String,
+        format: "date-time",
+    })
     @IsDateString()
     createdAt!: string;
 

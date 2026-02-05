@@ -10,6 +10,6 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
  */
 
 export type GetOk200 = {
-    /** Indicates if the API is working */
-    ok: boolean;
+  /** Indicates if the API is working */
+  ok: boolean;
 };

@@ -1,8 +1,8 @@
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import useLogout from "@/hooks/useLogout";
 import { authClient } from "@/lib/auth-client";
-import Link from "next/link";
 
 const NavBarAuthSection = () => {
     const { data: session, isPending, error } = authClient.useSession();
@@ -10,7 +10,8 @@ const NavBarAuthSection = () => {
 
     const { isPending: isLogoutPending, mutate: logout } = useLogout();
 
-    if (error) return <div className="text-destructive">Error loading session</div>;
+    if (error)
+        return <div className="text-destructive">Error loading session</div>;
 
     if (isPending) return <Skeleton className="h-8 w-45" />;
 

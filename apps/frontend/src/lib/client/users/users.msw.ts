@@ -8,106 +8,54 @@
 Therefore, the 'Default' tag is used for endpoints that are related to user authentication and session management.
  * OpenAPI spec version: 0.1.0
  */
-import { faker } from "@faker-js/faker";
+import {
+  faker
+} from '@faker-js/faker';
 
-import { HttpResponse, delay, http } from "msw";
-import type { RequestHandlerOptions } from "msw";
+import {
+  HttpResponse,
+  delay,
+  http
+} from 'msw';
+import type {
+  RequestHandlerOptions
+} from 'msw';
 
-import type { SimpleUserDto, UserDto } from ".././models";
+import type {
+  SimpleUserDto,
+  UserDto
+} from '.././models';
 
-export const getUserControllerGetUsersResponseMock = (): SimpleUserDto[] =>
-    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
-        id: faker.string.alpha({ length: { min: 10, max: 20 } }),
-        name: faker.string.alpha({ length: { min: 10, max: 20 } }),
-        email: faker.string.alpha({ length: { min: 10, max: 20 } }),
-        role: faker.helpers.arrayElement(["ADMIN", "USER"] as const),
-    }));
 
-export const getUserControllerGetUserByIdResponseMock = (
-    overrideResponse: Partial<UserDto> = {},
-): UserDto => ({
-    id: faker.string.alpha({ length: { min: 10, max: 20 } }),
-    name: faker.string.alpha({ length: { min: 10, max: 20 } }),
-    email: faker.string.alpha({ length: { min: 10, max: 20 } }),
-    role: faker.helpers.arrayElement(["ADMIN", "USER"] as const),
-    createdAt: `${faker.date.past().toISOString().split(".")[0]}Z`,
-    updatedAt: faker.helpers.arrayElement([
-        faker.helpers.arrayElement([`${faker.date.past().toISOString().split(".")[0]}Z`, null]),
-        undefined,
-    ]),
-    deletedAt: faker.helpers.arrayElement([
-        faker.helpers.arrayElement([`${faker.date.past().toISOString().split(".")[0]}Z`, null]),
-        undefined,
-    ]),
-    jobs: faker.helpers.arrayElement([
-        Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
-            faker.string.alpha({ length: { min: 10, max: 20 } }),
-        ),
-        undefined,
-    ]),
-    emails: faker.helpers.arrayElement([
-        Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
-            faker.string.alpha({ length: { min: 10, max: 20 } }),
-        ),
-        undefined,
-    ]),
-    ...overrideResponse,
-});
+export const getUserControllerGetUsersResponseMock = (): SimpleUserDto[] => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({id: faker.string.alpha({length: {min: 10, max: 20}}), name: faker.string.alpha({length: {min: 10, max: 20}}), email: faker.string.alpha({length: {min: 10, max: 20}}), role: faker.helpers.arrayElement(['ADMIN','USER'] as const)})))
 
-export const getUserControllerGetUsersMockHandler = (
-    overrideResponse?:
-        | SimpleUserDto[]
-        | ((
-              info: Parameters<Parameters<typeof http.get>[1]>[0],
-          ) => Promise<SimpleUserDto[]> | SimpleUserDto[]),
-    options?: RequestHandlerOptions,
-) => {
-    return http.get(
-        "*/users",
-        async (info) => {
-            await delay(500);
+export const getUserControllerGetUserByIdResponseMock = (overrideResponse: Partial< UserDto > = {}): UserDto => ({id: faker.string.alpha({length: {min: 10, max: 20}}), name: faker.string.alpha({length: {min: 10, max: 20}}), email: faker.string.alpha({length: {min: 10, max: 20}}), role: faker.helpers.arrayElement(['ADMIN','USER'] as const), createdAt: `${faker.date.past().toISOString().split('.')[0]}Z`, updatedAt: faker.helpers.arrayElement([faker.helpers.arrayElement([`${faker.date.past().toISOString().split('.')[0]}Z`, null]), undefined]), deletedAt: faker.helpers.arrayElement([faker.helpers.arrayElement([`${faker.date.past().toISOString().split('.')[0]}Z`, null]), undefined]), jobs: faker.helpers.arrayElement([Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (faker.string.alpha({length: {min: 10, max: 20}}))), undefined]), emails: faker.helpers.arrayElement([Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (faker.string.alpha({length: {min: 10, max: 20}}))), undefined]), ...overrideResponse})
 
-            return new HttpResponse(
-                JSON.stringify(
-                    overrideResponse !== undefined
-                        ? typeof overrideResponse === "function"
-                            ? await overrideResponse(info)
-                            : overrideResponse
-                        : getUserControllerGetUsersResponseMock(),
-                ),
-                { status: 200, headers: { "Content-Type": "application/json" } },
-            );
-        },
-        options,
-    );
-};
 
-export const getUserControllerGetUserByIdMockHandler = (
-    overrideResponse?:
-        | UserDto
-        | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<UserDto> | UserDto),
-    options?: RequestHandlerOptions,
-) => {
-    return http.get(
-        "*/users/:userId",
-        async (info) => {
-            await delay(500);
+export const getUserControllerGetUsersMockHandler = (overrideResponse?: SimpleUserDto[] | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<SimpleUserDto[]> | SimpleUserDto[]), options?: RequestHandlerOptions) => {
+  return http.get('*/users', async (info) => {await delay(500);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined
+    ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
+    : getUserControllerGetUsersResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  }, options)
+}
 
-            return new HttpResponse(
-                JSON.stringify(
-                    overrideResponse !== undefined
-                        ? typeof overrideResponse === "function"
-                            ? await overrideResponse(info)
-                            : overrideResponse
-                        : getUserControllerGetUserByIdResponseMock(),
-                ),
-                { status: 200, headers: { "Content-Type": "application/json" } },
-            );
-        },
-        options,
-    );
-};
+export const getUserControllerGetUserByIdMockHandler = (overrideResponse?: UserDto | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<UserDto> | UserDto), options?: RequestHandlerOptions) => {
+  return http.get('*/users/:userId', async (info) => {await delay(500);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined
+    ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
+    : getUserControllerGetUserByIdResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  }, options)
+}
 export const getUsersMock = () => [
-    getUserControllerGetUsersMockHandler(),
-    getUserControllerGetUserByIdMockHandler(),
-];
+  getUserControllerGetUsersMockHandler(),
+  getUserControllerGetUserByIdMockHandler()
+]

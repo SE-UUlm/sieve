@@ -10,9 +10,9 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
  */
 
 export type GetAccountInfo200User = {
-    id: string;
-    name?: string;
-    email?: string;
-    image?: string;
-    emailVerified: boolean;
+  id: string;
+  name?: string;
+  email?: string;
+  image?: string;
+  emailVerified: boolean;
 };
