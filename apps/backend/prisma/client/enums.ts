@@ -9,25 +9,25 @@
  */
 
 export const UserRole = {
-  ADMIN: "ADMIN",
-  USER: "USER",
+    ADMIN: "ADMIN",
+    USER: "USER",
 } as const;
 
 export type UserRole = (typeof UserRole)[keyof typeof UserRole];
 
 export const JobStatus = {
-  CREATED: "CREATED",
-  PENDING: "PENDING",
-  PROCESSING: "PROCESSING",
-  COMPLETED: "COMPLETED",
+    CREATED: "CREATED",
+    PENDING: "PENDING",
+    PROCESSING: "PROCESSING",
+    COMPLETED: "COMPLETED",
 } as const;
 
 export type JobStatus = (typeof JobStatus)[keyof typeof JobStatus];
 
 export const JobResultStatus = {
-  SUCCESS: "SUCCESS",
-  FAILURE: "FAILURE",
+    SUCCESS: "SUCCESS",
+    FAILURE: "FAILURE",
 } as const;
 
 export type JobResultStatus =
-  (typeof JobResultStatus)[keyof typeof JobResultStatus];
+    (typeof JobResultStatus)[keyof typeof JobResultStatus];

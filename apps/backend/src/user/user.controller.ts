@@ -1,9 +1,9 @@
 import { Controller, Get, Param, Query } from "@nestjs/common";
 import {
-  ApiCookieAuth,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
+    ApiCookieAuth,
+    ApiOperation,
+    ApiResponse,
+    ApiTags,
 } from "@nestjs/swagger";
 import { Roles } from "@thallesp/nestjs-better-auth";
 import { UserRole } from "../../prisma/client/enums";
@@ -15,43 +15,43 @@ import { UserDto } from "./dto/user.dto";
 @ApiTags("Users")
 @Controller("users")
 export class UserController {
-  @Get()
-  @Roles([UserRole.ADMIN])
-  @ApiCookieAuth("apiKeyCookie")
-  @ApiOperation({
-    summary: "List all users (admin only)",
-    description: "Only contains a simplified view of a user",
-  })
-  @ApiResponse({
-    status: 200,
-    description: "Users successfully retrieved",
-    type: [SimpleUserDto],
-  })
-  @ApiResponse({ status: 401, description: "Unauthorized" })
-  @ApiResponse({ status: 403, description: "Forbidden" })
-  getUsers(
-    @Query("page") _page?: number,
-    @Query("limit") _limit?: number,
-    @Query("role") _role?: UserRole,
-  ): Promise<SimpleUserDto[]> {
-    // TODO: Implement user retrieval logic
-    return Promise.resolve([]);
-  }
+    @Get()
+    @Roles([UserRole.ADMIN])
+    @ApiCookieAuth("apiKeyCookie")
+    @ApiOperation({
+        summary: "List all users (admin only)",
+        description: "Only contains a simplified view of a user",
+    })
+    @ApiResponse({
+        status: 200,
+        description: "Users successfully retrieved",
+        type: [SimpleUserDto],
+    })
+    @ApiResponse({ status: 401, description: "Unauthorized" })
+    @ApiResponse({ status: 403, description: "Forbidden" })
+    getUsers(
+        @Query("page") _page?: number,
+        @Query("limit") _limit?: number,
+        @Query("role") _role?: UserRole,
+    ): Promise<SimpleUserDto[]> {
+        // TODO: Implement user retrieval logic
+        return Promise.resolve([]);
+    }
 
-  @Get(":userId")
-  @Roles([UserRole.ADMIN])
-  @ApiCookieAuth("apiKeyCookie")
-  @ApiOperation({ summary: "Get detailed user information (admin only)" })
-  @ApiResponse({
-    status: 200,
-    description: "User successfully retrieved",
-    type: UserDto,
-  })
-  @ApiResponse({ status: 401, description: "Unauthorized" })
-  @ApiResponse({ status: 403, description: "Forbidden" })
-  @ApiResponse({ status: 404, description: "User not found" })
-  getUserById(@Param("userId") _userId: string): Promise<UserDto> {
-    // TODO: Implement user retrieval by ID logic
-    return Promise.resolve({} as UserDto);
-  }
+    @Get(":userId")
+    @Roles([UserRole.ADMIN])
+    @ApiCookieAuth("apiKeyCookie")
+    @ApiOperation({ summary: "Get detailed user information (admin only)" })
+    @ApiResponse({
+        status: 200,
+        description: "User successfully retrieved",
+        type: UserDto,
+    })
+    @ApiResponse({ status: 401, description: "Unauthorized" })
+    @ApiResponse({ status: 403, description: "Forbidden" })
+    @ApiResponse({ status: 404, description: "User not found" })
+    getUserById(@Param("userId") _userId: string): Promise<UserDto> {
+        // TODO: Implement user retrieval by ID logic
+        return Promise.resolve({} as UserDto);
+    }
 }

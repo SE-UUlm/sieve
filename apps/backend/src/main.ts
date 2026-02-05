@@ -5,26 +5,26 @@ import { AppModule } from "./app.module";
 import { setupSwagger } from "./swagger.config";
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-    bodyParser: false, // Disable built-in body parser, nestjs-better-auth re-adds it
-  });
+    const app = await NestFactory.create(AppModule, {
+        bodyParser: false, // Disable built-in body parser, nestjs-better-auth re-adds it
+    });
 
-  app.setGlobalPrefix("api", {
-    exclude: [{ path: "docs", method: RequestMethod.GET }],
-  });
+    app.setGlobalPrefix("api", {
+        exclude: [{ path: "docs", method: RequestMethod.GET }],
+    });
 
-  const configService = app.get(ConfigService);
-  // biome-ignore lint/style/noNonNullAssertion: config is validated on startup
-  const port = configService.get<number>("BACKEND_PORT")!;
+    const configService = app.get(ConfigService);
+    // biome-ignore lint/style/noNonNullAssertion: config is validated on startup
+    const port = configService.get<number>("BACKEND_PORT")!;
 
-  await setupSwagger(app);
+    await setupSwagger(app);
 
-  app.useGlobalPipes(new ValidationPipe());
+    app.useGlobalPipes(new ValidationPipe());
 
-  await app.listen(port);
+    await app.listen(port);
 }
 
 bootstrap().catch((err) => {
-  console.error(err);
-  process.exit(1);
+    console.error(err);
+    process.exit(1);
 });

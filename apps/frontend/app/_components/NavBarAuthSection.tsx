@@ -5,36 +5,36 @@ import useLogout from "@/hooks/useLogout";
 import { authClient } from "@/lib/auth-client";
 
 const NavBarAuthSection = () => {
-  const { data: session, isPending, error } = authClient.useSession();
-  const user = session?.user;
+    const { data: session, isPending, error } = authClient.useSession();
+    const user = session?.user;
 
-  const { isPending: isLogoutPending, mutate: logout } = useLogout();
+    const { isPending: isLogoutPending, mutate: logout } = useLogout();
 
-  if (error)
-    return <div className="text-destructive">Error loading session</div>;
+    if (error)
+        return <div className="text-destructive">Error loading session</div>;
 
-  if (isPending) return <Skeleton className="h-8 w-45" />;
+    if (isPending) return <Skeleton className="h-8 w-45" />;
 
-  if (user)
+    if (user)
+        return (
+            <>
+                <div>User: {user.name}</div>
+                <Button onClick={logout} disabled={isLogoutPending}>
+                    Logout
+                </Button>
+            </>
+        );
+
     return (
-      <>
-        <div>User: {user.name}</div>
-        <Button onClick={logout} disabled={isLogoutPending}>
-          Logout
-        </Button>
-      </>
+        <>
+            <Button variant="default" asChild>
+                <Link href="/auth/signup">Sign up</Link>
+            </Button>
+            <Button variant="outline" asChild>
+                <Link href="/auth/login">Login</Link>
+            </Button>
+        </>
     );
-
-  return (
-    <>
-      <Button variant="default" asChild>
-        <Link href="/auth/signup">Sign up</Link>
-      </Button>
-      <Button variant="outline" asChild>
-        <Link href="/auth/login">Login</Link>
-      </Button>
-    </>
-  );
 };
 
 export default NavBarAuthSection;

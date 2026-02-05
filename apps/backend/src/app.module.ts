@@ -11,16 +11,16 @@ import { PrismaModule } from "./prisma/prisma.module";
 import { UserModule } from "./user/user.module";
 
 @Module({
-  imports: [
-    AppConfigModule,
-    HealthModule,
-    UserModule,
-    JobModule,
-    JobResultModule,
-    EmailModule,
-    PrismaModule,
-    AuthModule.forRoot({ auth }),
-    AiBackendModule,
-  ],
+    imports: [
+        AppConfigModule,
+        HealthModule,
+        UserModule,
+        JobModule,
+        JobResultModule,
+        EmailModule,
+        PrismaModule,
+        AuthModule.forRoot({ auth }),
+        AiBackendModule,
+    ],
 })
 export class AppModule {}

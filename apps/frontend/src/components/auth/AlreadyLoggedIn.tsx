@@ -6,26 +6,26 @@ import { Field } from "@/components/ui/field";
 import useLogout from "@/hooks/useLogout";
 
 const AlreadyLoggedIn = () => {
-  const { isPending, mutate: handleLogout } = useLogout();
+    const { isPending, mutate: handleLogout } = useLogout();
 
-  return (
-    <Card className="mx-auto w-full sm:max-w-md">
-      <CardHeader>
-        <CardTitle>You are already logged in</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Field orientation="horizontal">
-          <Button
-            type="button"
-            onClick={() => handleLogout()}
-            disabled={isPending}
-          >
-            Logout
-          </Button>
-        </Field>
-      </CardContent>
-    </Card>
-  );
+    return (
+        <Card className="mx-auto w-full sm:max-w-md">
+            <CardHeader>
+                <CardTitle>You are already logged in</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <Field orientation="horizontal">
+                    <Button
+                        type="button"
+                        onClick={() => handleLogout()}
+                        disabled={isPending}
+                    >
+                        Logout
+                    </Button>
+                </Field>
+            </CardContent>
+        </Card>
+    );
 };
 
 export default AlreadyLoggedIn;
