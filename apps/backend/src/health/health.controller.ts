@@ -1,5 +1,9 @@
 import { Controller, Get } from "@nestjs/common";
-import { HealthCheck, HealthCheckService, PrismaHealthIndicator } from "@nestjs/terminus";
+import {
+  HealthCheck,
+  HealthCheckService,
+  PrismaHealthIndicator,
+} from "@nestjs/terminus";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
 import { PrismaService } from "../prisma/prisma.service";
 import { AllowAnonymous } from "@thallesp/nestjs-better-auth";
@@ -7,17 +11,21 @@ import { AllowAnonymous } from "@thallesp/nestjs-better-auth";
 @ApiTags("Health")
 @Controller("health")
 export class HealthController {
-    constructor(
-        private health: HealthCheckService,
-        private db: PrismaHealthIndicator,
-        private prisma: PrismaService,
-    ) {}
+  constructor(
+    private health: HealthCheckService,
+    private db: PrismaHealthIndicator,
+    private prisma: PrismaService,
+  ) {}
 
-    @Get()
-    @AllowAnonymous()
-    @ApiOperation({ summary: "Gets the health status of the SIEVE backend service" })
-    @HealthCheck()
-    check() {
-        return this.health.check([() => this.db.pingCheck("database", this.prisma)]);
-    }
+  @Get()
+  @AllowAnonymous()
+  @ApiOperation({
+    summary: "Gets the health status of the SIEVE backend service",
+  })
+  @HealthCheck()
+  check() {
+    return this.health.check([
+      () => this.db.pingCheck("database", this.prisma),
+    ]);
+  }
 }

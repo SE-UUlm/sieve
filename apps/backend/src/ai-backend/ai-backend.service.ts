@@ -3,53 +3,53 @@ import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class AiBackendService implements OnModuleInit {
-    private aiBackendUrl!: string;
+  private aiBackendUrl!: string;
 
-    constructor(private configService: ConfigService) {}
+  constructor(private configService: ConfigService) {}
 
-    onModuleInit() {
-        this.aiBackendUrl = this.configService.get<string>("AI_BACKEND_URL")!;
-        if (!this.aiBackendUrl.endsWith("/")) {
-            this.aiBackendUrl += "/";
-        }
-
-        Logger.log("AiBackend module initialized");
+  onModuleInit() {
+    this.aiBackendUrl = this.configService.get<string>("AI_BACKEND_URL")!;
+    if (!this.aiBackendUrl.endsWith("/")) {
+      this.aiBackendUrl += "/";
     }
 
-    /**
-     * Currently runs the temporary flow for processing a string of text.
-     *
-     * @param input The input string to process.
-     * @returns The output of the AiBackend agent.
-     */
-    async runFlow(input: string) {
-        try {
-            Logger.log("Starting AiBackend execution...");
+    Logger.log("AiBackend module initialized");
+  }
 
-            const response = await fetch(`${this.aiBackendUrl}analyze-email`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ body: input }),
-                signal: AbortSignal.timeout(30000),
-            });
+  /**
+   * Currently runs the temporary flow for processing a string of text.
+   *
+   * @param input The input string to process.
+   * @returns The output of the AiBackend agent.
+   */
+  async runFlow(input: string) {
+    try {
+      Logger.log("Starting AiBackend execution...");
 
-            Logger.log("AiBackend execution finished");
+      const response = await fetch(`${this.aiBackendUrl}analyze-email`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ body: input }),
+        signal: AbortSignal.timeout(30000),
+      });
 
-            if (!response.ok) {
-                throw new Error("AiBackend returned an error " + response.status);
-            }
+      Logger.log("AiBackend execution finished");
 
-            const data = (await response.json()) as { data: string };
+      if (!response.ok) {
+        throw new Error("AiBackend returned an error " + response.status);
+      }
 
-            return {
-                message: JSON.stringify(data.data, null, "  "),
-            };
-        } catch (error) {
-            Logger.error("Error running AiBackend agent:", error);
+      const data = (await response.json()) as { data: string };
 
-            throw new Error("Unknown error in AiBackend");
-        }
+      return {
+        message: JSON.stringify(data.data, null, "  "),
+      };
+    } catch (error) {
+      Logger.error("Error running AiBackend agent:", error);
+
+      throw new Error("Unknown error in AiBackend");
     }
+  }
 }
