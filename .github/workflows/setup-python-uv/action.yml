@@ -1,0 +1,17 @@
+name: Setup Python + uv
+description: Setup Python and uv
+inputs:
+    python_version:
+        description: "Python version"
+        required: true
+runs:
+    using: composite
+    steps:
+        - name: Set up Python
+          uses: actions/setup-python@v5
+          with:
+              python-version: ${{ inputs.python_version }}
+
+        - name: Install uv
+          run: pip install uv
+          shell: bash

@@ -1,0 +1,36 @@
+name: Deploy
+
+on:
+    workflow_run:
+        workflows:
+            - Docker
+        types:
+            - completed
+        branches: [develop]
+
+concurrency:
+    group: deploy
+
+jobs:
+    sieve-deploy:
+        name: Deploy to Remote Server
+        runs-on: ubuntu-latest
+        if: ${{ github.event.workflow_run.conclusion == 'success' }} # Only run if upstream workflows succeeded
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v6
+
+            - name: Setup SSH
+              run: |
+                  mkdir -p ~/.ssh
+                  echo "Host *" >> ~/.ssh/config
+                  echo -e "\tUserKnownHostsFile /dev/null" >> ~/.ssh/config
+                  echo -e "\tStrictHostKeyChecking no" >> ~/.ssh/config
+                  echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+                  chmod 600 ~/.ssh/id_rsa
+
+            - name: Copy Config Files
+              run: scp ./docker-compose.yml "${{ vars.REMOTE_USER }}@${{ vars.REMOTE_DOMAIN }}:${{ vars.WORK_DIR }}/"
+
+            - name: Start Docker Compose on Remote Machine
+              run: ssh "${{ vars.REMOTE_USER }}@${{ vars.REMOTE_DOMAIN }}" -- 'cd "${{ vars.WORK_DIR }}" && docker compose up -d --pull always'

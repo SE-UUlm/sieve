@@ -14,14 +14,14 @@ env:
 
 jobs:
     linting:
-        name: Linting Backend
+        name: Lint Backend
         runs-on: ubuntu-latest
         steps:
-            - name: Checkout Code
+            - name: Checkout Repository
               uses: actions/checkout@v6
 
             - name: Setup Backend
-              uses: ./.github/workflows/setup/
+              uses: ./.github/workflows/setup-node-pnpm/
               with:
                   node_version: ${{ env.node_version }}
                   working-directory: ${{ env.working_directory }}
@@ -30,19 +30,19 @@ jobs:
               run: pnpm run license-check
               working-directory: ${{ env.working_directory }}
 
-            - name: Linting
+            - name: Lint
               run: pnpm run lint
               working-directory: ${{ env.working_directory }}
 
     check-client-generation:
-        name: Check Client Generation
+        name: Verify Client Generation
         runs-on: ubuntu-latest
         steps:
             - name: Checkout Code
               uses: actions/checkout@v6
 
             - name: Setup Backend
-              uses: ./.github/workflows/setup/
+              uses: ./.github/workflows/setup-node-pnpm/
               with:
                   node_version: ${{ env.node_version }}
                   working-directory: ${{ env.working_directory }}
@@ -51,7 +51,7 @@ jobs:
               run: pnpm run generate:client
               working-directory: ${{ env.working_directory }}
 
-            - name: Make sure client is up to date
+            - name: Verify Client Is Up to Date
               run: |
                   if [[ -n "$(git status --porcelain)" ]]; then
                     echo "Client is not up to date. Please run 'pnpm run generate:client' in Backend and commit the changes."

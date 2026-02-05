@@ -16,11 +16,11 @@ jobs:
         name: Build Backend
         runs-on: ubuntu-latest
         steps:
-            - name: Checkout Code
+            - name: Checkout Repository
               uses: actions/checkout@v6
 
-            - name: Setup
-              uses: ./.github/workflows/setup/
+            - name: Setup Environment
+              uses: ./.github/workflows/setup-node-pnpm/
               with:
                   node_version: ${{ env.node_version }}
                   working-directory: ${{ env.working_directory }}
@@ -33,7 +33,7 @@ jobs:
               uses: actions/upload-artifact@v6
               if: ${{ !cancelled() }}
               with:
-                  name: backend-build-artifact
+                  name: Backend Build Artifact
                   path: apps/backend/dist/
                   include-hidden-files: true
                   if-no-files-found: error
