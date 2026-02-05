@@ -1,18 +1,16 @@
 {
     "editor.formatOnSave": true,
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.defaultFormatter": "biomejs.biome",
     "[typescript]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
+        "editor.defaultFormatter": "biomejs.biome"
     },
-    "[json]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "[javascript]": {
+      "editor.defaultFormatter": "biomejs.biome"
     },
     "[python]": {
         "editor.defaultFormatter": "charliermarsh.ruff"
     },
-    "ty.configuration": {
-        "environment": {
-            "python": "./apps/ai-backend/.venv"
-        }
-    }
+    "[json]": {
+        "editor.defaultFormatter": "biomejs.biome"
+    },
 }
