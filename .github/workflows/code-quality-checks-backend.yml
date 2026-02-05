@@ -51,6 +51,10 @@ jobs:
               run: pnpm run generate:client
               working-directory: ${{ env.working_directory }}
 
+            - name: Format openapi.json
+              run: pnpm run format
+              working-directory: ${{ env.working_directory }}
+
             - name: Verify Client Is Up to Date
               run: |
                   if [[ -n "$(git status --porcelain)" ]]; then
