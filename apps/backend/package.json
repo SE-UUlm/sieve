@@ -79,8 +79,5 @@
         ],
         "coverageDirectory": "../coverage",
         "testEnvironment": "node"
-    },
-    "prisma": {
-        "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
     }
 }

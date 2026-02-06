@@ -1,4 +1,3 @@
-import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { auth } from "../src/lib/auth";
 import { PrismaClient } from "./client/client";

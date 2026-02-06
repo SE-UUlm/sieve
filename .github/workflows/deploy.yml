@@ -34,4 +34,27 @@ jobs:
               run: scp ./docker-compose.yml "${{ vars.REMOTE_USER }}@${{ vars.REMOTE_DOMAIN }}:${{ vars.WORK_DIR }}/"
 
             - name: Start Docker Compose on Remote Machine
-              run: ssh "${{ vars.REMOTE_USER }}@${{ vars.REMOTE_DOMAIN }}" -- 'cd "${{ vars.WORK_DIR }}" && docker compose up -d --pull always'
+              run: ssh "${{ vars.REMOTE_USER }}@${{ vars.REMOTE_DOMAIN }}" -- 'cd "${{ vars.WORK_DIR }}" && docker compose up -d --pull always --wait'
+
+            - name: Prepare Database
+              run: |
+                cat <<EOF | ssh "${{ vars.REMOTE_USER }}@${{ vars.REMOTE_DOMAIN }}" -- 'docker exec --interactive --user root sieve-deploy-backend-1 /bin/sh'
+
+                set -o errexit -o nounset -o pipefail
+
+                cd dist/prisma
+                wget https://raw.githubusercontent.com/SE-UUlm/sieve/refs/heads/develop/apps/backend/prisma/schema.prisma
+
+                cd .. # Back to dist
+
+                mv prisma.config.js prisma.config.mjs # Because Prisma does not like .js files only .mjs files
+
+                pnpm dlx prisma db push
+                node prisma/seed.js
+
+                rm prisma/schema.prisma
+                mv prisma.config.mjs prisma.config.js
+
+
+                EOF
+
