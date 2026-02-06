@@ -18,6 +18,12 @@ export default function RootLayout({
     return (
         <html lang="en" suppressHydrationWarning>
             <body>
+                <link
+                    rel="icon"
+                    href="icon?<generated>"
+                    type="<generated>"
+                    sizes="<generated>"
+                />
                 <Providers>
                     <ThemeProvider
                         attribute="class"
