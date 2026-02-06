@@ -27,7 +27,7 @@ const NavBar = () => {
             <NavigationMenu className="grow">
                 <NavigationMenuList className="gap-10">
                     <NavigationMenuItem>
-                        <Link href="/">Home</Link>
+                        <Link href="/public">Home</Link>
                     </NavigationMenuItem>
                     <NavigationMenuItem>
                         <Link href="/analyse">Analyse Email</Link>
