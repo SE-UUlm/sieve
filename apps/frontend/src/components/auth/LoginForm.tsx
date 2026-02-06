@@ -4,21 +4,21 @@ import Link from "next/link";
 import { useId, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import * as z from "zod";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/primitives/button";
 import {
     Card,
     CardContent,
     CardFooter,
     CardHeader,
     CardTitle,
-} from "@/components/ui/card";
+} from "@/components/primitives/card";
 import {
     Field,
     FieldError,
     FieldGroup,
     FieldLabel,
-} from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+} from "@/components/primitives/field";
+import { Input } from "@/components/primitives/input";
 import { authClient } from "@/lib/auth-client";
 
 const formSchema = z.object({

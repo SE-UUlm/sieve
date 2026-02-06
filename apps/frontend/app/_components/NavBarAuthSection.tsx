@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/primitives/button";
+import { Skeleton } from "@/components/primitives/skeleton";
 import useLogout from "@/hooks/useLogout";
 import { authClient } from "@/lib/auth-client";
 

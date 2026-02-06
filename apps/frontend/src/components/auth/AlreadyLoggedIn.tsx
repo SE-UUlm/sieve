@@ -1,8 +1,13 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Field } from "@/components/ui/field";
+import { Button } from "@/components/primitives/button";
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+} from "@/components/primitives/card";
+import { Field } from "@/components/primitives/field";
 import useLogout from "@/hooks/useLogout";
 
 const AlreadyLoggedIn = () => {

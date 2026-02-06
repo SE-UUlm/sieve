@@ -4,10 +4,10 @@ import { RedirectType, redirect } from "next/navigation";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import * as z from "zod";
-import { Button } from "@/components/ui/button";
-import { Field, FieldError, FieldGroup } from "@/components/ui/field";
-import { Spinner } from "@/components/ui/spinner";
-import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/primitives/button";
+import { Field, FieldError, FieldGroup } from "@/components/primitives/field";
+import { Spinner } from "@/components/primitives/spinner";
+import { Textarea } from "@/components/primitives/textarea";
 import { authClient } from "@/lib/auth-client";
 import { useEmailControllerSubmitEmail } from "@/lib/client";
 

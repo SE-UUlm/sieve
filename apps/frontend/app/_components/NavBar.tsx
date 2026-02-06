@@ -7,7 +7,7 @@ import {
     NavigationMenuItem,
     NavigationMenuLink,
     NavigationMenuList,
-} from "@/components/ui/navigation-menu";
+} from "@/components/primitives/navigation-menu";
 import NavBarAuthSection from "./NavBarAuthSection";
 
 const Link = ({ href, ...props }: React.ComponentProps<typeof NextLink>) => {
