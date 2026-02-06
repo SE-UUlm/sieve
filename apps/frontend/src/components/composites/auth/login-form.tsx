@@ -51,7 +51,7 @@ const LoginForm = () => {
         const { error } = await authClient.signIn.email({
             email: data.email,
             password: data.password,
-            callbackURL: "/analyse",
+            callbackURL: "/analyze",
         });
         if (error) {
             if (error.message) setLoginError(error.message);

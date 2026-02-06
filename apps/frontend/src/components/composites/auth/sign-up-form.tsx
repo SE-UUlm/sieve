@@ -65,7 +65,7 @@ const SignUpForm = () => {
             return;
         }
         // Setting callBackURL on signUp is not working, so we redirect to the analyse page
-        redirect("/analyse", RedirectType.push);
+        redirect("/analyze", RedirectType.push);
     };
 
     const formId = useId();
