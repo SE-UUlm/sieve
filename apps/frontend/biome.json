@@ -14,8 +14,7 @@
             "!dist",
             "!build",
             "!src/lib/client",
-            "!src/components/ui/field.tsx",
-            "!src/components/ui/input-group.tsx"
+            "!src/components/primitives"
         ]
     },
     "formatter": {
