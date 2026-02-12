@@ -37,6 +37,14 @@ services:
             AI_BACKEND_URL: "http://ai-backend:8000"
 
             TRUSTED_ORIGINS: ${TRUSTED_ORIGINS}
+
+            SEED_DEMO_USERS: ${SEED_DEMO_USERS:-false}
+            SEED_ADMIN_NAME: ${SEED_ADMIN_NAME:-Admin}
+            SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@example.com}
+            SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-}
+            SEED_USER_NAME: ${SEED_USER_NAME:-Alice Smith}
+            SEED_USER_EMAIL: ${SEED_USER_EMAIL:-alice@example.com}
+            SEED_USER_PASSWORD: ${SEED_USER_PASSWORD:-}
         ports:
             - ${BACKEND_PORT}:${BACKEND_PORT}
 
