@@ -33,6 +33,10 @@ For a detailed guide on all configuration options, see the
    # Edit .env with your preferred settings
    ```
 
+   Demo users are disabled by default (`SEED_DEMO_USERS=false`).
+   If you want demo users, set `SEED_DEMO_USERS=true` and provide both
+   `SEED_ADMIN_PASSWORD` and `SEED_USER_PASSWORD`.
+
 3. Start all services using Docker Compose:
 
    ```bash
@@ -108,7 +112,19 @@ If you prefer more control over the development environment, you can build and r
 
    This is only necessary the first time and after a schema change.
 
-5. Run the backend:
+5. Optional: Seed demo users:
+
+   ```bash
+   # In apps/backend/.env:
+   # SEED_DEMO_USERS=true
+   # SEED_ADMIN_PASSWORD=<strong password>
+   # SEED_USER_PASSWORD=<strong password>
+   pnpm exec prisma db seed
+   ```
+
+   If `SEED_DEMO_USERS` is not `true`, the seed command skips demo user creation.
+
+6. Run the backend:
 
    **Option A** - Development mode (auto-reload on file changes):
 
