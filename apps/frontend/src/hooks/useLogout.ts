@@ -1,36 +1,43 @@
-import { RedirectType, redirect } from "next/navigation";
-import { useState } from "react";
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 
-const useLogout = () => {
-    const { refetch } = authClient.useSession();
-    const [pending, setPending] = useState(false);
+type UseLogoutOptions = {
+    redirectTo?: string;
+};
 
-    const handleLogout = () => {
-        setPending(true);
-        authClient.signOut({
-            fetchOptions: {
-                onSuccess: async () => {
-                    // Not quite optimal, because get-session is called twice. But it seems to be the most robust way
-                    await refetch();
-                    setPending(false);
-                    redirect("/", RedirectType.push);
-                },
-                onError: async (error) => {
-                    toast.error("Error while logging out", {
-                        description: error.error.message,
-                    });
-                    setPending(false);
-                },
-            },
-        });
-    };
+const useLogout = ({ redirectTo = "/auth/login" }: UseLogoutOptions = {}) => {
+    const router = useRouter();
+    const [isPending, setIsPending] = useState(false);
 
-    return {
-        isPending: pending,
-        mutate: handleLogout,
-    };
+    const logout = useCallback(async () => {
+        if (isPending) return;
+
+        setIsPending(true);
+        try {
+            const result = await authClient.signOut();
+
+            if (result.error) {
+                toast.error("Error while logging out", {
+                    description: result.error.message,
+                });
+                return;
+            }
+
+            router.push(redirectTo);
+        } catch {
+            toast.error("Error while logging out", {
+                description: "Please try again.",
+            });
+        } finally {
+            setIsPending(false);
+        }
+    }, [isPending, redirectTo, router]);
+
+    return { isPending, logout };
 };
 
 export default useLogout;

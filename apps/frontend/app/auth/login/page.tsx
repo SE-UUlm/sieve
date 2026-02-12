@@ -1,6 +1,6 @@
 "use client";
-import AlreadyLoggedIn from "@/components/auth/AlreadyLoggedIn";
-import LoginForm from "@/components/auth/LoginForm";
+import AlreadyLoggedIn from "@/components/composites/auth/already-logged-in";
+import LoginForm from "@/components/composites/auth/login-form";
 import { authClient } from "@/lib/auth-client";
 
 const LoginPage = () => {
