@@ -47,11 +47,18 @@ type SeedUser = {
     role: "ADMIN" | "USER";
 };
 
+/**
+ * Ensures a seed user exists and has the expected role.
+ *
+ * If the user does not exist, it is created via Better Auth.
+ * On every run, the role is reconciled to keep seeding idempotent.
+ */
 async function ensureSeedUser(user: SeedUser) {
     const existing = await prisma.user.findUnique({
         where: { email: user.email },
         select: {
             id: true,
+            role: true,
         },
     });
 
@@ -63,16 +70,25 @@ async function ensureSeedUser(user: SeedUser) {
                 name: user.name,
             },
         });
-
-        if (user.role === "ADMIN") {
-            await prisma.user.update({
-                where: { email: user.email },
-                data: { role: "ADMIN" },
-            });
-        }
-
         console.log(`Seeded user ${user.email} (${user.role}).`);
-        return;
+    }
+
+    // Re-read after potential sign-up to reconcile role for both new and existing users.
+    const existingOrCreated = await prisma.user.findUnique({
+        where: { email: user.email },
+        select: { role: true },
+    });
+
+    if (!existingOrCreated) {
+        throw new Error(`Failed to load seeded user ${user.email}`);
+    }
+
+    if (existingOrCreated.role !== user.role) {
+        await prisma.user.update({
+            where: { email: user.email },
+            data: { role: user.role },
+        });
+        console.log(`Updated role for ${user.email} to ${user.role}.`);
     }
 }
 
