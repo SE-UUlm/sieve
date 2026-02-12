@@ -20,6 +20,26 @@ const prisma = new PrismaClient({
     log: ["info", "query", "warn", "error"],
 });
 
+const seedDemoUsers =
+    process.env.SEED_DEMO_USERS?.trim().toLowerCase() === "true";
+
+/**
+ * Reads a required environment variable.
+ *
+ * @param name The variable name to resolve.
+ * @returns The non-empty variable value.
+ * @throws Error if the variable is missing or empty.
+ */
+function requireEnv(name: string): string {
+    const value = process.env[name];
+
+    if (!value) {
+        throw new Error(`Missing required env var: ${name}`);
+    }
+
+    return value;
+}
+
 type SeedUser = {
     name: string;
     email: string;
@@ -27,28 +47,11 @@ type SeedUser = {
     role: "ADMIN" | "USER";
 };
 
-const seedUsers: SeedUser[] = [
-    {
-        name: process.env.SEED_ADMIN_NAME ?? "Admin",
-        email: process.env.SEED_ADMIN_EMAIL ?? "admin@example.com",
-        password: process.env.SEED_ADMIN_PASSWORD ?? "admin1234",
-        role: "ADMIN",
-    },
-    {
-        name: process.env.SEED_USER_NAME ?? "Alice Smith",
-        email: process.env.SEED_USER_EMAIL ?? "alice@example.com",
-        password: process.env.SEED_USER_PASSWORD ?? "alice1234",
-        role: "USER",
-    },
-];
-
 async function ensureSeedUser(user: SeedUser) {
     const existing = await prisma.user.findUnique({
         where: { email: user.email },
         select: {
             id: true,
-            role: true,
-            accounts: { select: { providerId: true } },
         },
     });
 
@@ -73,7 +76,33 @@ async function ensureSeedUser(user: SeedUser) {
     }
 }
 
+/**
+ * Creates demo users when explicitly enabled via `SEED_DEMO_USERS=true`.
+ * Seeding is idempotent and only inserts users that do not already exist.
+ */
 async function main() {
+    if (!seedDemoUsers) {
+        console.log(
+            "Skipping demo user seeding (SEED_DEMO_USERS is not true).",
+        );
+        return;
+    }
+
+    const seedUsers: SeedUser[] = [
+        {
+            name: process.env.SEED_ADMIN_NAME ?? "Admin",
+            email: process.env.SEED_ADMIN_EMAIL ?? "admin@example.com",
+            password: requireEnv("SEED_ADMIN_PASSWORD"),
+            role: "ADMIN",
+        },
+        {
+            name: process.env.SEED_USER_NAME ?? "Alice Smith",
+            email: process.env.SEED_USER_EMAIL ?? "alice@example.com",
+            password: requireEnv("SEED_USER_PASSWORD"),
+            role: "USER",
+        },
+    ];
+
     for (const user of seedUsers) {
         await ensureSeedUser(user);
     }
@@ -83,7 +112,8 @@ main()
     .then(async () => {
         await prisma.$disconnect();
     })
-    .catch(async () => {
+    .catch(async (error) => {
+        console.error("Database seeding failed.", error);
         await prisma.$disconnect();
         process.exit(1);
     });
