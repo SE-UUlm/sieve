@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import type React from "react";
 import { ThemeProvider } from "@/components/composites/theme/theme-provider";
+import { Toaster } from "@/components/primitives/sonner";
 import Providers from "./providers";
 
 export const metadata: Metadata = {
@@ -31,6 +32,7 @@ export default function RootLayout({
                         enableSystem
                     >
                         {children}
+                        <Toaster />
                     </ThemeProvider>
                 </Providers>
             </body>
