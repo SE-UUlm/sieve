@@ -5,6 +5,7 @@ import { useTheme } from "next-themes";
 import type React from "react";
 import { useEffect } from "react";
 import { Sidebar } from "@/components/composites/sidebar/sidebar";
+import useLogout from "@/hooks/useLogout";
 import { authClient } from "@/lib/auth-client";
 
 export default function DashboardLayout({
@@ -14,6 +15,7 @@ export default function DashboardLayout({
 }) {
     const { data: session, isPending } = authClient.useSession();
     const router = useRouter();
+    const { logout } = useLogout();
 
     const { theme, setTheme, resolvedTheme } = useTheme();
     const isDark = (resolvedTheme ?? theme) === "dark";
@@ -25,11 +27,6 @@ export default function DashboardLayout({
         }
     }, [session, isPending, router]);
 
-    const handleLogout = async () => {
-        await authClient.signOut();
-        router.push("/auth/login");
-    };
-
     const toggleTheme = () => {
         setTheme(isDark ? "light" : "dark");
     };
@@ -40,7 +37,7 @@ export default function DashboardLayout({
         <div className="flex h-screen w-screen overflow-hidden bg-slate-50 font-sans transition-colors duration-300 dark:bg-slate-950 dark:text-slate-200">
             <Sidebar
                 onToggleTheme={toggleTheme}
-                onLogout={handleLogout}
+                onLogout={logout}
                 isDark={isDark}
             />
 

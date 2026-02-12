@@ -11,7 +11,7 @@ import { Field } from "@/components/primitives/field";
 import useLogout from "@/hooks/useLogout";
 
 const AlreadyLoggedIn = () => {
-    const { isPending, mutate: handleLogout } = useLogout();
+    const { isPending, logout } = useLogout();
 
     return (
         <Card className="mx-auto w-full sm:max-w-md">
@@ -20,11 +20,7 @@ const AlreadyLoggedIn = () => {
             </CardHeader>
             <CardContent>
                 <Field orientation="horizontal">
-                    <Button
-                        type="button"
-                        onClick={() => handleLogout()}
-                        disabled={isPending}
-                    >
+                    <Button type="button" onClick={logout} disabled={isPending}>
                         Logout
                     </Button>
                 </Field>
