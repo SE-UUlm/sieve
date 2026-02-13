@@ -70,8 +70,16 @@ agent = create_agent(
 )
 
 
-async def run_analyze_email_agent(email: str) -> ResponseFormatData:
-    conversation = [HumanMessage(email)]
+def _build_email_for_analysis(subject: str | None, body: str) -> str:
+    if subject is None or subject.strip() == "":
+        return f"Email body:\n{body}"
+
+    return f"Email subject:\n{subject}\n\nEmail body:\n{body}"
+
+
+async def run_analyze_email_agent(subject: str | None, body: str) -> ResponseFormatData:
+    formatted_email = _build_email_for_analysis(subject=subject, body=body)
+    conversation = [HumanMessage(formatted_email)]
     result = await agent.ainvoke({"messages": conversation})
     pprint.pp(result)
     return result["structured_response"].data

@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 
 
 class Email(BaseModel):
+    subject: str | None = Field(default=None, max_length=300)
     body: str = Field(..., min_length=1, max_length=10000)
 
 
@@ -17,5 +18,5 @@ def read_root():
 
 @app.post("/analyze-email")
 async def analyze_email(email: Email):
-    result = await run_analyze_email_agent(email.body)
+    result = await run_analyze_email_agent(subject=email.subject, body=email.body)
     return {"status": "success", "data": result}
