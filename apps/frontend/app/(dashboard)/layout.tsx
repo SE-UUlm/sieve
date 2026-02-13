@@ -5,6 +5,7 @@ import { useTheme } from "next-themes";
 import type React from "react";
 import { useEffect } from "react";
 import { Sidebar } from "@/components/composites/sidebar/sidebar";
+import { DashboardLoadingView } from "@/components/composites/views/dashboard-loading-view";
 import useLogout from "@/hooks/useLogout";
 import { authClient } from "@/lib/auth-client";
 
@@ -31,7 +32,8 @@ export default function DashboardLayout({
         setTheme(isDark ? "light" : "dark");
     };
 
-    if (isPending || !session) return null;
+    if (isPending) return <DashboardLoadingView />;
+    if (!session) return null;
 
     return (
         <div className="flex h-screen w-screen overflow-hidden bg-slate-50 font-sans transition-colors duration-300 dark:bg-slate-950 dark:text-slate-200">

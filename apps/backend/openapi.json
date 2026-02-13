@@ -4635,13 +4635,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": ["data"]
+                                    "$ref": "#/components/schemas/SubmitEmailResponseDto"
                                 }
                             }
                         }
@@ -5088,6 +5082,94 @@
                     }
                 },
                 "required": ["body"]
+            },
+            "ProductDto": {
+                "type": "object",
+                "properties": {
+                    "product_name": {
+                        "type": "string",
+                        "description": "Name of the referenced product.",
+                        "example": "Hydraulic Pump HP-200"
+                    },
+                    "quantity": {
+                        "type": "number",
+                        "description": "Requested quantity.",
+                        "example": 3
+                    }
+                },
+                "required": ["product_name", "quantity"]
+            },
+            "IssueDto": {
+                "type": "object",
+                "properties": {
+                    "product_name": {
+                        "type": "string",
+                        "description": "Name of the referenced product.",
+                        "example": "Hydraulic Pump HP-200"
+                    },
+                    "issue": {
+                        "type": "string",
+                        "description": "Short summary of the issue.",
+                        "example": "The pump leaks after 20 minutes of operation."
+                    }
+                },
+                "required": ["product_name", "issue"]
+            },
+            "EmailAnalysisResultDto": {
+                "type": "object",
+                "properties": {
+                    "category": {
+                        "type": "string",
+                        "description": "Detected email category.",
+                        "enum": [
+                            "Other",
+                            "Complaint",
+                            "Product_Inquiry",
+                            "Product_Support"
+                        ]
+                    },
+                    "summary": {
+                        "type": "string",
+                        "description": "Summary text for generic results.",
+                        "example": "The customer asks for delivery details."
+                    },
+                    "complaints": {
+                        "description": "One complaint per item.",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "products": {
+                        "description": "Products requested by the customer.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ProductDto"
+                        }
+                    },
+                    "issues": {
+                        "description": "Issues reported by the customer.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/IssueDto"
+                        }
+                    }
+                },
+                "required": ["category"]
+            },
+            "SubmitEmailResponseDto": {
+                "type": "object",
+                "properties": {
+                    "data": {
+                        "description": "Structured analysis payload.",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/EmailAnalysisResultDto"
+                            }
+                        ]
+                    }
+                },
+                "required": ["data"]
             }
         },
         "securitySchemes": {

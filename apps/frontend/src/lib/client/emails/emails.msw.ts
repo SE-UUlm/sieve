@@ -22,14 +22,14 @@ import type {
 } from 'msw';
 
 import type {
-  EmailControllerSubmitEmail201
+  SubmitEmailResponseDto
 } from '.././models';
 
 
-export const getEmailControllerSubmitEmailResponseMock = (overrideResponse: Partial< EmailControllerSubmitEmail201 > = {}): EmailControllerSubmitEmail201 => ({data: faker.string.alpha({length: {min: 10, max: 20}}), ...overrideResponse})
+export const getEmailControllerSubmitEmailResponseMock = (overrideResponse: Partial< SubmitEmailResponseDto > = {}): SubmitEmailResponseDto => ({data: {...{category: faker.helpers.arrayElement(['Other','Complaint','Product_Inquiry','Product_Support'] as const), summary: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), undefined]), complaints: faker.helpers.arrayElement([Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (faker.string.alpha({length: {min: 10, max: 20}}))), undefined]), products: faker.helpers.arrayElement([Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({product_name: faker.string.alpha({length: {min: 10, max: 20}}), quantity: faker.number.float({min: undefined, max: undefined, fractionDigits: 2})})), undefined]), issues: faker.helpers.arrayElement([Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({product_name: faker.string.alpha({length: {min: 10, max: 20}}), issue: faker.string.alpha({length: {min: 10, max: 20}})})), undefined])},}, ...overrideResponse})
 
 
-export const getEmailControllerSubmitEmailMockHandler = (overrideResponse?: EmailControllerSubmitEmail201 | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<EmailControllerSubmitEmail201> | EmailControllerSubmitEmail201), options?: RequestHandlerOptions) => {
+export const getEmailControllerSubmitEmailMockHandler = (overrideResponse?: SubmitEmailResponseDto | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<SubmitEmailResponseDto> | SubmitEmailResponseDto), options?: RequestHandlerOptions) => {
   return http.post('*/emails', async (info) => {await delay(500);
   
     return new HttpResponse(JSON.stringify(overrideResponse !== undefined

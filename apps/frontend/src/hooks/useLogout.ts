@@ -2,8 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
-import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
+import { showPersistentErrorToast } from "@/lib/error-toast";
 
 type UseLogoutOptions = {
     redirectTo?: string;
@@ -21,16 +21,27 @@ const useLogout = ({ redirectTo = "/auth/login" }: UseLogoutOptions = {}) => {
             const result = await authClient.signOut();
 
             if (result.error) {
-                toast.error("Error while logging out", {
-                    description: result.error.message,
+                console.error(
+                    "[auth] Logout failed with API error",
+                    result.error,
+                );
+                showPersistentErrorToast({
+                    title: "Error While Logging Out",
+                    description:
+                        "There was an issue with the server. Please try again later.",
+                    id: "logout-error",
                 });
                 return;
             }
 
             router.push(redirectTo);
-        } catch {
-            toast.error("Error while logging out", {
-                description: "Please try again.",
+        } catch (error) {
+            console.error("[auth] Logout failed with unexpected error", error);
+            showPersistentErrorToast({
+                title: "Error While Logging Out",
+                description:
+                    "There was an issue with the server. Please try again later.",
+                id: "logout-error",
             });
         } finally {
             setIsPending(false);
