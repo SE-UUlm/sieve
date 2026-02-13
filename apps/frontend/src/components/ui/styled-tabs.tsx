@@ -16,7 +16,7 @@ export const StyledTabsList = React.forwardRef<
     <TabsList
         ref={ref}
         className={cn(
-            "h-auto rounded-lg border border-slate-300 bg-slate-200/50 p-1 dark:border-slate-800 dark:bg-slate-900/50",
+            "h-14! items-center gap-1 rounded-lg border border-slate-300 bg-slate-200/50 p-1 dark:border-slate-800 dark:bg-slate-900/50",
             className,
         )}
         {...props}
@@ -32,15 +32,14 @@ export const StyledTabsTrigger = React.forwardRef<
         ref={ref}
         className={cn(
             // Base Layout
-            "h-auto rounded-md px-8 py-2 text-sm font-medium transition-all",
+            "h-11! flex-none rounded-md px-6 py-1 text-sm font-medium transition-all",
             // Inactive State
-            "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300",
+            "text-slate-500 border-none hover:text-slate-700 dark:hover:text-slate-300",
             // Active State (Background & Text)
-            "data-[state=active]:bg-white data-[state=active]:dark:bg-slate-800",
+            "data-[state=active]:bg-white data-[state=active]:dark:bg-slate-800!",
             "data-[state=active]:text-slate-900 data-[state=active]:dark:text-white",
             // Active State (Borders & Shadow)
             "data-[state=active]:shadow-sm",
-            "data-[state=active]:border data-[state=active]:border-slate-200 data-[state=active]:dark:border-slate-700",
             className,
         )}
         {...props}
