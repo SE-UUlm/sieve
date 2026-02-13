@@ -12,6 +12,7 @@ import { OutputPanel } from "@/components/composites/views/analyze/output/output
 import { SplitView } from "@/components/composites/views/split-view/split-view";
 import { SplitViewPane } from "@/components/composites/views/split-view/split-view-pane";
 import { useEmailControllerSubmitEmail } from "@/lib/client";
+import { showPersistentErrorToast } from "@/lib/error-toast";
 
 /**
  * Analyze page container that orchestrates authentication, API calls, and view state.
@@ -42,8 +43,14 @@ export function AnalyzeView() {
                 }
             },
             onError: (error) => {
-                console.error("Mutation error:", error);
+                console.error("[analyze] Email analysis request failed", error);
                 setCurrentStep(0);
+                showPersistentErrorToast({
+                    title: "Email Analysis Failed",
+                    description:
+                        "There was an issue with the server. Please try again later.",
+                    id: "analyze-request-error",
+                });
             },
         },
     });
@@ -98,7 +105,8 @@ export function AnalyzeView() {
                     <AnalyzeInputForm
                         form={form}
                         isPending={isPending}
-                        onSubmit={onSubmit}
+                        onSubmitAction={onSubmit}
+                        onInvalidSubmitAction={onInvalidSubmit}
                     />
                 </div>
             </SplitViewPane>
