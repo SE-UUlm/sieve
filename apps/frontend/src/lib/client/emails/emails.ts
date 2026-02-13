@@ -19,8 +19,8 @@ import type {
 
 import type {
   CreateEmailDto,
-  EmailControllerSubmitEmail201,
-  EmailControllerSubmitEmail500
+  EmailControllerSubmitEmail500,
+  SubmitEmailResponseDto
 } from '.././models';
 
 
@@ -31,7 +31,7 @@ import type {
  * @summary Submit an email for processing
  */
 export type emailControllerSubmitEmailResponse201 = {
-  data: EmailControllerSubmitEmail201
+  data: SubmitEmailResponseDto
   status: 201
 }
 

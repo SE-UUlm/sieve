@@ -9,6 +9,9 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
  * OpenAPI spec version: 0.1.0
  */
 
-export type EmailControllerSubmitEmail201 = {
-  data: string;
-};
+export interface ProductDto {
+  /** Name of the referenced product. */
+  product_name: string;
+  /** Requested quantity. */
+  quantity: number;
+}
