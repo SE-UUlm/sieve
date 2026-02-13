@@ -29,7 +29,7 @@ class Product(BaseModel):
 
 
 class ProductInquiry(BaseModel):
-    """The user asks about a product they do not yet own, are considering buying, or want general information about."""
+    """The user wants to buy a product or asks about a product they do not yet own, or want general information about."""
 
     category: Literal["Product_Inquiry"]
     products: list[Product]
@@ -61,7 +61,7 @@ model = init_chat_model(
 system_prompt = """Your job is to categorize a given email from a customer or potential customer and convert it into a structured form. 
     If none of the categories match, classify the email as 'Other'.
     Write answers in the third person about the customer. Be as concise as possible.
-    Language: English"""
+    Answer Language: English"""
 
 agent = create_agent(
     model=model,
