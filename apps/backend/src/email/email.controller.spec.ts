@@ -1,4 +1,5 @@
 import { Test, type TestingModule } from "@nestjs/testing";
+import { AiBackendService } from "../ai-backend/ai-backend.service";
 import { EmailController } from "./email.controller";
 
 describe("EmailController", () => {
@@ -7,6 +8,14 @@ describe("EmailController", () => {
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             controllers: [EmailController],
+            providers: [
+                {
+                    provide: AiBackendService,
+                    useValue: {
+                        runFlow: jest.fn(),
+                    },
+                },
+            ],
         }).compile();
 
         controller = module.get<EmailController>(EmailController);

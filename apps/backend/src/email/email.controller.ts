@@ -14,6 +14,7 @@ import {
 } from "@nestjs/swagger";
 import { AiBackendService } from "../ai-backend/ai-backend.service";
 import { CreateEmailDto } from "./dto/create-email.dto";
+import { SubmitEmailResponseDto } from "./dto/email-analysis-result.dto";
 
 @ApiTags("Emails")
 @Controller("emails")
@@ -27,15 +28,7 @@ export class EmailController {
     @ApiResponse({
         status: 201,
         description: "Successfully submitted",
-        schema: {
-            type: "object",
-            properties: {
-                data: {
-                    type: "string",
-                },
-            },
-            required: ["data"],
-        },
+        type: SubmitEmailResponseDto,
     })
     @ApiResponse({ status: 400, description: "Bad Request" })
     @ApiResponse({ status: 401, description: "Unauthorized" })
@@ -50,10 +43,18 @@ export class EmailController {
             },
         },
     })
-    async submitEmail(@Body() dto: CreateEmailDto): Promise<{ data: string }> {
+    /**
+     * Submits an email payload for analysis and returns structured output.
+     */
+    async submitEmail(
+        @Body() dto: CreateEmailDto,
+    ): Promise<SubmitEmailResponseDto> {
         try {
-            const response = await this.aiBackendService.runFlow(dto.body);
-            return { data: response.message };
+            const result = await this.aiBackendService.runFlow(
+                dto.body,
+                dto.subject,
+            );
+            return { data: result };
         } catch (error) {
             Logger.error("Error running AiBackend agent:", error);
 
