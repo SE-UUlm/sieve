@@ -12,7 +12,7 @@ import { OutputPanel } from "@/components/composites/views/analyze/output/output
 import { SplitView } from "@/components/composites/views/split-view/split-view";
 import { SplitViewPane } from "@/components/composites/views/split-view/split-view-pane";
 import { useEmailControllerSubmitEmail } from "@/lib/client";
-import { showPersistentErrorToast } from "@/lib/error-toast";
+import { showPersistentErrorToast } from "@/lib/toast";
 
 /**
  * Analyze page container that orchestrates authentication, API calls, and view state.
@@ -40,17 +40,19 @@ export function AnalyzeView() {
                 if (response.status === 201) {
                     setResult(response.data.data);
                     setCurrentStep(4);
+                    return;
                 }
+
+                setCurrentStep(0);
+                showPersistentErrorToast(
+                    getAnalyzeErrorToastFromStatus(response.status),
+                );
             },
             onError: (error) => {
                 console.error("[analyze] Email analysis request failed", error);
                 setCurrentStep(0);
-                showPersistentErrorToast({
-                    title: "Email Analysis Failed",
-                    description:
-                        "There was an issue with the server. Please try again later.",
-                    id: "analyze-request-error",
-                });
+                const toastError = getAnalyzeErrorToastFromError(error);
+                showPersistentErrorToast(toastError);
             },
         },
     });
@@ -84,14 +86,13 @@ export function AnalyzeView() {
         showPersistentErrorToast({
             title: "Cannot Submit Analysis",
             description: String(firstErrorMessage),
-            id: "analyze-validation-error",
         });
     };
 
     return (
         <SplitView>
             <SplitViewPane variant="primary" className="flex flex-col">
-                <div className="mx-auto flex h-full w-full max-w-2xl flex-col">
+                <div className="mx-auto flex h-full w-full flex-col">
                     <div className="mb-8">
                         <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
                             Analyze Single Mail
@@ -119,4 +120,66 @@ export function AnalyzeView() {
             </SplitViewPane>
         </SplitView>
     );
+}
+
+type AnalyzeErrorToast = {
+    title: string;
+    description: string;
+};
+
+/**
+ * Maps API status codes to a user-facing analyze error toast.
+ *
+ * @param status HTTP status code returned by the analyze endpoint.
+ * @returns Title and description for the persistent error toast.
+ */
+function getAnalyzeErrorToastFromStatus(status: number): AnalyzeErrorToast {
+    if (status === 503) {
+        return {
+            title: "Analysis Unavailable",
+            description:
+                "Email analysis is not configured yet. Please contact an admin.",
+        };
+    }
+
+    if (status === 423) {
+        return {
+            title: "Analysis Disabled",
+            description:
+                "Email analysis is currently disabled by an admin. Please try again later.",
+        };
+    }
+
+    return {
+        title: "Email Analysis Failed",
+        description:
+            "There was an issue with the server. Please try again later.",
+    };
+}
+
+/**
+ * Maps unexpected client/network failures to a user-facing analyze error toast.
+ *
+ * @param error Unknown error returned by the mutation.
+ * @returns Title and description for the persistent error toast.
+ */
+function getAnalyzeErrorToastFromError(error: unknown): AnalyzeErrorToast {
+    if (!error || typeof error !== "object") {
+        return {
+            title: "Email Analysis Failed",
+            description:
+                "There was an issue with the server. Please try again later.",
+        };
+    }
+
+    const status =
+        "status" in error && typeof error.status === "number"
+            ? error.status
+            : undefined;
+
+    if (status !== undefined) {
+        return getAnalyzeErrorToastFromStatus(status);
+    }
+
+    return getAnalyzeErrorToastFromStatus(500);
 }
