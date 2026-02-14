@@ -146,6 +146,11 @@ export type settingsControllerUpdateInstanceApiKeyResponse200 = {
   status: 200
 }
 
+export type settingsControllerUpdateInstanceApiKeyResponse400 = {
+  data: void
+  status: 400
+}
+
 export type settingsControllerUpdateInstanceApiKeyResponse401 = {
   data: void
   status: 401
@@ -159,7 +164,7 @@ export type settingsControllerUpdateInstanceApiKeyResponse403 = {
 export type settingsControllerUpdateInstanceApiKeyResponseSuccess = (settingsControllerUpdateInstanceApiKeyResponse200) & {
   headers: Headers;
 };
-export type settingsControllerUpdateInstanceApiKeyResponseError = (settingsControllerUpdateInstanceApiKeyResponse401 | settingsControllerUpdateInstanceApiKeyResponse403) & {
+export type settingsControllerUpdateInstanceApiKeyResponseError = (settingsControllerUpdateInstanceApiKeyResponse400 | settingsControllerUpdateInstanceApiKeyResponse401 | settingsControllerUpdateInstanceApiKeyResponse403) & {
   headers: Headers;
 };
 
