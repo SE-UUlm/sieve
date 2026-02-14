@@ -423,6 +423,7 @@ export const ModelName = {
     Email: "Email",
     Job: "Job",
     JobResult: "JobResult",
+    InstanceSettings: "InstanceSettings",
 } as const;
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName];
@@ -451,7 +452,8 @@ export type TypeMap<
             | "verification"
             | "email"
             | "job"
-            | "jobResult";
+            | "jobResult"
+            | "instanceSettings";
         txIsolationLevel: TransactionIsolationLevel;
     };
     model: {
@@ -987,6 +989,82 @@ export type TypeMap<
                 };
             };
         };
+        InstanceSettings: {
+            payload: Prisma.$InstanceSettingsPayload<ExtArgs>;
+            fields: Prisma.InstanceSettingsFieldRefs;
+            operations: {
+                findUnique: {
+                    args: Prisma.InstanceSettingsFindUniqueArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$InstanceSettingsPayload> | null;
+                };
+                findUniqueOrThrow: {
+                    args: Prisma.InstanceSettingsFindUniqueOrThrowArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$InstanceSettingsPayload>;
+                };
+                findFirst: {
+                    args: Prisma.InstanceSettingsFindFirstArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$InstanceSettingsPayload> | null;
+                };
+                findFirstOrThrow: {
+                    args: Prisma.InstanceSettingsFindFirstOrThrowArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$InstanceSettingsPayload>;
+                };
+                findMany: {
+                    args: Prisma.InstanceSettingsFindManyArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$InstanceSettingsPayload>[];
+                };
+                create: {
+                    args: Prisma.InstanceSettingsCreateArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$InstanceSettingsPayload>;
+                };
+                createMany: {
+                    args: Prisma.InstanceSettingsCreateManyArgs<ExtArgs>;
+                    result: BatchPayload;
+                };
+                createManyAndReturn: {
+                    args: Prisma.InstanceSettingsCreateManyAndReturnArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$InstanceSettingsPayload>[];
+                };
+                delete: {
+                    args: Prisma.InstanceSettingsDeleteArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$InstanceSettingsPayload>;
+                };
+                update: {
+                    args: Prisma.InstanceSettingsUpdateArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$InstanceSettingsPayload>;
+                };
+                deleteMany: {
+                    args: Prisma.InstanceSettingsDeleteManyArgs<ExtArgs>;
+                    result: BatchPayload;
+                };
+                updateMany: {
+                    args: Prisma.InstanceSettingsUpdateManyArgs<ExtArgs>;
+                    result: BatchPayload;
+                };
+                updateManyAndReturn: {
+                    args: Prisma.InstanceSettingsUpdateManyAndReturnArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$InstanceSettingsPayload>[];
+                };
+                upsert: {
+                    args: Prisma.InstanceSettingsUpsertArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$InstanceSettingsPayload>;
+                };
+                aggregate: {
+                    args: Prisma.InstanceSettingsAggregateArgs<ExtArgs>;
+                    result: runtime.Types.Utils.Optional<Prisma.AggregateInstanceSettings>;
+                };
+                groupBy: {
+                    args: Prisma.InstanceSettingsGroupByArgs<ExtArgs>;
+                    result: runtime.Types.Utils.Optional<Prisma.InstanceSettingsGroupByOutputType>[];
+                };
+                count: {
+                    args: Prisma.InstanceSettingsCountArgs<ExtArgs>;
+                    result:
+                        | runtime.Types.Utils.Optional<Prisma.InstanceSettingsCountAggregateOutputType>
+                        | number;
+                };
+            };
+        };
     };
 } & {
     other: {
@@ -1123,6 +1201,17 @@ export const JobResultScalarFieldEnum = {
 
 export type JobResultScalarFieldEnum =
     (typeof JobResultScalarFieldEnum)[keyof typeof JobResultScalarFieldEnum];
+
+export const InstanceSettingsScalarFieldEnum = {
+    id: "id",
+    openAIApiKey: "openAIApiKey",
+    openAIApiKeyEnabled: "openAIApiKeyEnabled",
+    createdAt: "createdAt",
+    updatedAt: "updatedAt",
+} as const;
+
+export type InstanceSettingsScalarFieldEnum =
+    (typeof InstanceSettingsScalarFieldEnum)[keyof typeof InstanceSettingsScalarFieldEnum];
 
 export const SortOrder = {
     asc: "asc",
@@ -1393,6 +1482,7 @@ export type GlobalOmitConfig = {
     email?: Prisma.EmailOmit;
     job?: Prisma.JobOmit;
     jobResult?: Prisma.JobResultOmit;
+    instanceSettings?: Prisma.InstanceSettingsOmit;
 };
 
 /* Types for Logging */

@@ -113,6 +113,16 @@ model JobResult {
     @@map("job_results")
 }
 
+model InstanceSettings {
+    id                  String   @id @default("singleton")
+    openAIApiKey        String?
+    openAIApiKeyEnabled Boolean  @default(true)
+    createdAt           DateTime @default(now())
+    updatedAt           DateTime @updatedAt
+
+    @@map("instance_settings")
+}
+
 enum UserRole {
     ADMIN
     USER

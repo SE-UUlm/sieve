@@ -61,6 +61,7 @@ export const ModelName = {
     Email: "Email",
     Job: "Job",
     JobResult: "JobResult",
+    InstanceSettings: "InstanceSettings",
 } as const;
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName];
@@ -176,6 +177,17 @@ export const JobResultScalarFieldEnum = {
 
 export type JobResultScalarFieldEnum =
     (typeof JobResultScalarFieldEnum)[keyof typeof JobResultScalarFieldEnum];
+
+export const InstanceSettingsScalarFieldEnum = {
+    id: "id",
+    openAIApiKey: "openAIApiKey",
+    openAIApiKeyEnabled: "openAIApiKeyEnabled",
+    createdAt: "createdAt",
+    updatedAt: "updatedAt",
+} as const;
+
+export type InstanceSettingsScalarFieldEnum =
+    (typeof InstanceSettingsScalarFieldEnum)[keyof typeof InstanceSettingsScalarFieldEnum];
 
 export const SortOrder = {
     asc: "asc",
