@@ -1,11 +1,38 @@
+import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
 import { Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "../prisma/prisma.service";
 
 const INSTANCE_SETTINGS_ID = "singleton";
+const GCM_IV_LENGTH = 12;
 
 @Injectable()
 export class SettingsService {
-    constructor(private readonly prismaService: PrismaService) {}
+    private readonly encryptionKey: Buffer;
+
+    constructor(
+        private readonly prismaService: PrismaService,
+        configService: ConfigService,
+    ) {
+        const encryptionKeyBase64 = configService.get<string>(
+            "SETTINGS_ENCRYPTION_KEY",
+        );
+
+        if (!encryptionKeyBase64) {
+            if (process.env.GENERATE_OPENAPI === "true") {
+                this.encryptionKey = Buffer.alloc(32, 0);
+                return;
+            }
+            throw new Error("Missing SETTINGS_ENCRYPTION_KEY configuration.");
+        }
+
+        this.encryptionKey = Buffer.from(encryptionKeyBase64, "base64");
+        if (this.encryptionKey.length !== 32) {
+            throw new Error(
+                "SETTINGS_ENCRYPTION_KEY must decode to 32 bytes (base64).",
+            );
+        }
+    }
 
     /**
      * Returns whether an instance-level OpenAI API key is configured.
@@ -28,15 +55,18 @@ export class SettingsService {
      * @returns Nothing.
      */
     async setOpenAIApiKey(apiKey: string): Promise<void> {
+        const encryptedApiKey = this.encryptOpenAIApiKey(apiKey.trim());
+
         await this.prismaService.instanceSettings.upsert({
             where: { id: INSTANCE_SETTINGS_ID },
             create: {
                 id: INSTANCE_SETTINGS_ID,
-                openAIApiKey: apiKey.trim(),
+                openAIApiKey: encryptedApiKey,
                 openAIApiKeyEnabled: true,
             },
             update: {
-                openAIApiKey: apiKey.trim(),
+                openAIApiKey: encryptedApiKey,
+                openAIApiKeyEnabled: true,
             },
         });
     }
@@ -52,7 +82,11 @@ export class SettingsService {
             select: { openAIApiKey: true },
         });
 
-        return settings?.openAIApiKey ?? null;
+        if (!settings?.openAIApiKey) {
+            return null;
+        }
+
+        return this.decryptOpenAIApiKey(settings.openAIApiKey);
     }
 
     /**
@@ -106,5 +140,56 @@ export class SettingsService {
                 openAIApiKeyEnabled: false,
             },
         });
+    }
+
+    /**
+     * Encrypts an OpenAI API key before persistence.
+     *
+     * @param plainTextKey Raw API key.
+     * @returns Encrypted payload in `iv:ciphertext:authTag` base64 format.
+     */
+    private encryptOpenAIApiKey(plainTextKey: string): string {
+        const iv = randomBytes(GCM_IV_LENGTH);
+        const cipher = createCipheriv("aes-256-gcm", this.encryptionKey, iv);
+        const encrypted = Buffer.concat([
+            cipher.update(plainTextKey, "utf8"),
+            cipher.final(),
+        ]);
+        const authTag = cipher.getAuthTag();
+
+        return `${iv.toString("base64")}:${encrypted.toString("base64")}:${authTag.toString("base64")}`;
+    }
+
+    /**
+     * Decrypts a persisted OpenAI API key.
+     *
+     * @param encryptedPayload Stored payload in `iv:ciphertext:authTag` base64 format.
+     * @returns Decrypted API key string.
+     */
+    private decryptOpenAIApiKey(encryptedPayload: string): string {
+        const parts = encryptedPayload.split(":");
+
+        // Backward-compatible fallback for legacy plaintext records.
+        if (parts.length !== 3) {
+            return encryptedPayload;
+        }
+
+        const [ivBase64, encryptedBase64, authTagBase64] = parts;
+        const iv = Buffer.from(ivBase64, "base64");
+        const encrypted = Buffer.from(encryptedBase64, "base64");
+        const authTag = Buffer.from(authTagBase64, "base64");
+
+        const decipher = createDecipheriv(
+            "aes-256-gcm",
+            this.encryptionKey,
+            iv,
+        );
+        decipher.setAuthTag(authTag);
+        const decrypted = Buffer.concat([
+            decipher.update(encrypted),
+            decipher.final(),
+        ]);
+
+        return decrypted.toString("utf8");
     }
 }
