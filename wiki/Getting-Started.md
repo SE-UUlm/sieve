@@ -33,6 +33,12 @@ For a detailed guide on all configuration options, see the
    # Edit .env with your preferred settings
    ```
 
+   Generate an encryption key for instance settings secrets:
+
+   ```bash
+   SETTINGS_ENCRYPTION_KEY=$(openssl rand -base64 32)
+   ```
+
    Demo users are disabled by default (`SEED_DEMO_USERS=false`).
    If you want demo users, set `SEED_DEMO_USERS=true` and provide both
    `SEED_ADMIN_PASSWORD` and `SEED_USER_PASSWORD`.
@@ -106,6 +112,12 @@ If you prefer more control over the development environment, you can build and r
    ```
 
 3. Configure environment variables (copy `.env.example` to `.env` and edit as needed)
+
+   Ensure `SETTINGS_ENCRYPTION_KEY` is set (base64-encoded 32-byte value), for example:
+
+   ```bash
+   SETTINGS_ENCRYPTION_KEY=$(openssl rand -base64 32)
+   ```
 
 4. Push Prisma schema to database:
 

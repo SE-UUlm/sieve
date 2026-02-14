@@ -21,6 +21,8 @@ cd sieve
 
 # Copy and configure environment variables
 cp .env.example .env
+# Required for encrypted instance settings (32-byte key, base64):
+# SETTINGS_ENCRYPTION_KEY=$(openssl rand -base64 32)
 
 # Start all services
 docker compose up
