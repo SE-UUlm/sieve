@@ -20,6 +20,7 @@ import Joi from "joi";
                           DB_NAME: Joi.string().required(),
 
                           AI_BACKEND_URL: Joi.string().required(),
+                          SETTINGS_ENCRYPTION_KEY: Joi.string().required(),
                       }),
         }),
     ],

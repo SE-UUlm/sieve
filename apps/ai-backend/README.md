@@ -14,9 +14,11 @@ The AI-Backend handles all LLM and agent related tasks.
    - Other System Package Managers
    - Other options: https://docs.astral.sh/uv/getting-started/installation/
 
-3. Configure environment variables
+3. Configure environment variables (optional)
 
-   Copy `.env.example` to `.env` and set the `OPENAI_API_KEY` variable.
+   No default variables are required for normal operation.
+   In the standard flow (`frontend -> backend -> ai-backend`), the backend provides
+   the OpenAI API key per request from instance settings.
 
 4. Start AI-Backend in dev mode with auto-reload:
 

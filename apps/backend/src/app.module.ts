@@ -8,6 +8,7 @@ import { JobModule } from "./job/job.module";
 import { JobResultModule } from "./job-result/job-result.module";
 import { auth } from "./lib/auth";
 import { PrismaModule } from "./prisma/prisma.module";
+import { SettingsModule } from "./settings/settings.module";
 import { UserModule } from "./user/user.module";
 
 @Module({
@@ -19,6 +20,7 @@ import { UserModule } from "./user/user.module";
         JobResultModule,
         EmailModule,
         PrismaModule,
+        SettingsModule,
         AuthModule.forRoot({ auth }),
         AiBackendModule,
     ],

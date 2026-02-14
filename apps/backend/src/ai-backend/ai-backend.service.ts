@@ -1,12 +1,25 @@
-import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
+import {
+    BadGatewayException,
+    HttpException,
+    HttpStatus,
+    Injectable,
+    InternalServerErrorException,
+    Logger,
+    OnModuleInit,
+    ServiceUnavailableException,
+} from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import type { EmailAnalysisResultDto } from "../email/dto/email-analysis-result.dto";
+import { SettingsService } from "../settings/settings.service";
 
 @Injectable()
 export class AiBackendService implements OnModuleInit {
     private aiBackendUrl!: string;
 
-    constructor(private configService: ConfigService) {}
+    constructor(
+        private configService: ConfigService,
+        private settingsService: SettingsService,
+    ) {}
 
     /**
      * Initializes the AI backend URL from configuration.
@@ -30,20 +43,35 @@ export class AiBackendService implements OnModuleInit {
     ): Promise<EmailAnalysisResultDto> {
         try {
             Logger.log("Starting AiBackend execution...");
+            const apiKey = await this.settingsService.getOpenAIApiKey();
+            const isApiKeyEnabled =
+                await this.settingsService.isOpenAIApiKeyEnabled();
+
+            if (!apiKey || !apiKey.trim()) {
+                throw new ServiceUnavailableException(
+                    "OpenAI API key is not configured for this instance.",
+                );
+            }
+            if (!isApiKeyEnabled) {
+                throw new HttpException(
+                    "OpenAI API key usage is disabled for this instance.",
+                    HttpStatus.LOCKED,
+                );
+            }
 
             const response = await fetch(`${this.aiBackendUrl}analyze-email`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ subject, body }),
+                body: JSON.stringify({ subject, body, apiKey }),
                 signal: AbortSignal.timeout(30000),
             });
 
             Logger.log("AiBackend execution finished");
 
             if (!response.ok) {
-                throw new Error(
+                throw new BadGatewayException(
                     `AiBackend returned an error ${response.status}`,
                 );
             }
@@ -53,8 +81,13 @@ export class AiBackendService implements OnModuleInit {
             };
             return data.data;
         } catch (error) {
+            if (error instanceof HttpException) {
+                throw error;
+            }
             Logger.error("Error running AiBackend agent:", error);
-            throw new Error("Unknown error in AiBackend");
+            throw new InternalServerErrorException(
+                "Unknown error in AiBackend",
+            );
         }
     }
 }

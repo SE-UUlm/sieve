@@ -4646,6 +4646,9 @@
                     "401": {
                         "description": "Unauthorized"
                     },
+                    "423": {
+                        "description": "OpenAI API key usage is disabled by admin"
+                    },
                     "500": {
                         "description": "AiBackend processing failed",
                         "content": {
@@ -4663,6 +4666,9 @@
                                 }
                             }
                         }
+                    },
+                    "503": {
+                        "description": "OpenAI API key is not configured"
                     }
                 },
                 "security": [
@@ -4672,6 +4678,151 @@
                 ],
                 "summary": "Submit an email for processing",
                 "tags": ["Emails"]
+            }
+        },
+        "/settings/instance": {
+            "get": {
+                "operationId": "SettingsController_getInstanceSettings",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Instance settings successfully retrieved",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InstanceSettingsDto"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "apiKeyCookie": []
+                    }
+                ],
+                "summary": "Get instance-level settings (admin only)",
+                "tags": ["Settings"]
+            }
+        },
+        "/settings/instance/api-key": {
+            "patch": {
+                "operationId": "SettingsController_updateInstanceApiKey",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateInstanceApiKeyDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "API key successfully updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InstanceSettingsDto"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "apiKeyCookie": []
+                    }
+                ],
+                "summary": "Update instance-level OpenAI API key (admin only)",
+                "tags": ["Settings"]
+            },
+            "delete": {
+                "operationId": "SettingsController_deleteInstanceApiKey",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "API key successfully deleted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InstanceSettingsDto"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "apiKeyCookie": []
+                    }
+                ],
+                "summary": "Delete instance-level OpenAI API key (admin only)",
+                "tags": ["Settings"]
+            }
+        },
+        "/settings/instance/api-key-enabled": {
+            "patch": {
+                "operationId": "SettingsController_updateInstanceApiKeyEnabled",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateInstanceApiKeyEnabledDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "API key usage state successfully updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InstanceSettingsDto"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "apiKeyCookie": []
+                    }
+                ],
+                "summary": "Enable or disable instance-level OpenAI API key usage",
+                "tags": ["Settings"]
             }
         }
     },
@@ -5170,6 +5321,44 @@
                     }
                 },
                 "required": ["data"]
+            },
+            "InstanceSettingsDto": {
+                "type": "object",
+                "properties": {
+                    "hasOpenAIApiKey": {
+                        "type": "boolean",
+                        "description": "Whether an OpenAI API key is currently configured for this instance.",
+                        "example": true
+                    },
+                    "isOpenAIApiKeyEnabled": {
+                        "type": "boolean",
+                        "description": "Whether OpenAI API key usage is enabled for this instance.",
+                        "example": true
+                    }
+                },
+                "required": ["hasOpenAIApiKey", "isOpenAIApiKeyEnabled"]
+            },
+            "UpdateInstanceApiKeyDto": {
+                "type": "object",
+                "properties": {
+                    "apiKey": {
+                        "type": "string",
+                        "description": "OpenAI API key for this SIEVE instance.",
+                        "example": "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                    }
+                },
+                "required": ["apiKey"]
+            },
+            "UpdateInstanceApiKeyEnabledDto": {
+                "type": "object",
+                "properties": {
+                    "enabled": {
+                        "type": "boolean",
+                        "description": "Controls whether the configured OpenAI API key may be used for analysis.",
+                        "example": false
+                    }
+                },
+                "required": ["enabled"]
             }
         },
         "securitySchemes": {

@@ -20,6 +20,8 @@ export const auth = betterAuth({
     emailAndPassword: {
         enabled: true,
         requireEmailVerification: false,
+        minPasswordLength: 8,
+        maxPasswordLength: 100,
     },
     plugins: [openAPI({ disableDefaultReference: true })],
     user: {

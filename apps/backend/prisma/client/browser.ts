@@ -51,3 +51,8 @@ export type Job = Prisma.JobModel;
  *
  */
 export type JobResult = Prisma.JobResultModel;
+/**
+ * Model InstanceSettings
+ *
+ */
+export type InstanceSettings = Prisma.InstanceSettingsModel;

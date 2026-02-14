@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { authClient } from "@/lib/auth-client";
-import { showPersistentErrorToast } from "@/lib/error-toast";
+import { showPersistentErrorToast } from "@/lib/toast";
 
 type UseLogoutOptions = {
     redirectTo?: string;
@@ -29,7 +29,6 @@ const useLogout = ({ redirectTo = "/auth/login" }: UseLogoutOptions = {}) => {
                     title: "Error While Logging Out",
                     description:
                         "There was an issue with the server. Please try again later.",
-                    id: "logout-error",
                 });
                 return;
             }
@@ -41,7 +40,6 @@ const useLogout = ({ redirectTo = "/auth/login" }: UseLogoutOptions = {}) => {
                 title: "Error While Logging Out",
                 description:
                     "There was an issue with the server. Please try again later.",
-                id: "logout-error",
             });
         } finally {
             setIsPending(false);
