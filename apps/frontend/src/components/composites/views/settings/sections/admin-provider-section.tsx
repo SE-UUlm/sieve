@@ -27,6 +27,24 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
+/**
+ * Resolves a user-facing provider settings error message from an HTTP status code.
+ *
+ * @param status HTTP status code returned by the settings endpoint.
+ * @returns User-facing error description.
+ */
+function getProviderSettingsErrorMessage(status: number): string {
+    if (status === 401 || status === 403) {
+        return "You are not authorized to perform this action.";
+    }
+
+    if (status === 400) {
+        return "The provided API key is invalid.";
+    }
+
+    return "There was an issue with the server. Please try again later.";
+}
+
 export function AdminProviderSection() {
     const queryClient = useQueryClient();
 
@@ -59,7 +77,15 @@ export function AdminProviderSection() {
                         description:
                             "The instance-wide API key was updated successfully.",
                     });
+                    return;
                 }
+
+                showPersistentErrorToast({
+                    title: "Provider Update Failed",
+                    description: getProviderSettingsErrorMessage(
+                        response.status,
+                    ),
+                });
             },
             onError: (error) => {
                 console.error(
@@ -92,7 +118,15 @@ export function AdminProviderSection() {
                                 ? "Users can now run email analysis again."
                                 : "Email analysis is paused for all users.",
                         });
+                        return;
                     }
+
+                    showPersistentErrorToast({
+                        title: "Provider Toggle Failed",
+                        description: getProviderSettingsErrorMessage(
+                            response.status,
+                        ),
+                    });
                 },
                 onError: (error) => {
                     console.error(
@@ -122,7 +156,15 @@ export function AdminProviderSection() {
                         description:
                             "The instance-wide API key was removed and disabled.",
                     });
+                    return;
                 }
+
+                showPersistentErrorToast({
+                    title: "Provider Delete Failed",
+                    description: getProviderSettingsErrorMessage(
+                        response.status,
+                    ),
+                });
             },
             onError: (error) => {
                 console.error(
