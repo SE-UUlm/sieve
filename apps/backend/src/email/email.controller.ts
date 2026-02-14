@@ -2,7 +2,7 @@ import {
     Body,
     Controller,
     HttpException,
-    HttpStatus,
+    InternalServerErrorException,
     Logger,
     Post,
 } from "@nestjs/common";
@@ -31,6 +31,14 @@ export class EmailController {
         type: SubmitEmailResponseDto,
     })
     @ApiResponse({ status: 400, description: "Bad Request" })
+    @ApiResponse({
+        status: 423,
+        description: "OpenAI API key usage is disabled by admin",
+    })
+    @ApiResponse({
+        status: 503,
+        description: "OpenAI API key is not configured",
+    })
     @ApiResponse({ status: 401, description: "Unauthorized" })
     @ApiResponse({
         status: 500,
@@ -56,15 +64,15 @@ export class EmailController {
             );
             return { data: result };
         } catch (error) {
+            if (error instanceof HttpException) {
+                throw error;
+            }
             Logger.error("Error running AiBackend agent:", error);
 
-            throw new HttpException(
-                {
-                    message: "Failed to process email",
-                    details: error instanceof Error ? error.message : error,
-                },
-                HttpStatus.INTERNAL_SERVER_ERROR,
-            );
+            throw new InternalServerErrorException({
+                message: "Failed to process email",
+                details: error instanceof Error ? error.message : error,
+            });
         }
     }
 }
