@@ -1,6 +1,7 @@
 import {
     BadGatewayException,
     HttpException,
+    HttpStatus,
     Injectable,
     InternalServerErrorException,
     Logger,
@@ -54,7 +55,7 @@ export class AiBackendService implements OnModuleInit {
             if (!isApiKeyEnabled) {
                 throw new HttpException(
                     "OpenAI API key usage is disabled for this instance.",
-                    423,
+                    HttpStatus.LOCKED,
                 );
             }
 
