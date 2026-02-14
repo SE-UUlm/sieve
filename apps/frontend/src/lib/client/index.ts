@@ -3,4 +3,5 @@ export * from './health/health';
 export * from './users/users';
 export * from './jobs/jobs';
 export * from './emails/emails';
+export * from './settings/settings';
 export * from './models';

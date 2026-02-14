@@ -45,15 +45,25 @@ export type emailControllerSubmitEmailResponse401 = {
   status: 401
 }
 
+export type emailControllerSubmitEmailResponse423 = {
+  data: void
+  status: 423
+}
+
 export type emailControllerSubmitEmailResponse500 = {
   data: EmailControllerSubmitEmail500
   status: 500
+}
+
+export type emailControllerSubmitEmailResponse503 = {
+  data: void
+  status: 503
 }
     
 export type emailControllerSubmitEmailResponseSuccess = (emailControllerSubmitEmailResponse201) & {
   headers: Headers;
 };
-export type emailControllerSubmitEmailResponseError = (emailControllerSubmitEmailResponse400 | emailControllerSubmitEmailResponse401 | emailControllerSubmitEmailResponse500) & {
+export type emailControllerSubmitEmailResponseError = (emailControllerSubmitEmailResponse400 | emailControllerSubmitEmailResponse401 | emailControllerSubmitEmailResponse423 | emailControllerSubmitEmailResponse500 | emailControllerSubmitEmailResponse503) & {
   headers: Headers;
 };
 
