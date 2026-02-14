@@ -32,7 +32,7 @@ cp .env.example .env
 | `SEED_USER_EMAIL`     |                    |   `alice@example.com`   | Email for demo user.                                                                                      |
 | `SEED_USER_PASSWORD`  |                    |            -            | Password for demo user. Required when `SEED_DEMO_USERS=true`.                                             |
 | `ENABLE_MOCK`         |                    |         `false`         | Enable API mocking for frontend development.                                                              |
-| `OPENAI_API_KEY`      | :white_check_mark: |            -            | The API key for the OpenAI API.                                                                           |
+| `OPENAI_API_KEY`      |                    |            -            | Optional. Not required for the default flow because the backend forwards the admin-configured instance key. |
 
 ## Building from Source
 
@@ -85,6 +85,6 @@ cd apps/ai-backend
 cp .env.example .env
 ```
 
-| Variable         |      Required      | Default | Description                     |
-| ---------------- | :----------------: | :-----: | ------------------------------- |
-| `OPENAI_API_KEY` | :white_check_mark: |    -    | The API key for the OpenAI API. |
+| Variable         | Required | Default | Description                                                                 |
+| ---------------- | :------: | :-----: | --------------------------------------------------------------------------- |
+| `OPENAI_API_KEY` |          |    -    | Optional for direct ai-backend usage; not needed in default backend-driven flow. |

@@ -26,6 +26,8 @@ cp .env.example .env
 docker compose up
 ```
 
+After the first admin login, configure the instance-wide OpenAI API key in `Settings -> Provider`.
+
 The application will be available at:
 
 - Frontend: http://localhost:3000

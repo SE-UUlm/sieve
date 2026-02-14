@@ -35,6 +35,7 @@ services:
             BETTER_AUTH_URL: ${BETTER_AUTH_URL}
 
             AI_BACKEND_URL: "http://ai-backend:8000"
+            SETTINGS_ENCRYPTION_KEY: ${SETTINGS_ENCRYPTION_KEY}
 
             TRUSTED_ORIGINS: ${TRUSTED_ORIGINS}
 
@@ -63,7 +64,5 @@ services:
         image: ghcr.io/se-uulm/sieve-ai-backend:latest
         build:
             context: ./apps/ai-backend
-        environment:
-            OPENAI_API_KEY: ${OPENAI_API_KEY}
         ports:
             - 8000:8000

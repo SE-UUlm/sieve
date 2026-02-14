@@ -56,6 +56,9 @@ For a detailed guide on all configuration options, see the
      - This proxying is configured in `next.config.ts`
    - AI-Backend: `http://localhost:8000`
 
+   After the first admin login, configure the instance-wide OpenAI API key in
+   `Settings -> Provider`.
+
 ### Running Individual Services
 
 You can also run services individually using Docker Compose profiles:
@@ -203,7 +206,9 @@ If you prefer more control over the development environment, you can build and r
 
 4. Configure environment variables
 
-   Copy `.env.example` to `.env` and set the `OPENAI_API_KEY` variable.
+   Copy `.env.example` to `.env` if needed.
+   In the standard flow, no default variable is required because the backend provides
+   the OpenAI API key per request from instance settings.
 
 5. Start AI-Backend in dev mode with auto-reload:
 

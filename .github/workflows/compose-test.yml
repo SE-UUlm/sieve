@@ -34,7 +34,6 @@ jobs:
                   BETTER_AUTH_URL: http://localhost:5175
                   AI_BACKEND_URL: http://localhost:8000
                   NEXT_PUBLIC_API_URL: http://localhost:5175
-                  OPENAI_API_KEY: sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
             - name: Verify Backend Health
               run: |
