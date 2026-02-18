@@ -1,25 +1,19 @@
-import {
-    Body,
-    Controller,
-    HttpException,
-    InternalServerErrorException,
-    Logger,
-    Post,
-} from "@nestjs/common";
+import { Body, Controller, Post } from "@nestjs/common";
 import {
     ApiCookieAuth,
     ApiOperation,
     ApiResponse,
     ApiTags,
 } from "@nestjs/swagger";
-import { AiBackendService } from "../ai-backend/ai-backend.service";
+import { Session, type UserSession } from "@thallesp/nestjs-better-auth";
 import { CreateEmailDto } from "./dto/create-email.dto";
 import { SubmitEmailResponseDto } from "./dto/email-analysis-result.dto";
+import { EmailService } from "./email.service";
 
 @ApiTags("Emails")
 @Controller("emails")
 export class EmailController {
-    constructor(private readonly aiBackendService: AiBackendService) {}
+    constructor(private readonly emailService: EmailService) {}
 
     @Post()
     @ApiCookieAuth("apiKeyCookie")
@@ -55,24 +49,9 @@ export class EmailController {
      * Submits an email payload for analysis and returns structured output.
      */
     async submitEmail(
+        @Session() session: UserSession,
         @Body() dto: CreateEmailDto,
     ): Promise<SubmitEmailResponseDto> {
-        try {
-            const result = await this.aiBackendService.runFlow(
-                dto.body,
-                dto.subject,
-            );
-            return { data: result };
-        } catch (error) {
-            if (error instanceof HttpException) {
-                throw error;
-            }
-            Logger.error("Error running AiBackend agent:", error);
-
-            throw new InternalServerErrorException({
-                message: "Failed to process email",
-                details: error instanceof Error ? error.message : error,
-            });
-        }
+        return this.emailService.submitEmail(session.user.id, dto);
     }
 }

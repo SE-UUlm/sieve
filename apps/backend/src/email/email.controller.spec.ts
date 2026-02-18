@@ -1,6 +1,6 @@
 import { Test, type TestingModule } from "@nestjs/testing";
-import { AiBackendService } from "../ai-backend/ai-backend.service";
 import { EmailController } from "./email.controller";
+import { EmailService } from "./email.service";
 
 describe("EmailController", () => {
     let controller: EmailController;
@@ -10,9 +10,9 @@ describe("EmailController", () => {
             controllers: [EmailController],
             providers: [
                 {
-                    provide: AiBackendService,
+                    provide: EmailService,
                     useValue: {
-                        runFlow: jest.fn(),
+                        submitEmail: jest.fn(),
                     },
                 },
             ],

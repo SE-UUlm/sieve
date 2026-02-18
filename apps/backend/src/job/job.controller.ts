@@ -5,13 +5,33 @@ import {
     ApiResponse,
     ApiTags,
 } from "@nestjs/swagger";
+import { Session, type UserSession } from "@thallesp/nestjs-better-auth";
 import { JobStatus } from "../../prisma/client/enums";
 import { JobResultDto } from "../job-result/dto/job-result.dto";
 import { JobDto } from "./dto/job.dto";
+import { JobHistoryEntryDto } from "./dto/job-history-entry.dto";
+import { JobService } from "./job.service";
 
 @ApiTags("Jobs")
 @Controller("jobs")
 export class JobController {
+    constructor(private readonly jobService: JobService) {}
+
+    @Get("history")
+    @ApiCookieAuth("apiKeyCookie")
+    @ApiOperation({
+        summary: "List completed job history with analysis output",
+    })
+    @ApiResponse({
+        status: 200,
+        description: "History successfully retrieved.",
+        type: [JobHistoryEntryDto],
+    })
+    @ApiResponse({ status: 401, description: "Unauthorized" })
+    getHistory(@Session() session: UserSession): Promise<JobHistoryEntryDto[]> {
+        return this.jobService.getHistory(session);
+    }
+
     @Get()
     @ApiCookieAuth("apiKeyCookie")
     @ApiOperation({ summary: "List jobs (filtered by user unless admin)" })
@@ -22,12 +42,12 @@ export class JobController {
     })
     @ApiResponse({ status: 401, description: "Unauthorized" })
     getJobs(
-        @Query("page") _page?: number,
-        @Query("limit") _limit?: number,
-        @Query("status") _status?: JobStatus,
+        @Session() session: UserSession,
+        @Query("page") page?: number,
+        @Query("limit") limit?: number,
+        @Query("status") status?: JobStatus,
     ): Promise<JobDto[]> {
-        // TODO: Implement job retrieval logic
-        return Promise.resolve([]);
+        return this.jobService.getJobs(session, page, limit, status);
     }
 
     @Get(":jobId")
@@ -40,9 +60,11 @@ export class JobController {
     })
     @ApiResponse({ status: 401, description: "Unauthorized" })
     @ApiResponse({ status: 404, description: "Job not found" })
-    getJobById(@Param("jobId") _jobId: string): Promise<JobDto> {
-        // TODO: Implement job retrieval by ID logic
-        return Promise.resolve({} as JobDto);
+    getJobById(
+        @Session() session: UserSession,
+        @Param("jobId") jobId: string,
+    ): Promise<JobDto> {
+        return this.jobService.getJobById(session, jobId);
     }
 
     @Get(":jobId/result")
@@ -55,8 +77,10 @@ export class JobController {
     })
     @ApiResponse({ status: 401, description: "Unauthorized" })
     @ApiResponse({ status: 404, description: "Job or result not found" })
-    getJobResult(@Param("jobId") _jobId: string): Promise<JobResultDto> {
-        // TODO: Implement job result retrieval logic
-        return Promise.resolve({} as JobResultDto);
+    getJobResult(
+        @Session() session: UserSession,
+        @Param("jobId") jobId: string,
+    ): Promise<JobResultDto> {
+        return this.jobService.getJobResult(session, jobId);
     }
 }
