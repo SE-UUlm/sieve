@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { AdminProviderSection } from "@/components/composites/views/settings/sections/admin-provider-section";
+import { ProviderSection } from "@/components/composites/views/settings/sections/provider/provider-section";
 import { UserProfileSection } from "@/components/composites/views/settings/sections/user-profile-section";
 import { UserSecuritySection } from "@/components/composites/views/settings/sections/user-security-section";
 import { SplitView } from "@/components/composites/views/split-view/split-view";
@@ -39,7 +39,7 @@ export function SettingsView() {
                               key: "provider" as const,
                               title: "Provider",
                               description:
-                                  "Configure the instance-wide AI provider key.",
+                                  "Configure AI provider settings for this workspace.",
                           },
                       ]
                     : []),
@@ -102,11 +102,11 @@ export function SettingsView() {
             </SplitViewPane>
 
             <SplitViewPane variant="secondary" isScrollable>
-                <div className="mx-auto flex h-full w-full max-w-3xl flex-col gap-8">
+                <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col">
                     {selectedSection === "profile" && <UserProfileSection />}
                     {selectedSection === "security" && <UserSecuritySection />}
                     {selectedSection === "provider" && isAdmin && (
-                        <AdminProviderSection />
+                        <ProviderSection />
                     )}
                 </div>
             </SplitViewPane>
