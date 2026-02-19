@@ -1,0 +1,120 @@
+{"produktname":"City Polizeistation am Fluss","produktnummer":"60435","kategorie":"City","anzahl_teile":894}
+{"produktname":"Arktis-Forschungsschiff","produktnummer":"60436","kategorie":"City","anzahl_teile":1102}
+{"produktname":"Galaktischer Raumjäger X-12","produktnummer":"75401","kategorie":"Space","anzahl_teile":731}
+{"produktname":"Interstellare Forschungsbasis","produktnummer":"75402","kategorie":"Space","anzahl_teile":1568}
+{"produktname":"Mittelalterlicher Marktplatz","produktnummer":"10346","kategorie":"Icons","anzahl_teile":2245}
+{"produktname":"Große Ritterfestung","produktnummer":"10347","kategorie":"Icons","anzahl_teile":2982}
+{"produktname":"Ninja Tempel der Schatten","produktnummer":"71825","kategorie":"Ninjago","anzahl_teile":1214}
+{"produktname":"Ninja Offroad-Buggy","produktnummer":"71826","kategorie":"Ninjago","anzahl_teile":389}
+{"produktname":"Technic Schwerlast-Bagger","produktnummer":"42179","kategorie":"Technic","anzahl_teile":1643}
+{"produktname":"Technic Supersportwagen XR","produktnummer":"42180","kategorie":"Technic","anzahl_teile":1982}
+{"produktname":"Creator Strandvilla 3-in-1","produktnummer":"31146","kategorie":"Creator 3-in-1","anzahl_teile":1021}
+{"produktname":"Creator Bergchalet 3-in-1","produktnummer":"31147","kategorie":"Creator 3-in-1","anzahl_teile":856}
+{"produktname":"Friends Reiterhof am See","produktnummer":"42620","kategorie":"Friends","anzahl_teile":764}
+{"produktname":"Friends Stadtcafé","produktnummer":"42621","kategorie":"Friends","anzahl_teile":512}
+{"produktname":"Speed Champions Thunder GT","produktnummer":"76940","kategorie":"Speed Champions","anzahl_teile":276}
+{"produktname":"Speed Champions Falcon R","produktnummer":"76941","kategorie":"Speed Champions","anzahl_teile":301}
+{"produktname":"Modulares Stadthaus","produktnummer":"10289","kategorie":"Creator Expert","anzahl_teile":2744}
+{"produktname":"Modulares Museum","produktnummer":"10290","kategorie":"Creator Expert","anzahl_teile":3105}
+{"produktname":"City Flughafen Terminal","produktnummer":"60437","kategorie":"City","anzahl_teile":1356}
+{"produktname":"City Müllabfuhr-Zentrale","produktnummer":"60438","kategorie":"City","anzahl_teile":643}
+{"produktname":"Space Kolonie auf dem Mars","produktnummer":"75403","kategorie":"Space","anzahl_teile":1889}
+{"produktname":"Pirateninsel Versteck","produktnummer":"40512","kategorie":"Adventure","anzahl_teile":978}
+{"produktname":"Dschungel-Expedition Basislager","produktnummer":"60520","kategorie":"City","anzahl_teile":588}
+{"produktname":"Winterliches Bergdorf","produktnummer":"10412","kategorie":"Seasonal","anzahl_teile":1432}
+{"produktname":"Großes Aquarium","produktnummer":"31210","kategorie":"Art","anzahl_teile":2150}
+{"produktname":"Botanischer Garten","produktnummer":"10348","kategorie":"Icons","anzahl_teile":1276}
+{"produktname":"Technic Rettungshubschrauber","produktnummer":"42181","kategorie":"Technic","anzahl_teile":1104}
+{"produktname":"Ninja Drachenarena","produktnummer":"71827","kategorie":"Ninjago","anzahl_teile":842}
+{"produktname":"Friends Filmstudio","produktnummer":"42622","kategorie":"Friends","anzahl_teile":1098}
+{"produktname":"Creator Leuchtturm an der Küste","produktnummer":"31148","kategorie":"Creator 3-in-1","anzahl_teile":1245}
+{"produktname":"City Feuerwehr Hauptquartier","produktnummer":"60439","kategorie":"City","anzahl_teile":1184}
+{"produktname":"City Tiefsee-U-Boot","produktnummer":"60440","kategorie":"City","anzahl_teile":512}
+{"produktname":"City Straßenbahn-Set","produktnummer":"60441","kategorie":"City","anzahl_teile":734}
+{"produktname":"City Baustellenkran XL","produktnummer":"60442","kategorie":"City","anzahl_teile":1456}
+{"produktname":"City Bergrettungsstation","produktnummer":"60443","kategorie":"City","anzahl_teile":689}
+{"produktname":"City Safari-Geländewagen","produktnummer":"60444","kategorie":"City","anzahl_teile":358}
+{"produktname":"City Containerhafen","produktnummer":"60445","kategorie":"City","anzahl_teile":1678}
+{"produktname":"City Luxus-Yacht","produktnummer":"60446","kategorie":"City","anzahl_teile":921}
+{"produktname":"City Polizeihubschrauber","produktnummer":"60447","kategorie":"City","anzahl_teile":274}
+{"produktname":"City Forschungs-Labor","produktnummer":"60448","kategorie":"City","anzahl_teile":842}
+{"produktname":"Space Orbitalstation Alpha","produktnummer":"75404","kategorie":"Space","anzahl_teile":2104}
+{"produktname":"Space Mondrover Expedition","produktnummer":"75405","kategorie":"Space","anzahl_teile":643}
+{"produktname":"Space Asteroiden-Miner","produktnummer":"75406","kategorie":"Space","anzahl_teile":988}
+{"produktname":"Space Shuttle Transporter","produktnummer":"75407","kategorie":"Space","anzahl_teile":1322}
+{"produktname":"Space Alien Forschungsmodul","produktnummer":"75408","kategorie":"Space","anzahl_teile":577}
+{"produktname":"Space Sternenzerstörer Mini","produktnummer":"75409","kategorie":"Space","anzahl_teile":412}
+{"produktname":"Space Galaxie-Kreuzer","produktnummer":"75410","kategorie":"Space","anzahl_teile":2456}
+{"produktname":"Space Planetenbasis Vega","produktnummer":"75411","kategorie":"Space","anzahl_teile":1734}
+{"produktname":"Space Rettungskapsel","produktnummer":"75412","kategorie":"Space","anzahl_teile":198}
+{"produktname":"Space Kosmischer Frachter","produktnummer":"75413","kategorie":"Space","anzahl_teile":1502}
+{"produktname":"Technic Raupenkran Pro","produktnummer":"42182","kategorie":"Technic","anzahl_teile":2894}
+{"produktname":"Technic Elektro-Supersportler","produktnummer":"42183","kategorie":"Technic","anzahl_teile":1654}
+{"produktname":"Technic Monstertruck Titan","produktnummer":"42184","kategorie":"Technic","anzahl_teile":934}
+{"produktname":"Technic Betonmischer","produktnummer":"42185","kategorie":"Technic","anzahl_teile":756}
+{"produktname":"Technic Forstmaschine","produktnummer":"42186","kategorie":"Technic","anzahl_teile":1203}
+{"produktname":"Technic Rennmotorrad RS","produktnummer":"42187","kategorie":"Technic","anzahl_teile":641}
+{"produktname":"Technic Abschleppwagen XL","produktnummer":"42188","kategorie":"Technic","anzahl_teile":2011}
+{"produktname":"Technic Traktor mit Anhänger","produktnummer":"42189","kategorie":"Technic","anzahl_teile":884}
+{"produktname":"Technic Schneefräse","produktnummer":"42190","kategorie":"Technic","anzahl_teile":533}
+{"produktname":"Technic Flughafenlöschfahrzeug","produktnummer":"42191","kategorie":"Technic","anzahl_teile":1097}
+{"produktname":"Ninjago Drachenfestung","produktnummer":"71828","kategorie":"Ninjago","anzahl_teile":1822}
+{"produktname":"Ninjago Schatten-Mech","produktnummer":"71829","kategorie":"Ninjago","anzahl_teile":764}
+{"produktname":"Ninjago Samurai-Panzer","produktnummer":"71830","kategorie":"Ninjago","anzahl_teile":954}
+{"produktname":"Ninjago Ninja-Trainingslager","produktnummer":"71831","kategorie":"Ninjago","anzahl_teile":623}
+{"produktname":"Ninjago Drachenjäger","produktnummer":"71832","kategorie":"Ninjago","anzahl_teile":487}
+{"produktname":"Ninjago Elementar-Tempel","produktnummer":"71833","kategorie":"Ninjago","anzahl_teile":1345}
+{"produktname":"Ninjago Unterwasser-Mech","produktnummer":"71834","kategorie":"Ninjago","anzahl_teile":552}
+{"produktname":"Ninjago Ninja-Jet Extreme","produktnummer":"71835","kategorie":"Ninjago","anzahl_teile":811}
+{"produktname":"Ninjago Bergversteck","produktnummer":"71836","kategorie":"Ninjago","anzahl_teile":903}
+{"produktname":"Ninjago Drachenaltar","produktnummer":"71837","kategorie":"Ninjago","anzahl_teile":368}
+{"produktname":"Friends Strandresort","produktnummer":"42623","kategorie":"Friends","anzahl_teile":1544}
+{"produktname":"Friends Tierheim","produktnummer":"42624","kategorie":"Friends","anzahl_teile":678}
+{"produktname":"Friends Musikfestival Bühne","produktnummer":"42625","kategorie":"Friends","anzahl_teile":843}
+{"produktname":"Friends Baumhaus-Abenteuer","produktnummer":"42626","kategorie":"Friends","anzahl_teile":721}
+{"produktname":"Friends Stadtbibliothek","produktnummer":"42627","kategorie":"Friends","anzahl_teile":934}
+{"produktname":"Friends Reitturnier Arena","produktnummer":"42628","kategorie":"Friends","anzahl_teile":1102}
+{"produktname":"Friends Tierarztmobil","produktnummer":"42629","kategorie":"Friends","anzahl_teile":276}
+{"produktname":"Friends Filmset Abenteuer","produktnummer":"42630","kategorie":"Friends","anzahl_teile":989}
+{"produktname":"Friends Kunststudio","produktnummer":"42631","kategorie":"Friends","anzahl_teile":402}
+{"produktname":"Friends Sommerhaus","produktnummer":"42632","kategorie":"Friends","anzahl_teile":1204}
+{"produktname":"Creator Großstadt Apartment 3-in-1","produktnummer":"31149","kategorie":"Creator 3-in-1","anzahl_teile":1321}
+{"produktname":"Creator Piratenschiff 3-in-1","produktnummer":"31150","kategorie":"Creator 3-in-1","anzahl_teile":1267}
+{"produktname":"Creator Wildpark 3-in-1","produktnummer":"31151","kategorie":"Creator 3-in-1","anzahl_teile":842}
+{"produktname":"Creator Rennflugzeug 3-in-1","produktnummer":"31152","kategorie":"Creator 3-in-1","anzahl_teile":387}
+{"produktname":"Creator Mittelalterturm 3-in-1","produktnummer":"31153","kategorie":"Creator 3-in-1","anzahl_teile":956}
+{"produktname":"Creator Raumstation 3-in-1","produktnummer":"31154","kategorie":"Creator 3-in-1","anzahl_teile":1043}
+{"produktname":"Creator Safari-Lodge 3-in-1","produktnummer":"31155","kategorie":"Creator 3-in-1","anzahl_teile":1188}
+{"produktname":"Creator Hafenkran 3-in-1","produktnummer":"31156","kategorie":"Creator 3-in-1","anzahl_teile":623}
+{"produktname":"Creator Wikingerboot 3-in-1","produktnummer":"31157","kategorie":"Creator 3-in-1","anzahl_teile":764}
+{"produktname":"Creator Jahrmarkt 3-in-1","produktnummer":"31158","kategorie":"Creator 3-in-1","anzahl_teile":1399}
+{"produktname":"Icons Klassisches Auto","produktnummer":"10349","kategorie":"Icons","anzahl_teile":1456}
+{"produktname":"Icons Botanische Sammlung","produktnummer":"10350","kategorie":"Icons","anzahl_teile":1876}
+{"produktname":"Icons Historische Dampflok","produktnummer":"10351","kategorie":"Icons","anzahl_teile":2214}
+{"produktname":"Icons Leuchtturm Deluxe","produktnummer":"10352","kategorie":"Icons","anzahl_teile":2098}
+{"produktname":"Icons Winterdorf Marktplatz","produktnummer":"10353","kategorie":"Icons","anzahl_teile":1765}
+{"produktname":"Icons Großes Theater","produktnummer":"10354","kategorie":"Icons","anzahl_teile":3120}
+{"produktname":"Icons Retro Computer","produktnummer":"10355","kategorie":"Icons","anzahl_teile":864}
+{"produktname":"Icons Raumfähre Classic","produktnummer":"10356","kategorie":"Icons","anzahl_teile":1543}
+{"produktname":"Icons Königliche Kutsche","produktnummer":"10357","kategorie":"Icons","anzahl_teile":978}
+{"produktname":"Icons Museum der Wissenschaft","produktnummer":"10358","kategorie":"Icons","anzahl_teile":2844}
+{"produktname":"Speed Champions Falcon X","produktnummer":"76942","kategorie":"Speed Champions","anzahl_teile":298}
+{"produktname":"Speed Champions Vortex GT","produktnummer":"76943","kategorie":"Speed Champions","anzahl_teile":287}
+{"produktname":"Speed Champions Lightning R","produktnummer":"76944","kategorie":"Speed Champions","anzahl_teile":305}
+{"produktname":"Speed Champions Night Racer","produktnummer":"76945","kategorie":"Speed Champions","anzahl_teile":276}
+{"produktname":"Speed Champions Aero S","produktnummer":"76946","kategorie":"Speed Champions","anzahl_teile":264}
+{"produktname":"Speed Champions Desert Rally","produktnummer":"76947","kategorie":"Speed Champions","anzahl_teile":312}
+{"produktname":"Speed Champions Hyperion ZX","produktnummer":"76948","kategorie":"Speed Champions","anzahl_teile":289}
+{"produktname":"Speed Champions Storm GT3","produktnummer":"76949","kategorie":"Speed Champions","anzahl_teile":301}
+{"produktname":"Speed Champions Urban Drift","produktnummer":"76950","kategorie":"Speed Champions","anzahl_teile":278}
+{"produktname":"Speed Champions Electro Racer","produktnummer":"76951","kategorie":"Speed Champions","anzahl_teile":296}
+{"produktname":"Art Weltkarte Modern","produktnummer":"31211","kategorie":"Art","anzahl_teile":2890}
+{"produktname":"Art Tierporträts Set","produktnummer":"31212","kategorie":"Art","anzahl_teile":1456}
+{"produktname":"Art Abstrakte Formen","produktnummer":"31213","kategorie":"Art","anzahl_teile":998}
+{"produktname":"Art Blumenmosaik","produktnummer":"31214","kategorie":"Art","anzahl_teile":1764}
+{"produktname":"Art Sternenhimmel","produktnummer":"31215","kategorie":"Art","anzahl_teile":2134}
+{"produktname":"Seasonal Weihnachtsmarkt","produktnummer":"10413","kategorie":"Seasonal","anzahl_teile":1567}
+{"produktname":"Seasonal Osterdorf","produktnummer":"10414","kategorie":"Seasonal","anzahl_teile":834}
+{"produktname":"Seasonal Halloween Haus","produktnummer":"10415","kategorie":"Seasonal","anzahl_teile":1123}
+{"produktname":"Seasonal Sommerfest","produktnummer":"10416","kategorie":"Seasonal","anzahl_teile":645}
+{"produktname":"Seasonal Erntedank Scheune","produktnummer":"10417","kategorie":"Seasonal","anzahl_teile":978}
