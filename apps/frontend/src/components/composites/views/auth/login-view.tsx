@@ -128,8 +128,8 @@ export function LoginView() {
                         isLoading={isSubmitting}
                         label="Login"
                         loadingLabel="Logging in..."
+                        sizeVariant="medium"
                         disabled={isSubmitting}
-                        className="h-12"
                     />
                 </form>
 
