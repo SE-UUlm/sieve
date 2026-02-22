@@ -15,9 +15,12 @@ class Complaint(BaseModel):
 
     category: Literal["Complaint"]
     complaints: list[str] = Field(description="Only one item per individual complaint")
+    urgency: float
 
 
 class Product(BaseModel):
+    """Use the provided 'related products' to fill out the products, or if not matching, fill out only name and quantity with the user provided info."""
+
     product_name: str
     quantity: int
     product_id: str = Field(description="If not known, leave empty")
@@ -25,20 +28,32 @@ class Product(BaseModel):
     number_of_parts: int = Field(description="If not known, leave empty")
 
 
+class ProductOder(BaseModel):
+    """The user has an immediate desire to order one or more specific products."""
+
+    category: Literal["Product_Order"]
+    products: list[Product]
+    urgency: float
+
+
 class ProductInquiry(BaseModel):
-    """The user wants to buy a product or asks for general product information. Use the provided 'related products' to fill out the products list"""
+    """The user wants to ask for information regarding a product they do not yet own or wants suggestion which product(s) to buy."""
 
     category: Literal["Product_Inquiry"]
-    products: list[Product]
+    products: list[Product] = Field(
+        description="Products that might be related to the users request"
+    )
     question: str | None
     answer: str | None = Field(
         description="If the customer asked a question and you can answer the question based on the provided product details, then answer here"
     )
+    urgency: float
 
 
 class Issue(BaseModel):
     product: Product
     issue: str = Field(description="A short summary of the issue")
+    urgency: float
 
 
 class ProductSupport(BaseModel):
@@ -49,6 +64,7 @@ class ProductSupport(BaseModel):
 
 
 ResponseFormatData = Union[
+    ProductOder,
     ProductInquiry,
     ProductSupport,
     Complaint,

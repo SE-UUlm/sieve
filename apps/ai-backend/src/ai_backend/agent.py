@@ -83,7 +83,10 @@ async def run_analyze_email_agent(
     response_agent = _build_response_agent(model)
     conversation = [
         SystemMessage(
-            "Related products: \n" + result["structured_response"].model_dump_json()
+            "Related products: \n"
+            + result[
+                "structured_response"
+            ].model_dump_json()  # TODO: auf Agent State umbauen
         ),
         HumanMessage(formatted_email),
     ]
