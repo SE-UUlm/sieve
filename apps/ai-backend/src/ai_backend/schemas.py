@@ -26,6 +26,7 @@ class Product(BaseModel):
     product_id: str = Field(description="If not known, leave empty")
     product_category: str = Field(description="If not known, leave empty")
     number_of_parts: int = Field(description="If not known, leave empty")
+    price: float = Field(description="If not known, leave empty")
 
 
 class ProductOder(BaseModel):
