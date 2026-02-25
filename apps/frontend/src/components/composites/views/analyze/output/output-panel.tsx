@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ResultTab } from "@/components/composites/views/analyze/output/result-tab";
 import { WorkflowTab } from "@/components/composites/views/analyze/output/workflow-tab";
 import {
@@ -25,14 +25,8 @@ export function OutputPanel({
 }: OutputPanelProps) {
     const [activeTab, setActiveTab] = useState<string>("result");
 
-    useEffect(() => {
-        if (isAnalyzing) {
-            setActiveTab("workflow");
-        }
-    }, [isAnalyzing]);
-
     return (
-        <div className="mx-auto flex h-full w-full max-w-md flex-col">
+        <div className="mx-auto flex w-full flex-col">
             <StyledTabs
                 value={activeTab}
                 onValueChange={setActiveTab}

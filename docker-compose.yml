@@ -64,5 +64,11 @@ services:
         image: ghcr.io/se-uulm/sieve-ai-backend:latest
         build:
             context: ./apps/ai-backend
+        environment:
+            PRODUCT_DB_USERNAME: ${PRODUCT_DB_USERNAME}
+            PRODUCT_DB_PASSWORD: ${PRODUCT_DB_PASSWORD}
+            PRODUCT_DB_NAME: ${PRODUCT_DB_NAME}
+            PRODUCT_DB_HOST: db
+            PRODUCT_DB_PORT: 5432
         ports:
             - 8000:8000

@@ -1,6 +1,14 @@
-from typing import Literal, Union
+import asyncpg
+from dataclasses import dataclass
+from typing import Literal, Union, Any
 
 from pydantic import BaseModel, Field
+
+
+@dataclass
+class Context:
+    db_pool: asyncpg.Pool
+    db_schema: dict[str, list[str]]
 
 
 class Other(BaseModel):
@@ -15,23 +23,63 @@ class Complaint(BaseModel):
 
     category: Literal["Complaint"]
     complaints: list[str] = Field(description="Only one item per individual complaint")
+    urgency: int = Field(
+        description="How urgent is the complaint from 0 (not urgent) to 100 (very urgent)"
+    )
 
 
 class Product(BaseModel):
+    """Use the provided 'related products' to fill out the products, or if not matching, fill out only name and quantity with the user provided info."""
+
     product_name: str
     quantity: int
+    product_id: str | None = Field(
+        default=None, description="If not known, leave empty"
+    )
+    product_category: str | None = Field(
+        default=None, description="If not known, leave empty"
+    )
+    metadata: dict[str, Any] | None = Field(
+        default=None, description="If not known, leave empty"
+    )
+    price: float | None = Field(default=None, description="If not known, leave empty")
+
+
+class ProductOrder(BaseModel):
+    """The user has an immediate desire to order one or more specific products."""
+
+    category: Literal["Product_Order"]
+    products: list[Product] = Field(
+        description="List the products the user wants to order"
+    )
+    urgency: int = Field(
+        description="How urgent is the complaint from 0 (not urgent) to 100 (very urgent)"
+    )
 
 
 class ProductInquiry(BaseModel):
-    """The user wants to buy a product or asks for general product information."""
+    """The user wants to ask for information regarding a product they do not yet own or wants suggestion which product(s) to buy."""
 
     category: Literal["Product_Inquiry"]
-    products: list[Product]
+    products: list[Product] = Field(
+        description="List all Products from 'Related Products'"
+    )
+    question: str | None = Field(default=None)
+    answer: str | None = Field(
+        default=None,
+        description="If the customer asked a question and you can answer the question based on the provided product details, then answer here",
+    )
+    urgency: int = Field(
+        description="How urgent is the complaint from 0 (not urgent) to 100 (very urgent)"
+    )
 
 
 class Issue(BaseModel):
-    product_name: str
+    product: Product
     issue: str = Field(description="A short summary of the issue")
+    urgency: int = Field(
+        description="How urgent is the complaint from 0 (not urgent) to 100 (very urgent)"
+    )
 
 
 class ProductSupport(BaseModel):
@@ -42,6 +90,7 @@ class ProductSupport(BaseModel):
 
 
 ResponseFormatData = Union[
+    ProductOrder,
     ProductInquiry,
     ProductSupport,
     Complaint,
@@ -51,3 +100,12 @@ ResponseFormatData = Union[
 
 class ResponseFormat(BaseModel):
     data: ResponseFormatData
+
+
+class SearchResult(BaseModel):
+    potentialProducts: list[Product] = Field(
+        description="Products from the search you think are the ones the customer wanted"
+    )
+    confidence: float = Field(
+        description="How confident you are that the products are the ones the customer wanted"
+    )

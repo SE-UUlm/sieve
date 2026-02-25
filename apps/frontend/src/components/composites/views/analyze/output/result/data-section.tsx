@@ -19,8 +19,8 @@ export function DataSection({ result }: DataSectionProps) {
                     title="Copy JSON"
                     copyText={JSON.stringify(result, null, 2)}
                 />
-                <ScrollArea className="max-h-72 w-full pr-6">
-                    <pre className="w-max min-w-full whitespace-pre">
+                <ScrollArea className="w-full pr-6">
+                    <pre className="min-w-full whitespace-break-spaces">
                         {JSON.stringify(result, null, 2)}
                     </pre>
                     <ScrollBar orientation="horizontal" />

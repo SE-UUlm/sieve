@@ -65,7 +65,7 @@ export class AiBackendService implements OnModuleInit {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({ subject, body, apiKey }),
-                signal: AbortSignal.timeout(30000),
+                signal: AbortSignal.timeout(60000),
             });
 
             Logger.log("AiBackend execution finished");
