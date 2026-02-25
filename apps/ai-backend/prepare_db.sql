@@ -18,6 +18,7 @@ CREATE DATABASE "ai-backend"
     CONNECTION LIMIT = -1
     IS_TEMPLATE = False;
 
+\c ai-backend;
 
 CREATE TABLE products
 (
@@ -28,8 +29,6 @@ CREATE TABLE products
     metadata jsonb,
     PRIMARY KEY ("productId")
 );
-
-\c ai-backend;
 
 ALTER TABLE IF EXISTS products
     OWNER to "ai-backend";

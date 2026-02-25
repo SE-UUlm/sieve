@@ -33,13 +33,19 @@ class Product(BaseModel):
 
     product_name: str
     quantity: int
-    product_id: str | None = Field(description="If not known, leave empty")
-    product_category: str | None = Field(description="If not known, leave empty")
-    metadata: dict[str, Any] | None = Field(description="If not known, leave empty")
-    price: float | None = Field(description="If not known, leave empty")
+    product_id: str | None = Field(
+        default=None, description="If not known, leave empty"
+    )
+    product_category: str | None = Field(
+        default=None, description="If not known, leave empty"
+    )
+    metadata: dict[str, Any] | None = Field(
+        default=None, description="If not known, leave empty"
+    )
+    price: float | None = Field(default=None, description="If not known, leave empty")
 
 
-class ProductOder(BaseModel):
+class ProductOrder(BaseModel):
     """The user has an immediate desire to order one or more specific products."""
 
     category: Literal["Product_Order"]
@@ -58,9 +64,10 @@ class ProductInquiry(BaseModel):
     products: list[Product] = Field(
         description="List all Products from 'Related Products'"
     )
-    question: str | None
+    question: str | None = Field(default=None)
     answer: str | None = Field(
-        description="If the customer asked a question and you can answer the question based on the provided product details, then answer here"
+        default=None,
+        description="If the customer asked a question and you can answer the question based on the provided product details, then answer here",
     )
     urgency: int = Field(
         description="How urgent is the complaint from 0 (not urgent) to 100 (very urgent)"
@@ -83,7 +90,7 @@ class ProductSupport(BaseModel):
 
 
 ResponseFormatData = Union[
-    ProductOder,
+    ProductOrder,
     ProductInquiry,
     ProductSupport,
     Complaint,

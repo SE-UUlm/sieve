@@ -43,10 +43,11 @@ async def search_product(
         sqlQuery = f"SELECT {select_columns} FROM {table_name} WHERE {where_clause};"
 
         rows = await conn.fetch(sqlQuery, search_patterns)
+        rows_dicts = [dict(row) for row in rows]
         print(
-            f"🛠️ search_product: {table_name}, {search_columns}, {return_columns}, {query} -> {rows}"
+            f"🛠️ search_product: {table_name}, {search_columns}, {return_columns}, {query} -> {rows_dicts}"
         )
-        return rows
+        return rows_dicts
 
 
 def _build_model(api_key: str):
@@ -94,27 +95,32 @@ def _build_email_for_analysis(subject: str | None, body: str) -> str:
 
 async def get_database_schema(pool: asyncpg.Pool) -> dict[str, list[str]]:
     async with pool.acquire() as conn:
-        tables = await conn.fetch("""
-            SELECT table_name 
-            FROM information_schema.tables 
-            WHERE table_type = 'BASE TABLE' 
+        tables = await conn.fetch(
+            """
+            SELECT table_schema, table_name
+            FROM information_schema.tables
+            WHERE table_type = 'BASE TABLE'
             AND table_schema NOT IN ('pg_catalog', 'information_schema');
-        """)
-        tables = [table["table_name"] for table in tables]
+            """
+        )
 
-        schema = dict()
+        schema: dict[str, list[str]] = dict()
 
         for table in tables:
+            table_schema = table["table_schema"]
+            table_name = table["table_name"]
             columns = await conn.fetch(
                 """
-                SELECT column_name 
-                FROM information_schema.columns 
-                WHERE table_name = $1;
-            """,
-                table,
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_schema = $1
+                AND table_name = $2;
+                """,
+                table_schema,
+                table_name,
             )
             columns = [column["column_name"] for column in columns]
-            schema[table] = columns
+            schema[table_name] = columns
         return schema
 
 
