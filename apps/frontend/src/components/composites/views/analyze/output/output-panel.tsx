@@ -26,7 +26,7 @@ export function OutputPanel({
     const [activeTab, setActiveTab] = useState<string>("result");
 
     return (
-        <div className="mx-auto flex h-full w-full flex-col">
+        <div className="mx-auto flex w-full flex-col">
             <StyledTabs
                 value={activeTab}
                 onValueChange={setActiveTab}
