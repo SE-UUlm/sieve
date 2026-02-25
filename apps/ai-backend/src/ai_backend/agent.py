@@ -1,26 +1,38 @@
-from langchain.tools import tool
+from markdown_it.rules_block import table
+import asyncpg
+from langchain.tools import tool, ToolRuntime
 import pprint
 from langchain.agents import create_agent
 from langchain.messages import HumanMessage, SystemMessage
 from langchain.chat_models import init_chat_model
 from dotenv import load_dotenv
-from ai_backend.schemas import ResponseFormat, ResponseFormatData, SearchResult
+from ai_backend.schemas import ResponseFormat, ResponseFormatData, SearchResult, Context
 
 load_dotenv()
 
 
 @tool
-def search_product(query: str):
+async def search_product(query: str, runtime: ToolRuntime[Context]):
     """Useful to search for product information, product categories. Use one keyword for search. The database only contains lego sets. The products in the database are named in german"""
-    with open("legosets.txt") as f:
-        s = f.read()
-        lines = s.split("\n")
-        keywords = query.split(" ")
-        keywords = [x.strip().lower() for x in keywords]
-        keywords = [x for x in keywords if x != "lego"]
-        filtered = [x for x in lines if any(k in x.lower() for k in keywords)]
-        print(f"🛠️ search_product: {query} -> {filtered}")
-        return filtered
+    async with runtime.context.db_pool.acquire() as conn:
+        words = query.split(" ")
+        search_patterns = [f"%{word}%" for word in words]
+
+        # TODO santize https://gemini.google.com/app/975094685f5e60ad
+        columns_to_search = [  # TODO: table name, selected columns dynamisch
+            "productName",
+            "category",
+        ]
+
+        table_name = "products"
+
+        column_conditions = [f'"{col}" ILIKE ANY($1)' for col in columns_to_search]
+        where_clause = " OR ".join(column_conditions)
+        sqlQuery = f"SELECT * FROM {table_name} WHERE {where_clause};"
+
+        rows = await conn.fetch(sqlQuery, search_patterns)
+        print(f"🛠️ search_product: {query} -> {rows}")
+        return rows
 
 
 def _build_model(api_key: str):
@@ -55,6 +67,7 @@ def _build_search_agent(model):
         system_prompt=system_prompt,
         response_format=SearchResult,
         tools=[search_product],
+        context_schema=Context,
     )
 
 
@@ -66,7 +79,7 @@ def _build_email_for_analysis(subject: str | None, body: str) -> str:
 
 
 async def run_analyze_email_agent(
-    api_key: str, subject: str | None, body: str
+    api_key: str, subject: str | None, body: str, db_pool: asyncpg.Pool
 ) -> ResponseFormatData:
     formatted_email = _build_email_for_analysis(subject=subject, body=body)
 
@@ -74,7 +87,9 @@ async def run_analyze_email_agent(
 
     search_agent = _build_search_agent(model)
     conversation = [HumanMessage(formatted_email)]
-    result = await search_agent.ainvoke({"messages": conversation})
+    result = await search_agent.ainvoke(
+        {"messages": conversation}, context=Context(db_pool=db_pool)
+    )
     pprint.pp(result)
 
     print("🔎 search agent result:\n" + result["structured_response"].model_dump_json())
@@ -82,10 +97,7 @@ async def run_analyze_email_agent(
     response_agent = _build_response_agent(model)
     conversation = [
         SystemMessage(
-            "Related products: \n"
-            + result[
-                "structured_response"
-            ].model_dump_json()  # TODO: auf Agent State umbauen
+            "Related products: \n" + result["structured_response"].model_dump_json()
         ),
         HumanMessage(formatted_email),
     ]

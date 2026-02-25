@@ -1,6 +1,13 @@
-from typing import Literal, Union
+import asyncpg
+from dataclasses import dataclass
+from typing import Literal, Union, Any
 
 from pydantic import BaseModel, Field
+
+
+@dataclass
+class Context:
+    db_pool: asyncpg.Pool
 
 
 class Other(BaseModel):
@@ -23,17 +30,19 @@ class Product(BaseModel):
 
     product_name: str
     quantity: int
-    product_id: str = Field(description="If not known, leave empty")
-    product_category: str = Field(description="If not known, leave empty")
-    number_of_parts: int = Field(description="If not known, leave empty")
-    price: float = Field(description="If not known, leave empty")
+    product_id: str | None = Field(description="If not known, leave empty")
+    product_category: str | None = Field(description="If not known, leave empty")
+    metadata: dict[str, Any] | None = Field(description="If not known, leave empty")
+    price: float | None = Field(description="If not known, leave empty")
 
 
 class ProductOder(BaseModel):
     """The user has an immediate desire to order one or more specific products."""
 
     category: Literal["Product_Order"]
-    products: list[Product]
+    products: list[Product] = Field(
+        description="List the products the user wants to order"
+    )
     urgency: float
 
 
@@ -42,7 +51,7 @@ class ProductInquiry(BaseModel):
 
     category: Literal["Product_Inquiry"]
     products: list[Product] = Field(
-        description="Products that might be related to the users request"
+        description="List all Products from 'Related Products'"
     )
     question: str | None
     answer: str | None = Field(
