@@ -1,4 +1,3 @@
-from markdown_it.rules_block import table
 import asyncpg
 from langchain.tools import tool, ToolRuntime
 import pprint
@@ -12,26 +11,41 @@ load_dotenv()
 
 
 @tool
-async def search_product(query: str, runtime: ToolRuntime[Context]):
-    """Useful to search for product information, product categories. Use one keyword for search. The database only contains lego sets. The products in the database are named in german"""
+async def search_product(
+    table_name: str,
+    search_columns: list[str],
+    return_columns: list[str],
+    query: list[str],
+    runtime: ToolRuntime[Context],
+):
+    """Useful to search for product information. Use multiple keywords for query. If one keyword is contained in any specified column value, the item is returned.
+    Database hints: The database only contains lego sets. The metadata column contains the part count. The products in the database are named in german"""
+
+    db_schema = runtime.context.db_schema
+    if table_name not in db_schema:
+        raise ValueError(f"Table {table_name} not found in database schema")
+
+    if not all(col in db_schema[table_name] for col in search_columns):
+        raise ValueError(f"Columns {search_columns} not found in table {table_name}")
+
+    if not all(col in db_schema[table_name] for col in return_columns):
+        raise ValueError(f"Columns {return_columns} not found in table {table_name}")
+
     async with runtime.context.db_pool.acquire() as conn:
-        words = query.split(" ")
-        search_patterns = [f"%{word}%" for word in words]
+        search_patterns = [f"%{word}%" for word in query]
 
-        # TODO santize https://gemini.google.com/app/975094685f5e60ad
-        columns_to_search = [  # TODO: table name, selected columns dynamisch
-            "productName",
-            "category",
-        ]
+        select_columns = ", ".join([f'"{col}"' for col in return_columns])
 
-        table_name = "products"
-
-        column_conditions = [f'"{col}" ILIKE ANY($1)' for col in columns_to_search]
+        # Cast values to text to make sure they work with ILIKE
+        column_conditions = [f'"{col}"::text ILIKE ANY($1)' for col in search_columns]
         where_clause = " OR ".join(column_conditions)
-        sqlQuery = f"SELECT * FROM {table_name} WHERE {where_clause};"
+
+        sqlQuery = f"SELECT {select_columns} FROM {table_name} WHERE {where_clause};"
 
         rows = await conn.fetch(sqlQuery, search_patterns)
-        print(f"🛠️ search_product: {query} -> {rows}")
+        print(
+            f"🛠️ search_product: {table_name}, {search_columns}, {return_columns}, {query} -> {rows}"
+        )
         return rows
 
 
@@ -59,7 +73,7 @@ def _build_response_agent(model):
 
 def _build_search_agent(model):
     system_prompt = """Your job is to find the product(s) the customer wants to buy or is talking about in their email. 
-    Use the search_product tool to find the products. Try multiple times with different keywords, variants, translations until you think you found the products the customer wants. 
+    Use the search_product tool to find the products, use the provided database schema (tables and their columns). Try multiple times with different keywords, variants, translations until you think you found the products the customer wants. 
     If you think you found the right products return them using the provided output format. Together with your confidence score.
     Answer Language: English"""
     return create_agent(
@@ -78,17 +92,50 @@ def _build_email_for_analysis(subject: str | None, body: str) -> str:
     return f"Email subject:\n{subject}\n\nEmail body:\n{body}"
 
 
+async def get_database_schema(pool: asyncpg.Pool) -> dict[str, list[str]]:
+    async with pool.acquire() as conn:
+        tables = await conn.fetch("""
+            SELECT table_name 
+            FROM information_schema.tables 
+            WHERE table_type = 'BASE TABLE' 
+            AND table_schema NOT IN ('pg_catalog', 'information_schema');
+        """)
+        tables = [table["table_name"] for table in tables]
+
+        schema = dict()
+
+        for table in tables:
+            columns = await conn.fetch(
+                """
+                SELECT column_name 
+                FROM information_schema.columns 
+                WHERE table_name = $1;
+            """,
+                table,
+            )
+            columns = [column["column_name"] for column in columns]
+            schema[table] = columns
+        return schema
+
+
 async def run_analyze_email_agent(
     api_key: str, subject: str | None, body: str, db_pool: asyncpg.Pool
 ) -> ResponseFormatData:
     formatted_email = _build_email_for_analysis(subject=subject, body=body)
 
+    db_schema = await get_database_schema(db_pool)
+    print(f"🗂️ db_schema: {db_schema}")
+
     model = _build_model(api_key)
 
     search_agent = _build_search_agent(model)
-    conversation = [HumanMessage(formatted_email)]
+    conversation = [
+        SystemMessage(f"""Database Schema: {db_schema}"""),
+        HumanMessage(formatted_email),
+    ]
     result = await search_agent.ainvoke(
-        {"messages": conversation}, context=Context(db_pool=db_pool)
+        {"messages": conversation},
+        context=Context(db_pool=db_pool, db_schema=db_schema),
     )
     pprint.pp(result)
 

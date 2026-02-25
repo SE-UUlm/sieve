@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 @dataclass
 class Context:
     db_pool: asyncpg.Pool
+    db_schema: dict[str, list[str]]
 
 
 class Other(BaseModel):
@@ -22,7 +23,9 @@ class Complaint(BaseModel):
 
     category: Literal["Complaint"]
     complaints: list[str] = Field(description="Only one item per individual complaint")
-    urgency: float
+    urgency: int = Field(
+        description="How urgent is the complaint from 0 (not urgent) to 100 (very urgent)"
+    )
 
 
 class Product(BaseModel):
@@ -43,7 +46,9 @@ class ProductOder(BaseModel):
     products: list[Product] = Field(
         description="List the products the user wants to order"
     )
-    urgency: float
+    urgency: int = Field(
+        description="How urgent is the complaint from 0 (not urgent) to 100 (very urgent)"
+    )
 
 
 class ProductInquiry(BaseModel):
@@ -57,13 +62,17 @@ class ProductInquiry(BaseModel):
     answer: str | None = Field(
         description="If the customer asked a question and you can answer the question based on the provided product details, then answer here"
     )
-    urgency: float
+    urgency: int = Field(
+        description="How urgent is the complaint from 0 (not urgent) to 100 (very urgent)"
+    )
 
 
 class Issue(BaseModel):
     product: Product
     issue: str = Field(description="A short summary of the issue")
-    urgency: float
+    urgency: int = Field(
+        description="How urgent is the complaint from 0 (not urgent) to 100 (very urgent)"
+    )
 
 
 class ProductSupport(BaseModel):
