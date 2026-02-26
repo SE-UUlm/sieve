@@ -13,7 +13,7 @@ services:
         volumes:
             - ./db-data:/var/lib/postgresql/data
         healthcheck:
-            test: "pg_isready -U postgres"
+            test: "pg_isready -U ${DB_USERNAME}"
             start_period: 4s # wait 4s to let db get ready for accepting connections
             start_interval: 2s # start first healthcheck after 2s
 
