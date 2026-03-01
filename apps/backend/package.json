@@ -29,7 +29,7 @@
         "@nestjs/terminus": "^11.0.0",
         "@prisma/adapter-pg": "^7.3.0",
         "@prisma/client": "^7.4.0",
-        "@scalar/nestjs-api-reference": "^1.0.23",
+        "@scalar/nestjs-api-reference": "^1.0.29",
         "@thallesp/nestjs-better-auth": "^2.2.5",
         "better-auth": "^1.4.18",
         "class-transformer": "^0.5.1",
