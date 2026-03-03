@@ -41,7 +41,7 @@ jobs:
               working-directory: ${{ env.working_directory }}
 
             - name: Archive Build Artifacts
-              uses: actions/upload-artifact@v6
+              uses: actions/upload-artifact@v7
               if: ${{ !cancelled() }}
               with:
                   name: Frontend Build Artifact
