@@ -26,10 +26,7 @@ export class EmailService {
         dto: CreateEmailDto,
     ): Promise<SubmitEmailResponseDto> {
         try {
-            const analysisResult = await this.aiBackendService.runFlow(
-                dto.body,
-                dto.subject,
-            );
+            const analysisResult = await this.aiBackendService.runFlow(dto.body);
             const now = new Date();
 
             await this.prismaService.$transaction(async (transaction) => {

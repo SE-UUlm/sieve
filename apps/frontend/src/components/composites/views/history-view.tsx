@@ -2,14 +2,13 @@
 
 import { FileJson, Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import type { AnalysisResult } from "@/components/composites/views/analyze/model/analysis-result";
-import { OutputPanel } from "@/components/composites/views/analyze/output/output-panel";
 import { SplitView } from "@/components/composites/views/split-view/split-view";
 import { SplitViewPane } from "@/components/composites/views/split-view/split-view-pane";
 import { StyledInput } from "@/components/ui/styled-input";
 import {
     getJobControllerGetHistoryQueryKey,
     type JobHistoryEntryDto,
+    type JobHistoryEntryDtoResult,
     useJobControllerGetHistory,
 } from "@/lib/client";
 
@@ -17,7 +16,7 @@ type HistoryEntry = {
     id: string;
     subject: string;
     body: string;
-    result: AnalysisResult | null;
+    result: JobHistoryEntryDtoResult | null;
 };
 
 type HistoryViewProps = {
@@ -178,11 +177,34 @@ export function HistoryView({ history = [] }: HistoryViewProps) {
 
             <SplitViewPane variant="secondary">
                 {selectedItem ? (
-                    <OutputPanel
-                        result={selectedItem.result}
-                        isAnalyzing={false}
-                        currentStep={4}
-                    />
+                    <div className="mx-auto flex h-full w-full max-w-3xl flex-col gap-4">
+                        <section className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900/60">
+                            <h3 className="text-sm font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
+                                Email
+                            </h3>
+                            <h2 className="mt-3 text-xl font-semibold text-slate-900 dark:text-white">
+                                {selectedItem.subject || "Untitled mail"}
+                            </h2>
+                            <p className="mt-3 whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">
+                                {selectedItem.body}
+                            </p>
+                        </section>
+
+                        <section className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900/60">
+                            <h3 className="text-sm font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
+                                Analysis Result
+                            </h3>
+                            {selectedItem.result ? (
+                                <pre className="mt-3 overflow-x-auto rounded-xl bg-slate-950 p-4 text-xs leading-relaxed text-slate-100">
+                                    {JSON.stringify(selectedItem.result, null, 2)}
+                                </pre>
+                            ) : (
+                                <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
+                                    No analysis result available for this entry.
+                                </p>
+                            )}
+                        </section>
+                    </div>
                 ) : (
                     <div className="mx-auto flex h-full w-full max-w-md flex-col items-center justify-center text-slate-400 dark:text-slate-500">
                         <FileJson size={48} className="mb-4 opacity-20" />
@@ -203,6 +225,6 @@ function mapHistoryEntryDtoToHistoryEntry(
         id: entry.id,
         subject: entry.subject ?? "",
         body: entry.body,
-        result: (entry.result ?? null) as AnalysisResult | null,
+        result: entry.result ?? null,
     };
 }
