@@ -1,6 +1,6 @@
 const AuthLayout = async ({ children }: { children: React.ReactNode }) => {
     return (
-        <main className="flex flex-col p-4 lg:p-24 2xl:flex-row">
+        <main className="min-h-screen bg-slate-50 transition-colors duration-300 dark:bg-slate-950">
             {children}
         </main>
     );
