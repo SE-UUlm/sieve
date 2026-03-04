@@ -1,3 +1,4 @@
+from langchain_core.callbacks import UsageMetadataCallbackHandler
 import asyncpg
 from langchain.tools import tool, ToolRuntime
 import pprint
@@ -146,6 +147,8 @@ async def run_analyze_email_agent(
     body: str,
     db_pool: asyncpg.Pool,
 ) -> ResponseFormatData:
+    cb = UsageMetadataCallbackHandler()
+
     formatted_email = _build_email_for_analysis(subject=subject, body=body)
 
     db_schema = await get_database_schema(db_pool)
@@ -162,10 +165,11 @@ async def run_analyze_email_agent(
     result = await search_agent.ainvoke(
         {"messages": conversation},
         context=Context(db_pool=db_pool, db_schema=db_schema),
+        config={"callbacks": [cb]},
     )
-    pprint.pp(result)
 
-    print("🔎 search agent result:\n" + result["structured_response"].model_dump_json())
+    for msg in result["messages"]:
+        msg.pretty_print()
 
     response_agent = _build_response_agent(model)
     conversation = [
@@ -174,6 +178,13 @@ async def run_analyze_email_agent(
         ),
         HumanMessage(formatted_email),
     ]
-    result = await response_agent.ainvoke({"messages": conversation})
-    pprint.pp(result)
+    result = await response_agent.ainvoke(
+        {"messages": conversation}, config={"callbacks": [cb]}
+    )
+
+    for msg in result["messages"]:
+        msg.pretty_print()
+
+    print(f"Usage metadata: {cb.usage_metadata}")
+
     return result["structured_response"].data
