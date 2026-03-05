@@ -1,6 +1,8 @@
+from langchain.chat_models import BaseChatModel
+import operator
 import asyncpg
 from dataclasses import dataclass
-from typing import Literal, Union, Any
+from typing import Literal, Union, Any, TypedDict, Annotated
 
 from pydantic import BaseModel, Field
 
@@ -9,19 +11,19 @@ from pydantic import BaseModel, Field
 class Context:
     db_pool: asyncpg.Pool
     db_schema: dict[str, list[str]]
+    simple_model: BaseChatModel
+    complex_model: BaseChatModel
 
 
 class Other(BaseModel):
     """The email does not match any of the other categories."""
 
-    category: Literal["Other"]
     summary: str
 
 
 class Complaint(BaseModel):
     """The user expresses dissatisfaction, frustration or is serious and angry."""
 
-    category: Literal["Complaint"]
     complaints: list[str] = Field(description="Only one item per individual complaint")
     urgency: int = Field(
         description="How urgent is the complaint from 0 (not urgent) to 100 (very urgent)"
@@ -45,22 +47,9 @@ class Product(BaseModel):
     price: float | None = Field(default=None, description="If not known, leave empty")
 
 
-class ProductOrder(BaseModel):
-    """The user has an immediate desire to order one or more specific products."""
-
-    category: Literal["Product_Order"]
-    products: list[Product] = Field(
-        description="List the products the user wants to order"
-    )
-    urgency: int = Field(
-        description="How urgent is the complaint from 0 (not urgent) to 100 (very urgent)"
-    )
-
-
 class ProductInquiry(BaseModel):
-    """The user wants to ask for information regarding a product they do not yet own or wants suggestion which product(s) to buy."""
+    """The user wants to order a product or wants to ask for information regarding a product they do not yet own or wants suggestion which product(s) to buy."""
 
-    category: Literal["Product_Inquiry"]
     products: list[Product] = Field(
         description="List all Products from 'Related Products'"
     )
@@ -85,12 +74,10 @@ class Issue(BaseModel):
 class ProductSupport(BaseModel):
     """The user asks about an existing product they already have or use."""
 
-    category: Literal["Product_Support"]
     issues: list[Issue]
 
 
 ResponseFormatData = Union[
-    ProductOrder,
     ProductInquiry,
     ProductSupport,
     Complaint,
@@ -102,6 +89,9 @@ class ResponseFormat(BaseModel):
     data: ResponseFormatData
 
 
+## Neu ##
+
+
 class SearchResult(BaseModel):
     potentialProducts: list[Product] = Field(
         description="Products from the search you think are the ones the customer wanted"
@@ -109,3 +99,39 @@ class SearchResult(BaseModel):
     confidence: float = Field(
         description="How confident you are that the products are the ones the customer wanted"
     )
+
+
+Category = Literal["Product_Inquiry", "Product_Support", "Complaint", "Other"]
+
+
+class CategorizationResult(BaseModel):
+    """Result of classifying a customer email into categories."""
+
+    categories: list[Category] = Field(
+        description="List of Categories that match the customers email"
+    )
+
+
+class Email(BaseModel):
+    subject: str | None
+    body: str
+
+
+class FlowResult(BaseModel):
+    category: Category
+    structured_output: Any
+    steps: dict[str, Any]
+
+
+class SubGraphState(BaseModel):
+    email: Email
+    category: Category
+    result: Any | None = None
+    related_products: list[Product] | None = None
+    steps: dict[str, Any] = dict()
+
+
+class RouterState(BaseModel):
+    email: Email
+    categories: list[Category] | None = None
+    results: Annotated[list[FlowResult], operator.add] = []

@@ -1,112 +1,26 @@
+from ai_backend.provider import Provider
+from ai_backend.utils import format_email, category_to_flow, category_to_schema
+from ai_backend.product_flow import product_flow
 from langchain_core.callbacks import UsageMetadataCallbackHandler
 import asyncpg
-from langchain.tools import tool, ToolRuntime
+from langchain.tools import ToolRuntime
 import pprint
-from langchain.agents import create_agent
 from langchain.messages import HumanMessage, SystemMessage
+from langgraph.types import Send
 from langchain.chat_models import init_chat_model
 from dotenv import load_dotenv
+from ai_backend.schemas import (
+    ResponseFormatData,
+    Context,
+    RouterState,
+    CategorizationResult,
+    SubGraphState,
+    FlowResult,
+)
+from langgraph.graph import StateGraph, START, END
 
-from ai_backend.provider import Provider
-from ai_backend.schemas import ResponseFormat, ResponseFormatData, SearchResult, Context
 
 load_dotenv()
-
-
-@tool
-async def search_product(
-    table_name: str,
-    search_columns: list[str],
-    return_columns: list[str],
-    query: list[str],
-    runtime: ToolRuntime[Context],
-):
-    """Useful to search for product information. Use multiple keywords for query. If one keyword is contained in any specified column value, the item is returned.
-    Database hints: The database only contains lego sets. The metadata column contains the part count. The products in the database are named in german"""
-
-    db_schema = runtime.context.db_schema
-    if table_name not in db_schema:
-        raise ValueError(f"Table {table_name} not found in database schema")
-
-    if not all(col in db_schema[table_name] for col in search_columns):
-        raise ValueError(f"Columns {search_columns} not found in table {table_name}")
-
-    if not all(col in db_schema[table_name] for col in return_columns):
-        raise ValueError(f"Columns {return_columns} not found in table {table_name}")
-
-    async with runtime.context.db_pool.acquire() as conn:
-        search_patterns = [f"%{word}%" for word in query]
-
-        select_columns = ", ".join([f'"{col}"' for col in return_columns])
-
-        # Cast values to text to make sure they work with ILIKE
-        column_conditions = [f'"{col}"::text ILIKE ANY($1)' for col in search_columns]
-        where_clause = " OR ".join(column_conditions)
-
-        sqlQuery = f"SELECT {select_columns} FROM {table_name} WHERE {where_clause};"
-
-        rows = await conn.fetch(sqlQuery, search_patterns)
-        rows_dicts = [dict(row) for row in rows]
-        print(
-            f"🛠️ search_product: {table_name}, {search_columns}, {return_columns}, {query} -> {rows_dicts}"
-        )
-        return rows_dicts
-
-
-def _build_model(provider: Provider, api_key: str):
-    if provider == "GOOGLE_VERTEX_AI":
-        return init_chat_model(
-            model="gemini-3.1-pro-preview",
-            max_tokens=10000,
-            api_key=api_key,
-        )
-    if provider == "ANTHROPIC":
-        return init_chat_model(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=10000,
-            api_key=api_key,
-        )
-    return init_chat_model(
-        model_provider="openai",
-        model="gpt-5.2",
-        temperature=0.1,
-        timeout=10,
-        max_tokens=10000,
-        api_key=api_key,
-    )
-
-
-def _build_response_agent(model):
-    system_prompt = """Your job is to categorize a given email from a customer or potential customer and convert it into a structured form.
-    If none of the categories match, classify the email as 'Other'.
-    Write answers in the third person about the customer. Be as concise as possible.
-    Answer Language: English"""
-    return create_agent(
-        model=model,
-        system_prompt=system_prompt,
-        response_format=ResponseFormat,
-    )
-
-
-def _build_search_agent(model):
-    system_prompt = """Your job is to find the product(s) the customer wants to buy or is talking about in their email.
-    Use the search_product tool to find the products, use the provided database schema (tables and their columns). Try multiple times with different keywords, variants, translations until you think you found the products the customer wants.
-    If you think you found the right products return them using the provided output format. Together with your confidence score.
-    Answer Language: English"""
-    return create_agent(
-        model=model,
-        system_prompt=system_prompt,
-        response_format=SearchResult,
-        tools=[search_product],
-        context_schema=Context,
-    )
-
-
-def _build_email_for_analysis(subject: str | None, body: str) -> str:
-    if subject is None or subject.strip() == "":
-        return f"Email body:\n{body}"
-
-    return f"Email subject:\n{subject}\n\nEmail body:\n{body}"
 
 
 async def get_database_schema(pool: asyncpg.Pool) -> dict[str, list[str]]:
@@ -140,6 +54,139 @@ async def get_database_schema(pool: asyncpg.Pool) -> dict[str, list[str]]:
         return schema
 
 
+async def simple_flow(state: SubGraphState, runtime: ToolRuntime[Context]) -> dict:
+    print("simple flow", state.category)
+    schema = category_to_schema(state.category)
+    structured = runtime.context.simple_model.with_structured_output(schema)
+    result = await structured.ainvoke(
+        [
+            SystemMessage(
+                f"""Your job is to convert a customer's email into a structured form. Only use the content of the email that relates to the category {state.category} and ignore other parts.
+                Respond in English. Be as concise as possible."""
+            ),
+            HumanMessage(format_email(state.email)),
+        ]
+    )
+
+    flow_result = FlowResult(
+        category=state.category,
+        structured_output=result,
+        steps={},
+    )
+
+    return {"results": [flow_result]}
+
+
+def route_to_flow(state: RouterState) -> list[Send]:
+    """Fan out to agents based on classifications."""
+
+    # TODO auf Duplikate testen
+    return [
+        Send(
+            category_to_flow(category),
+            SubGraphState(email=state.email, category=category),
+        )
+        for category in state.categories
+    ]
+
+
+async def categorize(state: RouterState, runtime: ToolRuntime[Context]) -> dict:
+    structured = runtime.context.simple_model.with_structured_output(
+        CategorizationResult
+    )
+
+    result = await structured.ainvoke(
+        [
+            SystemMessage(
+                """Your job is to categorize an email from a customer into the possible categories. 
+                If the customer has multiple requests that fit different categories, list multiple differnt categories. 
+                Do not list duplicate categories."""
+            ),
+            HumanMessage(format_email(state.email)),
+        ]
+    )
+    pprint.pprint(result)
+    return {"categories": result.categories}
+
+
+def init_simple_model(provider: Provider, api_key: str):
+    if provider == "GOOGLE_VERTEX_AI":
+        return init_chat_model(
+            model="gemini-2.5-flash",
+            temperature=0.1,
+            timeout=10,
+            max_tokens=10000,
+            api_key=api_key,
+        )
+
+    elif provider == "ANTHROPIC":
+        return init_chat_model(
+            model="claude-haiku-4-5-20251001",
+            temperature=0.1,
+            timeout=10,
+            max_tokens=10000,
+            api_key=api_key,
+        )
+
+    elif provider == "OPENAI":
+        return init_chat_model(
+            model="gpt-4o-mini",
+            temperature=0.1,
+            timeout=10,
+            max_tokens=10000,
+            api_key=api_key,
+        )
+
+    else:
+        raise ValueError(f"Unknown provider: {provider}")
+
+
+def init_complex_model(provider: Provider, api_key: str):
+    if provider == "GOOGLE_VERTEX_AI":
+        return init_chat_model(
+            model="gemini-3.1-pro-preview",
+            temperature=0.1,
+            timeout=10,
+            max_tokens=10000,
+            api_key=api_key,
+        )
+
+    elif provider == "ANTHROPIC":
+        return init_chat_model(
+            model="claude-sonnet-4-6",
+            temperature=0.1,
+            timeout=10,
+            max_tokens=10000,
+            api_key=api_key,
+        )
+
+    elif provider == "OPENAI":
+        return init_chat_model(
+            model="gpt-5.2",
+            temperature=0.1,
+            timeout=10,
+            max_tokens=10000,
+            api_key=api_key,
+        )
+
+    else:
+        raise ValueError(f"Unknown provider: {provider}")
+
+
+# TODO: input schema und output schema
+workflow = (
+    StateGraph(RouterState)
+    .add_node("categorize", categorize)
+    .add_node("simple", simple_flow)
+    .add_node("product", product_flow)
+    .add_edge(START, "categorize")
+    .add_conditional_edges("categorize", route_to_flow, ["simple", "product"])
+    .add_edge("simple", END)
+    .add_edge("product", END)
+    .compile()
+)
+
+
 async def run_analyze_email_agent(
     provider: Provider,
     api_key: str,
@@ -149,42 +196,30 @@ async def run_analyze_email_agent(
 ) -> ResponseFormatData:
     cb = UsageMetadataCallbackHandler()
 
-    formatted_email = _build_email_for_analysis(subject=subject, body=body)
+    simple_model = init_simple_model(provider, api_key)
+    complex_model = init_complex_model(provider, api_key)
 
     db_schema = await get_database_schema(db_pool)
     print(f"🗂️ db_schema: {db_schema}")
 
-    model = _build_model(provider, api_key)
+    context = Context(
+        db_pool=db_pool,
+        db_schema=db_schema,
+        simple_model=simple_model,
+        complex_model=complex_model,
+    )
+    config = {"callbacks": [cb]}
 
-    search_agent = _build_search_agent(model)
-    conversation = [
-        SystemMessage(f"""Database Schema: {db_schema}"""),
-        HumanMessage(formatted_email),
-    ]
-
-    result = await search_agent.ainvoke(
-        {"messages": conversation},
-        context=Context(db_pool=db_pool, db_schema=db_schema),
-        config={"callbacks": [cb]},
+    result = await workflow.ainvoke(
+        {
+            "email": {"subject": subject, "body": body},
+        },
+        config=config,
+        context=context,
     )
 
-    for msg in result["messages"]:
-        msg.pretty_print()
-
-    response_agent = _build_response_agent(model)
-    conversation = [
-        SystemMessage(
-            "Related products: \n" + result["structured_response"].model_dump_json()
-        ),
-        HumanMessage(formatted_email),
-    ]
-    result = await response_agent.ainvoke(
-        {"messages": conversation}, config={"callbacks": [cb]}
-    )
-
-    for msg in result["messages"]:
-        msg.pretty_print()
+    pprint.pprint(result)
 
     print(f"Usage metadata: {cb.usage_metadata}")
 
-    return result["structured_response"].data
+    return result["results"]
