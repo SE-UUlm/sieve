@@ -90,4 +90,22 @@ export class AiBackendService implements OnModuleInit {
             );
         }
     }
+
+    /**
+     * Pings the AI backend base URL to check if the server is alive.
+     *
+     * @returns True if the server is reachable, false otherwise.
+     */
+    async ping(): Promise<boolean> {
+        try {
+            await fetch(this.aiBackendUrl, {
+                method: "HEAD",
+                signal: AbortSignal.timeout(5000), // 5s timeout
+            });
+            return true;
+        } catch (error) {
+            Logger.warn(`AI backend ping failed: ${error}`);
+            return false;
+        }
+    }
 }
