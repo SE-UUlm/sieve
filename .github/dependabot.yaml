@@ -79,17 +79,79 @@ updates:
     - package-ecosystem: "npm"
       directory: "/apps/backend"
       schedule:
-          interval: "monthly"
+          interval: "weekly"
+          day: "sunday"
+          time: "16:00"
+
+      versioning-strategy: "increase"
+      open-pull-requests-limit: 10
+
+      cooldown:
+          semver-major-days: 7
+          semver-minor-days: 3
+          semver-patch-days: 1
+
+      labels:
+          - "dependencies"
+          - "backend"
+
+      commit-message:
+          prefix: "chore"
+          include: "scope"
+
       groups:
-          nestjs:
+          nestjs-framework:
               patterns:
-                  - "@nestjs/*"
+                  - "@nestjs/common"
+                  - "@nestjs/config"
+                  - "@nestjs/core"
+                  - "@nestjs/platform-express"
+                  - "@nestjs/swagger"
+                  - "@nestjs/terminus"
+
           prisma:
               patterns:
-                  - "prisma"
                   - "@prisma/*"
-          jest:
+                  - "prisma"
+
+          authentication:
+              patterns:
+                  - "better-auth"
+                  - "@thallesp/nestjs-better-auth"
+
+          validation:
+              patterns:
+                  - "class-validator"
+                  - "class-transformer"
+                  - "joi"
+
+          database:
+              patterns:
+                  - "pg"
+
+          graphql:
+              patterns:
+                  - "graphql"
+
+          api-tooling:
+              patterns:
+                  - "@scalar/*"
+                  - "orval"
+
+          runtime:
+              patterns:
+                  - "rxjs"
+                  - "reflect-metadata"
+
+          testing:
               patterns:
                   - "jest"
                   - "ts-jest"
                   - "@types/jest"
+                  - "supertest"
+                  - "@types/supertest"
+
+          dev-tooling:
+              dependency-type: "development"
+              patterns:
+                  - "*"
