@@ -1,43 +1,205 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
-
 version: 2
 updates:
     - package-ecosystem: "github-actions"
       directory: "/"
       schedule:
           interval: "weekly"
+          day: "sunday"
+          time: "16:00"
 
-    - package-ecosystem: "npm"
-      directory: "/apps/backend"
-      schedule:
-          interval: "monthly"
+      labels:
+          - "dependencies"
+          - "github-actions"
+
+      commit-message:
+          prefix: "chore"
+          include: "scope"
+
       groups:
-          nestjs:
+          github-actions:
               patterns:
-                  - "@nestjs/*"
-          prisma:
-              patterns:
-                  - "prisma"
-                  - "@prisma/*"
-          jest:
-              patterns:
-                  - "jest"
-                  - "ts-jest"
-                  - "@types/jest"
+                  - "*"
 
     - package-ecosystem: "npm"
       directory: "/apps/frontend"
       schedule:
-          interval: "monthly"
+          interval: "weekly"
+          day: "sunday"
+          time: "16:00"
+
+      versioning-strategy: "increase"
+      open-pull-requests-limit: 10
+
+      cooldown:
+          semver-major-days: 7
+          semver-minor-days: 3
+          semver-patch-days: 1
+
+      labels:
+          - "dependencies"
+          - "frontend"
+
+      commit-message:
+          prefix: "chore"
+          include: "scope"
+
       groups:
-          react-stack:
+          nextjs:
               patterns:
-                  - "react*"
-                  - "@types/react*"
-          tailwind:
+                  - "next"
+                  - "react"
+                  - "react-dom"
+
+          data-layer:
               patterns:
-                  - "tailwind*"
-                  - "@tailwindcss/*"
+                  - "@tanstack/*"
+
+          forms-and-validation:
+              patterns:
+                  - "react-hook-form"
+                  - "@hookform/*"
+                  - "zod"
+
+          ui-libraries:
+              patterns:
+                  - "@radix-ui/*"
+                  - "radix-ui"
+                  - "lucide-react"
+                  - "sonner"
+                  - "next-themes"
+                  - "class-variance-authority"
+                  - "clsx"
+                  - "tailwind-merge"
+
+          dev-tooling:
+              dependency-type: "development"
+              patterns:
+                  - "*"
+
+    - package-ecosystem: "npm"
+      directory: "/apps/backend"
+      schedule:
+          interval: "weekly"
+          day: "sunday"
+          time: "16:00"
+
+      versioning-strategy: "increase"
+      open-pull-requests-limit: 10
+
+      cooldown:
+          semver-major-days: 7
+          semver-minor-days: 3
+          semver-patch-days: 1
+
+      labels:
+          - "dependencies"
+          - "backend"
+
+      commit-message:
+          prefix: "chore"
+          include: "scope"
+
+      groups:
+          nestjs-framework:
+              patterns:
+                  - "@nestjs/common"
+                  - "@nestjs/config"
+                  - "@nestjs/core"
+                  - "@nestjs/platform-express"
+                  - "@nestjs/swagger"
+                  - "@nestjs/terminus"
+
+          prisma:
+              patterns:
+                  - "@prisma/*"
+                  - "prisma"
+
+          authentication:
+              patterns:
+                  - "better-auth"
+                  - "@thallesp/nestjs-better-auth"
+
+          validation:
+              patterns:
+                  - "class-validator"
+                  - "class-transformer"
+                  - "joi"
+
+          database:
+              patterns:
+                  - "pg"
+
+          graphql:
+              patterns:
+                  - "graphql"
+
+          api-tooling:
+              patterns:
+                  - "@scalar/*"
+                  - "orval"
+
+          runtime:
+              patterns:
+                  - "rxjs"
+                  - "reflect-metadata"
+
+          testing:
+              patterns:
+                  - "jest"
+                  - "ts-jest"
+                  - "@types/jest"
+                  - "supertest"
+                  - "@types/supertest"
+
+          dev-tooling:
+              dependency-type: "development"
+              patterns:
+                  - "*"
+
+    - package-ecosystem: "uv"
+      directory: "/apps/ai-backend"
+      schedule:
+          interval: "weekly"
+          day: "sunday"
+          time: "16:00"
+
+      open-pull-requests-limit: 10
+
+      cooldown:
+          semver-major-days: 7
+          semver-minor-days: 3
+          semver-patch-days: 1
+
+      labels:
+          - "dependencies"
+          - "ai-backend"
+
+      commit-message:
+          prefix: "chore"
+          include: "scope"
+
+      groups:
+          fastapi-stack:
+              patterns:
+                  - "fastapi"
+                  - "starlette"
+                  - "uvicorn"
+
+          langchain-ecosystem:
+              patterns:
+                  - "langchain"
+                  - "langchain-*"
+
+          validation-and-config:
+              patterns:
+                  - "pydantic"
+                  - "python-dotenv"
+
+          database:
+              patterns:
+                  - "asyncpg"
+
+          dev-tooling:
+              dependency-type: "development"
+              patterns:
+                  - "*"
