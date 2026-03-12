@@ -155,3 +155,51 @@ updates:
               dependency-type: "development"
               patterns:
                   - "*"
+
+    - package-ecosystem: "uv"
+      directory: "/apps/ai-backend"
+      schedule:
+          interval: "weekly"
+          day: "sunday"
+          time: "16:00"
+
+      open-pull-requests-limit: 10
+
+      cooldown:
+          semver-major-days: 7
+          semver-minor-days: 3
+          semver-patch-days: 1
+
+      labels:
+          - "dependencies"
+          - "ai-backend"
+
+      commit-message:
+          prefix: "chore"
+          include: "scope"
+
+      groups:
+          fastapi-stack:
+              patterns:
+                  - "fastapi"
+                  - "starlette"
+                  - "uvicorn"
+
+          langchain-ecosystem:
+              patterns:
+                  - "langchain"
+                  - "langchain-*"
+
+          validation-and-config:
+              patterns:
+                  - "pydantic"
+                  - "python-dotenv"
+
+          database:
+              patterns:
+                  - "asyncpg"
+
+          dev-tooling:
+              dependency-type: "development"
+              patterns:
+                  - "*"
