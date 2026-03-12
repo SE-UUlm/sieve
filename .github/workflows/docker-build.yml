@@ -27,7 +27,7 @@ jobs:
               uses: docker/setup-qemu-action@v3
 
             - name: Set Up Docker Buildx
-              uses: docker/setup-buildx-action@v3
+              uses: docker/setup-buildx-action@v4
 
             # Only push artifacts on the develop branch or on a new tag
             - name: Determine If Artifacts Should Be Pushed To The Registry
