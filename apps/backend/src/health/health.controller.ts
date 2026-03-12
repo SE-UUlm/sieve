@@ -6,6 +6,7 @@ import {
     PrismaHealthIndicator,
 } from "@nestjs/terminus";
 import { AllowAnonymous } from "@thallesp/nestjs-better-auth";
+import { AiBackendHealthIndicator } from "../ai-backend/ai-backend.health";
 import { PrismaService } from "../prisma/prisma.service";
 
 @ApiTags("Health")
@@ -15,6 +16,7 @@ export class HealthController {
         private health: HealthCheckService,
         private db: PrismaHealthIndicator,
         private prisma: PrismaService,
+        private aiBackendHealthIndicator: AiBackendHealthIndicator,
     ) {}
 
     @Get()
@@ -26,6 +28,7 @@ export class HealthController {
     check() {
         return this.health.check([
             () => this.db.pingCheck("database", this.prisma),
+            () => this.aiBackendHealthIndicator.isHealthy("ai-backend"),
         ]);
     }
 }
