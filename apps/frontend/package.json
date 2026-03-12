@@ -2,7 +2,7 @@
     "name": "sieve-frontend",
     "version": "0.1.0",
     "license": "GPL-3.0-or-later",
-    "packageManager": "pnpm@10.28.2",
+    "packageManager": "pnpm@10.32.1",
     "scripts": {
         "dev": "next dev --turbopack",
         "build": "next build --turbopack",
@@ -18,7 +18,7 @@
         "@radix-ui/react-separator": "^1.1.8",
         "@radix-ui/react-slot": "^1.2.4",
         "@tanstack/react-query": "^5.90.21",
-        "better-auth": "^1.5.4",
+        "better-auth": "^1.4.21",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "lucide-react": "^0.577.0",
