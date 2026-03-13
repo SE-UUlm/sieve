@@ -28,6 +28,15 @@ cp .env.example .env
 docker compose up
 ```
 
+If you build images locally (`docker compose up --build`) or run from source, generate clients first:
+
+```bash
+cd apps/backend
+pnpm install
+pnpm run generate:clients
+cd ../..
+```
+
 After the first admin login, configure the instance-wide OpenAI API key in `Settings -> Provider`.
 
 The application will be available at:

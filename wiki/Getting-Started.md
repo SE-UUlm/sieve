@@ -49,6 +49,15 @@ For a detailed guide on all configuration options, see the
    docker compose up
    ```
 
+   If you want to force local image builds (`docker compose up --build`), generate clients first:
+
+   ```bash
+   cd apps/backend
+   pnpm install
+   pnpm run generate:clients
+   cd ../..
+   ```
+
    This will start:
    - PostgreSQL database on port 5432
    - Backend API on port 5175 (configurable via `BACKEND_PORT`)
@@ -119,7 +128,13 @@ If you prefer more control over the development environment, you can build and r
    SETTINGS_ENCRYPTION_KEY=$(openssl rand -base64 32)
    ```
 
-4. Push Prisma schema to database:
+4. Generate the Prisma client (required after a fresh clone and after Prisma schema changes):
+
+   ```bash
+   pnpm run generate:client:prisma
+   ```
+
+5. Push Prisma schema to database:
 
    ```bash
    pnpm exec prisma db push
@@ -127,7 +142,7 @@ If you prefer more control over the development environment, you can build and r
 
    This is only necessary the first time and after a schema change.
 
-5. Optional: Seed demo users:
+6. Optional: Seed demo users:
 
    ```bash
    # In apps/backend/.env:
@@ -139,7 +154,7 @@ If you prefer more control over the development environment, you can build and r
 
    If `SEED_DEMO_USERS` is not `true`, the seed command skips demo user creation.
 
-6. Run the backend:
+7. Run the backend:
 
    **Option A** - Development mode (auto-reload on file changes):
 
@@ -173,7 +188,15 @@ If you prefer more control over the development environment, you can build and r
    pnpm install
    ```
 
-3. Run the frontend:
+3. Generate API clients in the backend (required after a fresh clone and after backend API changes):
+
+   ```bash
+   cd ../backend
+   pnpm run generate:clients
+   cd ../frontend
+   ```
+
+4. Run the frontend:
 
    **Option A** - Development mode (with hot reload):
 

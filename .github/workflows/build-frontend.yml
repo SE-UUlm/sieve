@@ -10,6 +10,8 @@ on:
 env:
     node_version: ${{ vars.NODE_VERSION_FRONTEND }}
     working_directory: apps/frontend
+    backend_node_version: ${{ vars.NODE_VERSION_BACKEND }}
+    backend_working_directory: apps/backend
     cache-dependency-path: apps/frontend/pnpm-lock.yaml
 
 jobs:
@@ -20,7 +22,23 @@ jobs:
             - name: Checkout Repository
               uses: actions/checkout@v6
 
-            - name: Setup Environment
+            - name: Setup Backend Environment
+              uses: ./.github/workflows/setup-node-pnpm/
+              with:
+                  node_version: ${{ env.backend_node_version }}
+                  working-directory: ${{ env.backend_working_directory }}
+
+            - name: Generate API Clients
+              run: pnpm run generate:clients
+              working-directory: ${{ env.backend_working_directory }}
+              env:
+                  DB_USERNAME: postgres
+                  DB_PASSWORD: postgres
+                  DB_HOST: localhost
+                  DB_PORT: 5432
+                  DB_NAME: postgres
+
+            - name: Setup Frontend Environment
               uses: ./.github/workflows/setup-node-pnpm/
               with:
                   node_version: ${{ env.node_version }}

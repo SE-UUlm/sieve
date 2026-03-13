@@ -23,6 +23,24 @@ jobs:
             - name: Checkout Repository
               uses: actions/checkout@v6
 
+            - name: Setup Backend (for generated artifacts)
+              if: ${{ inputs.context == './apps/backend' || inputs.context == './apps/frontend' }}
+              uses: ./.github/workflows/setup-node-pnpm/
+              with:
+                  node_version: ${{ vars.NODE_VERSION_BACKEND }}
+                  working-directory: apps/backend
+
+            - name: Generate API Clients (frontend image)
+              if: ${{ inputs.context == './apps/frontend' }}
+              run: pnpm run generate:clients
+              working-directory: apps/backend
+              env:
+                  DB_USERNAME: postgres
+                  DB_PASSWORD: postgres
+                  DB_HOST: localhost
+                  DB_PORT: 5432
+                  DB_NAME: postgres
+
             - name: Set Up QEMU
               uses: docker/setup-qemu-action@v4
 
