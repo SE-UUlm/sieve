@@ -18,11 +18,13 @@ export function LoginView() {
     const [password, setPassword] = useState("");
     const [loginError, setLoginError] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [hasSubmittedAuth, setHasSubmittedAuth] = useState(false);
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setLoginError("");
         setIsSubmitting(true);
+        setHasSubmittedAuth(true);
 
         const { error } = await authClient.signIn.email({
             email,
@@ -32,16 +34,17 @@ export function LoginView() {
 
         if (error) {
             setLoginError(error.message || "An error occurred");
+            setHasSubmittedAuth(false);
+            setIsSubmitting(false);
+            return;
         }
-
-        setIsSubmitting(false);
     };
 
     if (isSessionPending) {
         return null;
     }
 
-    if (session) {
+    if (session && !hasSubmittedAuth) {
         return <AlreadyLoggedIn />;
     }
 

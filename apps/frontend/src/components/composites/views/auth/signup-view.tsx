@@ -21,6 +21,7 @@ export function SignupView() {
     const [password, setPassword] = useState("");
     const [signupError, setSignupError] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [hasSubmittedAuth, setHasSubmittedAuth] = useState(false);
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -37,6 +38,7 @@ export function SignupView() {
         }
 
         setIsSubmitting(true);
+        setHasSubmittedAuth(true);
 
         const { error } = await authClient.signUp.email({
             name,
@@ -46,6 +48,7 @@ export function SignupView() {
 
         if (error) {
             setSignupError(error.message || "An error occurred");
+            setHasSubmittedAuth(false);
             setIsSubmitting(false);
             return;
         }
@@ -57,7 +60,7 @@ export function SignupView() {
         return null;
     }
 
-    if (session) {
+    if (session && !hasSubmittedAuth) {
         return <AlreadyLoggedIn />;
     }
 
