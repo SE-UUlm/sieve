@@ -1,29 +1,22 @@
 "use client";
 
-import { Moon, Sun } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTheme } from "next-themes";
 import { useState } from "react";
 import AlreadyLoggedIn from "@/components/composites/auth/already-logged-in";
+import { ThemeToggleButton } from "@/components/composites/theme/theme-toggle-button";
 import { authClient } from "@/lib/auth-client";
 
 export function SignupView() {
     const { data: session, isPending: isSessionPending } =
         authClient.useSession();
-    const { theme, resolvedTheme, setTheme } = useTheme();
     const router = useRouter();
-    const isDark = (resolvedTheme ?? theme) === "dark";
 
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [signupError, setSignupError] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    const toggleTheme = () => {
-        setTheme(isDark ? "light" : "dark");
-    };
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -67,16 +60,7 @@ export function SignupView() {
     return (
         <div className="relative flex min-h-screen w-full flex-col items-center justify-center p-4 text-slate-900 transition-colors duration-300 dark:text-slate-200">
             <div className="absolute top-6 right-6">
-                <button
-                    type="button"
-                    onClick={toggleTheme}
-                    className="rounded-full p-3 text-slate-500 transition-colors hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-800"
-                    aria-label={
-                        isDark ? "Switch to light mode" : "Switch to dark mode"
-                    }
-                >
-                    {isDark ? <Sun size={20} /> : <Moon size={20} />}
-                </button>
+                <ThemeToggleButton className="hover:text-blue-600 dark:hover:text-yellow-400" />
             </div>
 
             <div className="w-full max-w-md space-y-8">
