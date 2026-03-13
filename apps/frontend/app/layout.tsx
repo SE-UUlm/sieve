@@ -7,7 +7,7 @@ import { Toaster } from "@/components/primitives/sonner";
 import Providers from "./providers";
 
 export const metadata: Metadata = {
-    title: "Sieve",
+    title: "SIEVE",
     description: "Convert Bad Emails into Purchase Orders",
 };
 

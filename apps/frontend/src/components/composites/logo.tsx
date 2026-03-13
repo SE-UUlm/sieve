@@ -9,7 +9,7 @@ export function Logo() {
             className="mb-10 block"
             aria-label="Go to Analyze"
         >
-            <Image src={sieveLogo} alt="Sieve Logo" />
+            <Image src={sieveLogo} alt="SIEVE Logo" />
         </Link>
     );
 }

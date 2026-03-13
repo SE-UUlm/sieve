@@ -11,7 +11,7 @@ export function LogoWithLabel({ className }: LogoWithLabelProps) {
         <div className={cn("mb-10 flex items-center gap-3", className)}>
             <Image src={sieveLogo} alt="SIEVE Logo" className="h-8 w-8" />
             <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
-                Sieve
+                SIEVE
             </span>
         </div>
     );
