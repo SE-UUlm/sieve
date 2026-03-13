@@ -6,6 +6,9 @@ import { useState } from "react";
 import AlreadyLoggedIn from "@/components/composites/auth/already-logged-in";
 import { LogoWithLabel } from "@/components/composites/logo-with-label";
 import { ThemeToggleButton } from "@/components/composites/theme/theme-toggle-button";
+import { StyledButton } from "@/components/ui/styled-button";
+import { StyledInput } from "@/components/ui/styled-input";
+import { StyledLabel } from "@/components/ui/styled-label";
 import { authClient } from "@/lib/auth-client";
 
 export function SignupView() {
@@ -79,13 +82,8 @@ export function SignupView() {
                 <form onSubmit={handleSubmit} className="mt-8 space-y-6">
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <label
-                                htmlFor="name"
-                                className="text-sm font-medium text-slate-600 dark:text-slate-300"
-                            >
-                                Name
-                            </label>
-                            <input
+                            <StyledLabel htmlFor="name">Name</StyledLabel>
+                            <StyledInput
                                 id="name"
                                 type="text"
                                 value={name}
@@ -102,13 +100,8 @@ export function SignupView() {
                         </div>
 
                         <div className="space-y-2">
-                            <label
-                                htmlFor="email"
-                                className="text-sm font-medium text-slate-600 dark:text-slate-300"
-                            >
-                                Email
-                            </label>
-                            <input
+                            <StyledLabel htmlFor="email">Email</StyledLabel>
+                            <StyledInput
                                 id="email"
                                 type="email"
                                 value={email}
@@ -125,13 +118,10 @@ export function SignupView() {
                         </div>
 
                         <div className="space-y-2">
-                            <label
-                                htmlFor="password"
-                                className="text-sm font-medium text-slate-600 dark:text-slate-300"
-                            >
+                            <StyledLabel htmlFor="password">
                                 Password
-                            </label>
-                            <input
+                            </StyledLabel>
+                            <StyledInput
                                 id="password"
                                 type="password"
                                 value={password}
@@ -157,13 +147,14 @@ export function SignupView() {
                         </p>
                     ) : null}
 
-                    <button
+                    <StyledButton
                         type="submit"
-                        className="w-full rounded-lg bg-slate-900 px-4 py-3 font-semibold text-white shadow-lg shadow-slate-200/10 transition-colors duration-200 ease-in-out hover:bg-black disabled:cursor-not-allowed disabled:opacity-60 dark:bg-slate-200 dark:text-slate-900 dark:hover:bg-white"
+                        isLoading={isSubmitting}
+                        label="Sign Up"
+                        loadingLabel="Signing up..."
                         disabled={isSubmitting}
-                    >
-                        {isSubmitting ? "Signing up..." : "Sign Up"}
-                    </button>
+                        className="h-12"
+                    />
                 </form>
 
                 <div className="text-center text-sm text-slate-500 dark:text-slate-500">
