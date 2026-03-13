@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import AlreadyLoggedIn from "@/components/composites/auth/already-logged-in";
+import { LogoWithLabel } from "@/components/composites/logo-with-label";
 import { ThemeToggleButton } from "@/components/composites/theme/theme-toggle-button";
 import { authClient } from "@/lib/auth-client";
 
@@ -48,14 +49,7 @@ export function LoginView() {
             </div>
 
             <div className="w-full max-w-md space-y-8">
-                <div className="mb-10 flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-600 text-lg font-bold text-white dark:bg-white dark:text-slate-950">
-                        S
-                    </div>
-                    <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
-                        Sieve
-                    </span>
-                </div>
+                <LogoWithLabel />
 
                 <div className="space-y-2 text-center">
                     <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
