@@ -1,16 +1,15 @@
-import { History, LogOut, MailSearch, Moon, Settings, Sun } from "lucide-react";
+import { History, LogOut, MailSearch, Settings } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { Logo } from "@/components/composites/logo";
 import { SidebarActionButton } from "@/components/composites/sidebar/sidebar-action-button";
 import { SidebarNavItem } from "@/components/composites/sidebar/sidebar-nav-item";
+import { ThemeToggleButton } from "@/components/composites/theme/theme-toggle-button";
 
 type SidebarProps = {
-    onToggleTheme: () => void;
     onLogout: () => void;
-    isDark: boolean;
 };
 
-export function Sidebar({ onToggleTheme, onLogout, isDark }: SidebarProps) {
+export function Sidebar({ onLogout }: SidebarProps) {
     const pathname = usePathname();
 
     const navItems = [
@@ -36,14 +35,7 @@ export function Sidebar({ onToggleTheme, onLogout, isDark }: SidebarProps) {
             </nav>
 
             <div className="mt-auto mb-2 flex flex-col items-center gap-4">
-                <SidebarActionButton
-                    icon={isDark ? Sun : Moon}
-                    label={
-                        isDark ? "Switch to Light Mode" : "Switch to Dark Mode"
-                    }
-                    onClick={onToggleTheme}
-                    className="hover:text-blue-600 dark:hover:text-yellow-400"
-                />
+                <ThemeToggleButton className="hover:text-blue-600 dark:hover:text-yellow-400" />
 
                 <SidebarActionButton
                     icon={LogOut}
