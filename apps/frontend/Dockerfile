@@ -42,6 +42,19 @@ RUN --mount=type=bind,source=package.json,target=package.json \
 
 # Copy the rest of the source files into the image.
 COPY . .
+COPY --from=backend . /usr/src/backend
+
+# Generate frontend API client from backend OpenAPI during Docker build.
+RUN --mount=type=cache,target=/root/.pnpm-store \
+    cd /usr/src/backend && \
+    pnpm install --frozen-lockfile && \
+    DB_USERNAME=postgres \
+    DB_PASSWORD=postgres \
+    DB_HOST=localhost \
+    DB_PORT=5432 \
+    DB_NAME=postgres \
+    ORVAL_WORKSPACE=/usr/src/app/src/lib/client \
+    pnpm run generate:clients
 
 # Disable Next.js telemetry during build
 ENV NEXT_TELEMETRY_DISABLED=1

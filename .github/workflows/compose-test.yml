@@ -17,22 +17,6 @@ jobs:
             - name: Checkout Repository
               uses: actions/checkout@v6
 
-            - name: Setup Backend (for generated clients)
-              uses: ./.github/workflows/setup-node-pnpm/
-              with:
-                  node_version: ${{ vars.NODE_VERSION_BACKEND }}
-                  working-directory: apps/backend
-
-            - name: Generate API Clients
-              run: pnpm run generate:clients
-              working-directory: apps/backend
-              env:
-                  DB_USERNAME: postgres
-                  DB_PASSWORD: postgres
-                  DB_HOST: localhost
-                  DB_PORT: 5432
-                  DB_NAME: postgres
-
             - name: Run Docker Compose Setup
               uses: adambirds/docker-compose-action@v1.5.0
               with:

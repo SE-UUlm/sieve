@@ -54,6 +54,8 @@ services:
         image: ghcr.io/se-uulm/sieve-frontend:latest
         build:
             context: ./apps/frontend
+            additional_contexts:
+                backend: ./apps/backend
         environment:
             NODE_ENV: production
         ports:
