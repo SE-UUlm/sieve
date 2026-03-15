@@ -10,6 +10,7 @@ import { StyledButton } from "@/components/ui/styled-button";
 import { StyledInput } from "@/components/ui/styled-input";
 import { StyledLabel } from "@/components/ui/styled-label";
 import { authClient } from "@/lib/auth-client";
+import { showPersistentErrorToast } from "@/lib/toast";
 
 export function SignupView() {
     const { data: session, isPending: isSessionPending } =
@@ -19,21 +20,25 @@ export function SignupView() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [signupError, setSignupError] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [hasSubmittedAuth, setHasSubmittedAuth] = useState(false);
 
     const handleSubmit: SubmitEventHandler<HTMLFormElement> = async (event) => {
         event.preventDefault();
-        setSignupError("");
 
         if (name.length < 3) {
-            setSignupError("Name must be at least 3 characters.");
+            showPersistentErrorToast({
+                title: "Cannot Sign Up",
+                description: "Name must be at least 3 characters.",
+            });
             return;
         }
 
         if (password.length < 3) {
-            setSignupError("Password must be at least 3 characters.");
+            showPersistentErrorToast({
+                title: "Cannot Sign Up",
+                description: "Password must be at least 3 characters.",
+            });
             return;
         }
 
@@ -47,7 +52,10 @@ export function SignupView() {
         });
 
         if (error) {
-            setSignupError(error.message || "An error occurred");
+            showPersistentErrorToast({
+                title: "Sign Up Failed",
+                description: error.message || "An error occurred",
+            });
             setHasSubmittedAuth(false);
             setIsSubmitting(false);
             return;
@@ -140,15 +148,6 @@ export function SignupView() {
                             />
                         </div>
                     </div>
-
-                    {signupError ? (
-                        <p
-                            role="alert"
-                            className="text-sm text-red-600 dark:text-red-400"
-                        >
-                            {signupError}
-                        </p>
-                    ) : null}
 
                     <StyledButton
                         type="submit"

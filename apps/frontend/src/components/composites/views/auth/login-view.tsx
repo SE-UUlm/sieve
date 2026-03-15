@@ -9,6 +9,7 @@ import { StyledButton } from "@/components/ui/styled-button";
 import { StyledInput } from "@/components/ui/styled-input";
 import { StyledLabel } from "@/components/ui/styled-label";
 import { authClient } from "@/lib/auth-client";
+import { showPersistentErrorToast } from "@/lib/toast";
 
 export function LoginView() {
     const { data: session, isPending: isSessionPending } =
@@ -16,13 +17,11 @@ export function LoginView() {
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [loginError, setLoginError] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [hasSubmittedAuth, setHasSubmittedAuth] = useState(false);
 
     const handleSubmit: SubmitEventHandler<HTMLFormElement> = async (event) => {
         event.preventDefault();
-        setLoginError("");
         setIsSubmitting(true);
         setHasSubmittedAuth(true);
 
@@ -33,7 +32,10 @@ export function LoginView() {
         });
 
         if (error) {
-            setLoginError(error.message || "An error occurred");
+            showPersistentErrorToast({
+                title: "Login Failed",
+                description: error.message || "An error occurred",
+            });
             setHasSubmittedAuth(false);
             setIsSubmitting(false);
             return;
@@ -104,15 +106,6 @@ export function LoginView() {
                             />
                         </div>
                     </div>
-
-                    {loginError ? (
-                        <p
-                            role="alert"
-                            className="text-sm text-red-600 dark:text-red-400"
-                        >
-                            {loginError}
-                        </p>
-                    ) : null}
 
                     <StyledButton
                         type="submit"
