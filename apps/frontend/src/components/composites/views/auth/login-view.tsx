@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type SubmitEventHandler, useState } from "react";
 import AlreadyLoggedIn from "@/components/composites/auth/already-logged-in";
+import SessionLoading from "@/components/composites/auth/session-loading";
 import { LogoWithLabel } from "@/components/composites/logo-with-label";
 import { ThemeToggleButton } from "@/components/composites/theme/theme-toggle-button";
 import { StyledButton } from "@/components/ui/styled-button";
@@ -58,7 +59,7 @@ export function LoginView() {
     };
 
     if (isSessionPending) {
-        return null;
+        return <SessionLoading />;
     }
 
     if (session && !hasSubmittedAuth) {

@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/primitives/button";
 import {
     Card,
     CardContent,
@@ -8,26 +7,21 @@ import {
     CardTitle,
 } from "@/components/primitives/card";
 import { Field } from "@/components/primitives/field";
-import useLogout from "@/hooks/useLogout";
+import { Spinner } from "@/components/primitives/spinner";
 
-const AlreadyLoggedIn = () => {
-    const { isPending, logout } = useLogout();
-
+const SessionLoading = () => {
     return (
         <div className="flex min-h-screen w-full items-center justify-center p-4">
             <Card className="mx-auto w-full sm:max-w-md">
                 <CardHeader>
-                    <CardTitle>You are already logged in</CardTitle>
+                    <CardTitle>Checking your session</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <Field orientation="horizontal">
-                        <Button
-                            type="button"
-                            onClick={logout}
-                            disabled={isPending}
-                        >
-                            Logout
-                        </Button>
+                        <Spinner className="size-4" />
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                            Loading authentication state...
+                        </p>
                     </Field>
                 </CardContent>
             </Card>
@@ -35,4 +29,4 @@ const AlreadyLoggedIn = () => {
     );
 };
 
-export default AlreadyLoggedIn;
+export default SessionLoading;
