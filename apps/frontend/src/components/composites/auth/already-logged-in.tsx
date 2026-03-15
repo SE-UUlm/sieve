@@ -14,18 +14,24 @@ const AlreadyLoggedIn = () => {
     const { isPending, logout } = useLogout();
 
     return (
-        <Card className="mx-auto w-full sm:max-w-md">
-            <CardHeader>
-                <CardTitle>You are already logged in</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <Field orientation="horizontal">
-                    <Button type="button" onClick={logout} disabled={isPending}>
-                        Logout
-                    </Button>
-                </Field>
-            </CardContent>
-        </Card>
+        <div className="flex min-h-screen w-full items-center justify-center p-4">
+            <Card className="mx-auto w-full sm:max-w-md">
+                <CardHeader>
+                    <CardTitle>You are already logged in</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <Field orientation="horizontal">
+                        <Button
+                            type="button"
+                            onClick={logout}
+                            disabled={isPending}
+                        >
+                            Logout
+                        </Button>
+                    </Field>
+                </CardContent>
+            </Card>
+        </div>
     );
 };
 
