@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { type SubmitEventHandler, useState } from "react";
 import AlreadyLoggedIn from "@/components/composites/auth/already-logged-in";
 import { LogoWithLabel } from "@/components/composites/logo-with-label";
 import { ThemeToggleButton } from "@/components/composites/theme/theme-toggle-button";
@@ -23,7 +23,7 @@ export function SignupView() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [hasSubmittedAuth, setHasSubmittedAuth] = useState(false);
 
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit: SubmitEventHandler<HTMLFormElement> = async (event) => {
         event.preventDefault();
         setSignupError("");
 

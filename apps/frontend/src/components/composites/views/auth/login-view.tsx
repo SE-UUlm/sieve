@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { type SubmitEventHandler, useState } from "react";
 import AlreadyLoggedIn from "@/components/composites/auth/already-logged-in";
 import { LogoWithLabel } from "@/components/composites/logo-with-label";
 import { ThemeToggleButton } from "@/components/composites/theme/theme-toggle-button";
@@ -20,7 +20,7 @@ export function LoginView() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [hasSubmittedAuth, setHasSubmittedAuth] = useState(false);
 
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit: SubmitEventHandler<HTMLFormElement> = async (event) => {
         event.preventDefault();
         setLoginError("");
         setIsSubmitting(true);
