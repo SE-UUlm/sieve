@@ -45,23 +45,34 @@ export function SignupView() {
         setIsSubmitting(true);
         setHasSubmittedAuth(true);
 
-        const { error } = await authClient.signUp.email({
-            name,
-            email,
-            password,
-        });
+        try {
+            const { error } = await authClient.signUp.email({
+                name,
+                email,
+                password,
+            });
 
-        if (error) {
+            if (error) {
+                showPersistentErrorToast({
+                    title: "Sign Up Failed",
+                    description: error.message || "An error occurred",
+                });
+                setHasSubmittedAuth(false);
+                return;
+            }
+
+            router.push("/analyze");
+        } catch (error) {
+            console.error("[auth] Sign up failed with unexpected error", error);
             showPersistentErrorToast({
                 title: "Sign Up Failed",
-                description: error.message || "An error occurred",
+                description:
+                    "There was an issue with the server. Please try again later.",
             });
             setHasSubmittedAuth(false);
+        } finally {
             setIsSubmitting(false);
-            return;
         }
-
-        router.push("/analyze");
     };
 
     if (isSessionPending) {

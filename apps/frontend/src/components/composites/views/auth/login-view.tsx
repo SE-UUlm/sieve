@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { type SubmitEventHandler, useState } from "react";
 import AlreadyLoggedIn from "@/components/composites/auth/already-logged-in";
 import { LogoWithLabel } from "@/components/composites/logo-with-label";
@@ -14,6 +15,7 @@ import { showPersistentErrorToast } from "@/lib/toast";
 export function LoginView() {
     const { data: session, isPending: isSessionPending } =
         authClient.useSession();
+    const router = useRouter();
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -25,20 +27,33 @@ export function LoginView() {
         setIsSubmitting(true);
         setHasSubmittedAuth(true);
 
-        const { error } = await authClient.signIn.email({
-            email,
-            password,
-            callbackURL: "/analyze",
-        });
+        try {
+            const { error } = await authClient.signIn.email({
+                email,
+                password,
+                callbackURL: "/analyze",
+            });
 
-        if (error) {
+            if (error) {
+                showPersistentErrorToast({
+                    title: "Login Failed",
+                    description: error.message || "An error occurred",
+                });
+                setHasSubmittedAuth(false);
+                return;
+            }
+
+            router.push("/analyze");
+        } catch (error) {
+            console.error("[auth] Login failed with unexpected error", error);
             showPersistentErrorToast({
                 title: "Login Failed",
-                description: error.message || "An error occurred",
+                description:
+                    "There was an issue with the server. Please try again later.",
             });
             setHasSubmittedAuth(false);
+        } finally {
             setIsSubmitting(false);
-            return;
         }
     };
 
