@@ -70,6 +70,10 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
             "Endpoints to list or inspect background processing jobs created by the user.",
         )
         .addTag(
+            "Settings",
+            "Endpoints for instance-level configuration, including active AI provider and provider API key management.",
+        )
+        .addTag(
             "Health",
             "Endpoint to check the health status of the SIEVE backend service.",
         )
