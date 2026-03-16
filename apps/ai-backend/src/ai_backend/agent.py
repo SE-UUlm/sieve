@@ -73,8 +73,8 @@ def _build_response_agent(model):
 
 
 def _build_search_agent(model):
-    system_prompt = """Your job is to find the product(s) the customer wants to buy or is talking about in their email. 
-    Use the search_product tool to find the products, use the provided database schema (tables and their columns). Try multiple times with different keywords, variants, translations until you think you found the products the customer wants. 
+    system_prompt = """Your job is to find the product(s) the customer wants to buy or is talking about in their email.
+    Use the search_product tool to find the products, use the provided database schema (tables and their columns). Try multiple times with different keywords, variants, translations until you think you found the products the customer wants.
     If you think you found the right products return them using the provided output format. Together with your confidence score.
     Answer Language: English"""
     return create_agent(
@@ -139,6 +139,7 @@ async def run_analyze_email_agent(
         SystemMessage(f"""Database Schema: {db_schema}"""),
         HumanMessage(formatted_email),
     ]
+
     result = await search_agent.ainvoke(
         {"messages": conversation},
         context=Context(db_pool=db_pool, db_schema=db_schema),
