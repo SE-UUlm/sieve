@@ -64,7 +64,13 @@ export class AiBackendService implements OnModuleInit {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ subject, body, apiKey }),
+                body: JSON.stringify({
+                    email: {
+                        subject,
+                        body,
+                    },
+                    apiKey,
+                }),
                 signal: AbortSignal.timeout(60000),
             });
 

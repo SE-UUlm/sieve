@@ -21,22 +21,26 @@ def create_pool():
 
 
 class Email(BaseModel):
-    apiKey: str = Field(..., min_length=1, max_length=500)
     subject: str | None = Field(default=None, max_length=300)
     body: str = Field(..., min_length=1, max_length=10000)
+
+
+class AnalyzeEmailRequest(BaseModel):
+    email: Email
+    apiKey: str = Field(..., min_length=1, max_length=500)
 
 
 app = FastAPI()
 
 
 @app.post("/analyze-email")
-async def analyze_email(email: Email):
+async def analyze_email(request: AnalyzeEmailRequest):
     # Use a separate pool for each request to allow dynamic credentials from backend in the future
     async with create_pool() as pool:
         result = await run_analyze_email_agent(
-            api_key=email.apiKey,
-            subject=email.subject,
-            body=email.body,
+            api_key=request.apiKey,
+            subject=request.email.subject,
+            body=request.email.body,
             db_pool=pool,
         )
         return {"status": "success", "data": result}
