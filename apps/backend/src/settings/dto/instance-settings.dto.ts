@@ -1,17 +1,22 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { IsArray, IsEnum } from "class-validator";
+import { AIProvider } from "../../../prisma/client/enums";
+import { ProviderSettingsDto } from "./provider-settings.dto";
 
 export class InstanceSettingsDto {
     @ApiProperty({
         description:
-            "Whether an OpenAI API key is currently configured for this instance.",
-        example: true,
+            "Provider currently used for all analyses in this instance.",
+        enum: AIProvider,
+        example: AIProvider.OPENAI,
     })
-    hasOpenAIApiKey!: boolean;
+    @IsEnum(AIProvider)
+    activeProvider!: AIProvider;
 
     @ApiProperty({
-        description:
-            "Whether OpenAI API key usage is enabled for this instance.",
-        example: true,
+        description: "Settings state for each supported AI provider.",
+        type: [ProviderSettingsDto],
     })
-    isOpenAIApiKeyEnabled!: boolean;
+    @IsArray()
+    providers!: ProviderSettingsDto[];
 }

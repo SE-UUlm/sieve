@@ -43,18 +43,21 @@ export class AiBackendService implements OnModuleInit {
     ): Promise<EmailAnalysisResultDto> {
         try {
             Logger.log("Starting AiBackend execution...");
-            const apiKey = await this.settingsService.getOpenAIApiKey();
+            const provider =
+                await this.settingsService.getResolvedActiveProvider();
+            const apiKey =
+                await this.settingsService.getProviderApiKey(provider);
             const isApiKeyEnabled =
-                await this.settingsService.isOpenAIApiKeyEnabled();
+                await this.settingsService.isProviderEnabled(provider);
 
             if (!apiKey || !apiKey.trim()) {
                 throw new ServiceUnavailableException(
-                    "OpenAI API key is not configured for this instance.",
+                    `${provider} API key is not configured for this instance.`,
                 );
             }
             if (!isApiKeyEnabled) {
                 throw new HttpException(
-                    "OpenAI API key usage is disabled for this instance.",
+                    `${provider} API key usage is disabled for this instance.`,
                     HttpStatus.LOCKED,
                 );
             }
@@ -69,6 +72,7 @@ export class AiBackendService implements OnModuleInit {
                         subject,
                         body,
                     },
+                    provider,
                     apiKey,
                 }),
                 signal: AbortSignal.timeout(60000),

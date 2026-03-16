@@ -33,11 +33,11 @@ export class EmailController {
     @ApiResponse({ status: 400, description: "Bad Request" })
     @ApiResponse({
         status: 423,
-        description: "OpenAI API key usage is disabled by admin",
+        description: "Active provider API key usage is disabled by admin",
     })
     @ApiResponse({
         status: 503,
-        description: "OpenAI API key is not configured",
+        description: "Active provider key is not configured",
     })
     @ApiResponse({ status: 401, description: "Unauthorized" })
     @ApiResponse({
