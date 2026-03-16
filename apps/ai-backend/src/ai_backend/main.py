@@ -29,11 +29,6 @@ class Email(BaseModel):
 app = FastAPI()
 
 
-@app.get("/")
-def read_root():
-    return {"Hello": "This", "Is": "The", "AI-Backend": ":)"}
-
-
 @app.post("/analyze-email")
 async def analyze_email(email: Email):
     # Use a separate pool for each request to allow dynamic credentials from backend in the future
