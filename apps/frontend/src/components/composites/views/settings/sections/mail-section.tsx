@@ -23,6 +23,8 @@ import {
     useImapControllerGetMailboxCount,
     useImapControllerProcessExistingEmails,
 } from "@/lib/client/imap/imap";
+import { getJobControllerGetHistoryQueryKey } from "@/lib/client/jobs/jobs";
+import { useQueryClient } from "@tanstack/react-query";
 import { showPersistentErrorToast, showSuccessToast } from "@/lib/toast";
 import { Loader2, CheckCircle2, XCircle, AlertCircle, Mail } from "lucide-react";
 
@@ -67,6 +69,7 @@ export function MailSection() {
     const saveConfig = useImapControllerSaveConfig();
     const getMailboxCount = useImapControllerGetMailboxCount();
     const processExistingEmails = useImapControllerProcessExistingEmails();
+    const queryClient = useQueryClient();
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -248,8 +251,11 @@ export function MailSection() {
             if (result.data?.success) {
                 showSuccessToast({
                     title: "Import completed",
-                    description: `${result.data.processedCount} emails have been imported and are being processed.`,
+                    description: `${result.data.processedCount} emails have been imported and processed.`,
                 });
+                // Refresh history to show imported emails
+                queryClient.invalidateQueries({ queryKey: getJobControllerGetHistoryQueryKey({ source: "IMAP" }) });
+                queryClient.invalidateQueries({ queryKey: getJobControllerGetHistoryQueryKey({}) });
             }
         } catch (error) {
             showPersistentErrorToast({

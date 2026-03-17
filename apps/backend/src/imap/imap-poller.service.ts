@@ -230,6 +230,7 @@ export class ImapPollerService {
     /**
      * Processes existing emails from the IMAP mailbox.
      * Called when user confirms initial import.
+     * Processes each email through AI backend and creates job results.
      */
     async processExistingEmails(config: ImapConfig, userId: string): Promise<number> {
         const ImapClient = (await import("imapflow")).ImapFlow;
@@ -279,17 +280,46 @@ export class ImapPollerService {
                 const sender = message.envelope?.from?.[0]?.address || null;
                 const body = message.source?.toString() || "";
 
-                await this.prismaService.email.create({
-                    data: {
-                        userId,
-                        sender,
-                        subject,
-                        body,
-                        source: EmailSource.IMAP,
-                    },
-                });
+                // Process email through AI backend
+                try {
+                    const analysisResult = await this.aiBackendService.runFlow(body);
+                    const now = new Date();
 
-                processedCount++;
+                    await this.prismaService.$transaction(async (transaction) => {
+                        const email = await transaction.email.create({
+                            data: {
+                                userId,
+                                sender,
+                                subject,
+                                body,
+                                source: EmailSource.IMAP,
+                            },
+                        });
+
+                        const job = await transaction.job.create({
+                            data: {
+                                userId,
+                                emailId: email.id,
+                                status: JobStatus.COMPLETED,
+                                startedAt: now,
+                                completedAt: now,
+                            },
+                        });
+
+                        await transaction.jobResult.create({
+                            data: {
+                                jobId: job.id,
+                                status: JobResultStatus.SUCCESS,
+                                output: analysisResult as unknown as Prisma.InputJsonValue,
+                            },
+                        });
+
+                        processedCount++;
+                    });
+                } catch (error) {
+                    this.logger.error(`Failed to process email: ${subject || "(no subject)"}`, error);
+                    // Continue with next email even if one fails
+                }
             }
 
             await client.logout();
