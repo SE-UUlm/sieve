@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/styled-select";
 import {
     useImapControllerGetStatus,
+    useImapControllerGetConfig,
     useImapControllerTestConnection,
     useImapControllerSaveConfig,
 } from "@/lib/client/imap/imap";
@@ -57,6 +58,7 @@ export function MailSection() {
     } | null>(null);
 
     const { data: statusData, isLoading: isLoadingStatus } = useImapControllerGetStatus();
+    const { data: configData, isLoading: isLoadingConfig } = useImapControllerGetConfig();
     const testConnection = useImapControllerTestConnection();
     const saveConfig = useImapControllerSaveConfig();
 
@@ -74,7 +76,23 @@ export function MailSection() {
         },
     });
 
-    // Load saved status
+    // Load saved config on mount
+    useEffect(() => {
+        if (configData?.data && configData.data) {
+            const config = configData.data;
+            form.reset({
+                imapHost: config.host || "",
+                imapPort: config.port || 993,
+                username: config.username || "",
+                password: "", // Password is not returned for security
+                security: config.security || "ssl",
+                mailbox: config.mailbox || "INBOX",
+                enabled: config.enabled || false,
+            });
+        }
+    }, [configData, form]);
+
+    // Load status
     useEffect(() => {
         if (statusData?.data) {
             const status = statusData.data;
@@ -184,12 +202,14 @@ export function MailSection() {
         }
     };
 
+    const isLoading = isLoadingStatus || isLoadingConfig;
+
     const renderStatusBadge = () => {
-        if (isLoadingStatus) {
+        if (isLoading) {
             return (
                 <div className="flex items-center gap-2 text-slate-500">
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    <span className="text-sm">Loading status...</span>
+                    <span className="text-sm">Loading...</span>
                 </div>
             );
         }
@@ -270,6 +290,7 @@ export function MailSection() {
                                         {...field}
                                         placeholder="imap.example.com"
                                         aria-invalid={fieldState.invalid}
+                                        disabled={isLoading}
                                     />
                                     {fieldState.error && (
                                         <p className="text-xs text-red-500">
@@ -294,6 +315,7 @@ export function MailSection() {
                                         inputMode="numeric"
                                         placeholder="993"
                                         aria-invalid={fieldState.invalid}
+                                        disabled={isLoading}
                                     />
                                     {fieldState.error && (
                                         <p className="text-xs text-red-500">
@@ -316,6 +338,7 @@ export function MailSection() {
                                         {...field}
                                         placeholder="you@example.com"
                                         aria-invalid={fieldState.invalid}
+                                        disabled={isLoading}
                                     />
                                     {fieldState.error && (
                                         <p className="text-xs text-red-500">
@@ -339,6 +362,7 @@ export function MailSection() {
                                         type="password"
                                         placeholder="App password"
                                         aria-invalid={fieldState.invalid}
+                                        disabled={isLoading}
                                     />
                                     {fieldState.error && (
                                         <p className="text-xs text-red-500">
@@ -359,6 +383,7 @@ export function MailSection() {
                                 <StyledSelect
                                     value={field.value}
                                     onValueChange={field.onChange}
+                                    disabled={isLoading}
                                 >
                                     <StyledSelectTrigger>
                                         <StyledSelectValue placeholder="Select security" />
@@ -390,6 +415,7 @@ export function MailSection() {
                                         {...field}
                                         placeholder="INBOX"
                                         aria-invalid={fieldState.invalid}
+                                        disabled={isLoading}
                                     />
                                     {fieldState.error && (
                                         <p className="text-xs text-red-500">
@@ -414,11 +440,12 @@ export function MailSection() {
                                     id="imap-enabled"
                                     checked={field.value}
                                     onChange={(e) => field.onChange(e.target.checked)}
-                                    className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                                    disabled={isLoading}
+                                    className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50"
                                 />
                                 <label
                                     htmlFor="imap-enabled"
-                                    className="text-sm font-medium text-slate-700 dark:text-slate-300"
+                                    className="text-sm font-medium text-slate-700 dark:text-slate-300 disabled:opacity-50"
                                 >
                                     Enable automatic email import from IMAP
                                 </label>
@@ -427,27 +454,29 @@ export function MailSection() {
                     />
                 </div>
 
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                {/* Buttons */}
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <p className="max-w-md text-sm text-slate-500 dark:text-slate-400">
                         Test the connection before saving to ensure your settings are correct.
                     </p>
-                    <div className="flex gap-3">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                         <StyledButton
                             type="button"
                             onClick={form.handleSubmit(handleTestConnection)}
                             isLoading={testConnection.isPending}
-                            disabled={!form.formState.isValid || testConnection.isPending}
+                            disabled={!form.formState.isValid || testConnection.isPending || isLoading}
                             label="Test Connection"
                             loadingLabel="Testing..."
-                            className="bg-slate-600 text-white hover:bg-slate-500 shadow-slate-900/20 disabled:bg-slate-600/50"
+                            className="w-full bg-slate-600 text-white hover:bg-slate-500 shadow-slate-900/20 disabled:bg-slate-600/50 sm:w-auto sm:min-w-[140px]"
                         />
                         <StyledButton
                             type="button"
                             onClick={form.handleSubmit(handleSaveConfig)}
                             isLoading={saveConfig.isPending || testConnection.isPending}
-                            disabled={!form.formState.isValid || saveConfig.isPending || testConnection.isPending}
+                            disabled={!form.formState.isValid || saveConfig.isPending || testConnection.isPending || isLoading}
                             label="Save Settings"
                             loadingLabel="Saving..."
+                            className="w-full sm:w-auto sm:min-w-[140px]"
                         />
                     </div>
                 </div>

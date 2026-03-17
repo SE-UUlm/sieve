@@ -19,6 +19,7 @@ import {
     TestImapConnectionDto,
     ImapStatusDto,
     SaveImapConfigDto,
+    ImapConfigDto,
 } from "./dto";
 
 @ApiTags("IMAP")
@@ -68,7 +69,7 @@ export class ImapController {
     @ApiCookieAuth("apiKeyCookie")
     @ApiOperation({
         summary: "Get IMAP connection status",
-        description: "Returns the current IMAP connection status and configuration.",
+        description: "Returns the current IMAP connection status.",
     })
     @ApiResponse({
         status: 200,
@@ -84,6 +85,35 @@ export class ImapController {
             isEnabled: status.isEnabled,
             lastError: status.lastError,
             lastSyncedAt: status.lastSyncedAt?.toISOString(),
+        };
+    }
+
+    @Get("config")
+    @Roles([UserRole.ADMIN])
+    @ApiCookieAuth("apiKeyCookie")
+    @ApiOperation({
+        summary: "Get IMAP configuration",
+        description: "Returns the saved IMAP configuration.",
+    })
+    @ApiResponse({
+        status: 200,
+        description: "IMAP configuration",
+        type: ImapConfigDto,
+    })
+    @ApiResponse({ status: 401, description: "Unauthorized" })
+    @ApiResponse({ status: 403, description: "Forbidden" })
+    async getConfig(): Promise<ImapConfigDto | null> {
+        const config = await this.settingsService.getImapConfig();
+        if (!config) {
+            return null;
+        }
+        return {
+            host: config.host,
+            port: config.port,
+            username: config.username,
+            security: config.security,
+            mailbox: config.mailbox,
+            enabled: false, // Will be determined by getImapStatus
         };
     }
 
