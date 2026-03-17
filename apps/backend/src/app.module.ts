@@ -4,6 +4,7 @@ import { AiBackendModule } from "./ai-backend/ai-backend.module";
 import { AppConfigModule } from "./config/config.module";
 import { EmailModule } from "./email/email.module";
 import { HealthModule } from "./health/health.module";
+import { ImapModule } from "./imap/imap.module";
 import { JobModule } from "./job/job.module";
 import { JobResultModule } from "./job-result/job-result.module";
 import { auth } from "./lib/auth";
@@ -25,6 +26,7 @@ import { UserModule } from "./user/user.module";
         AuthModule.forRoot({ auth }),
         AiBackendModule,
         SmtpModule,
+        ImapModule,
     ],
 })
 export class AppModule {}

@@ -374,6 +374,46 @@ export class SettingsService {
     }
 
     /**
+     * Gets the IMAP configuration from settings.
+     * @returns The IMAP configuration or null if not configured.
+     */
+    async getImapConfig(): Promise<{
+        host: string;
+        port: number;
+        username: string;
+        password: string;
+        security: "ssl" | "starttls" | "none";
+        mailbox: string;
+    } | null> {
+        const settings = await this.prismaService.instanceSettings.findUnique({
+            where: { id: INSTANCE_SETTINGS_ID },
+            select: {
+                imapHost: true,
+                imapPort: true,
+                imapUsername: true,
+                imapPassword: true,
+                imapSecurity: true,
+                imapMailbox: true,
+            },
+        });
+
+        if (!settings?.imapHost || !settings.imapPort || !settings.imapUsername) {
+            return null;
+        }
+
+        return {
+            host: settings.imapHost,
+            port: settings.imapPort,
+            username: settings.imapUsername,
+            password: settings.imapPassword
+                ? this.decryptValue(settings.imapPassword)
+                : "",
+            security: (settings.imapSecurity as "ssl" | "starttls" | "none") || "ssl",
+            mailbox: settings.imapMailbox || "INBOX",
+        };
+    }
+
+    /**
      * Sets simple and complex model identifiers for a provider.
      *
      * @param provider The provider to update.
@@ -395,6 +435,72 @@ export class SettingsService {
             update: {
                 simpleModel: simpleModel.trim(),
                 complexModel: complexModel.trim(),
+            },
+        });
+    }
+
+    /**
+     * Gets the IMAP connection status from settings.
+     * @returns The IMAP status.
+     */
+    async getImapStatus(): Promise<{
+        isConnected: boolean;
+        isEnabled: boolean;
+        lastError?: string;
+        lastSyncedAt?: Date;
+    }> {
+        const settings = await this.prismaService.instanceSettings.findUnique({
+            where: { id: INSTANCE_SETTINGS_ID },
+            select: {
+                imapEnabled: true,
+                imapLastSyncedAt: true,
+            },
+        });
+
+        return {
+            isConnected: false, // Actual connection status requires testing
+            isEnabled: settings?.imapEnabled ?? false,
+            lastSyncedAt: settings?.imapLastSyncedAt ?? undefined,
+        };
+    }
+
+    /**
+     * Saves the IMAP configuration to settings.
+     * @param config - The IMAP configuration to save.
+     */
+    async saveImapConfig(config: {
+        host: string;
+        port: number;
+        username: string;
+        password: string;
+        security: "ssl" | "starttls" | "none";
+        mailbox: string;
+        enabled: boolean;
+    }): Promise<void> {
+        const encryptedPassword = config.password
+            ? this.encryptValue(config.password)
+            : null;
+
+        await this.prismaService.instanceSettings.upsert({
+            where: { id: INSTANCE_SETTINGS_ID },
+            create: {
+                id: INSTANCE_SETTINGS_ID,
+                imapHost: config.host,
+                imapPort: config.port,
+                imapUsername: config.username,
+                imapPassword: encryptedPassword,
+                imapSecurity: config.security,
+                imapMailbox: config.mailbox,
+                imapEnabled: config.enabled,
+            },
+            update: {
+                imapHost: config.host,
+                imapPort: config.port,
+                imapUsername: config.username,
+                imapPassword: encryptedPassword,
+                imapSecurity: config.security,
+                imapMailbox: config.mailbox,
+                imapEnabled: config.enabled,
             },
         });
     }
@@ -478,6 +584,51 @@ export class SettingsService {
             isModelConfigured,
             isEnabled,
         };
+    }
+
+    /**
+     * Encrypts a value before persistence.
+     * @param plainText - The value to encrypt.
+     * @returns Encrypted payload in `iv:ciphertext:authTag` base64 format.
+     */
+    private encryptValue(plainText: string): string {
+        const iv = randomBytes(GCM_IV_LENGTH);
+        const cipher = createCipheriv("aes-256-gcm", this.encryptionKey, iv);
+        const encrypted = Buffer.concat([
+            cipher.update(plainText, "utf8"),
+            cipher.final(),
+        ]);
+        const authTag = cipher.getAuthTag();
+
+        return `${iv.toString("base64")}:${encrypted.toString("base64")}:${authTag.toString("base64")}`;
+    }
+
+    /**
+     * Decrypts a persisted value.
+     * @param encryptedPayload - Stored payload in `iv:ciphertext:authTag` base64 format.
+     * @returns Decrypted string.
+     */
+    private decryptValue(encryptedPayload: string): string {
+        const parts = encryptedPayload.split(":");
+
+        // Backward-compatible fallback for legacy plaintext records.
+        if (parts.length !== 3) {
+            return encryptedPayload;
+        }
+
+        const [ivBase64, encryptedBase64, authTagBase64] = parts;
+        const iv = Buffer.from(ivBase64, "base64");
+        const encrypted = Buffer.from(encryptedBase64, "base64");
+        const authTag = Buffer.from(authTagBase64, "base64");
+
+        const decipher = createDecipheriv("aes-256-gcm", this.encryptionKey, iv);
+        decipher.setAuthTag(authTag);
+        const decrypted = Buffer.concat([
+            decipher.update(encrypted),
+            decipher.final(),
+        ]);
+
+        return decrypted.toString("utf8");
     }
 
     /**
