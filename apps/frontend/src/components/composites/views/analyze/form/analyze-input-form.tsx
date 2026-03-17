@@ -66,6 +66,7 @@ export function AnalyzeInputForm({
                 disabled={!form.formState.isValid}
                 label="Analyze Mail"
                 loadingLabel="Analyzing..."
+                sizeVariant="large"
             />
         </form>
     );

@@ -4,7 +4,7 @@ import { IsBoolean } from "class-validator";
 export class UpdateInstanceApiKeyEnabledDto {
     @ApiProperty({
         description:
-            "Controls whether the configured OpenAI API key may be used for analysis.",
+            "Controls whether the configured provider API key may be used for analysis.",
         example: false,
     })
     @IsBoolean()

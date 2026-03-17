@@ -3,7 +3,8 @@ import { IsNotEmpty, IsString, MaxLength } from "class-validator";
 
 export class UpdateInstanceApiKeyDto {
     @ApiProperty({
-        description: "OpenAI API key for this SIEVE instance.",
+        description:
+            "API key for the selected provider in this SIEVE instance.",
         example: "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
     })
     @IsString()

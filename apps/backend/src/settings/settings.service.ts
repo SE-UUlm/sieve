@@ -1,10 +1,21 @@
 import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { AIProvider } from "../../prisma/client/enums";
 import { PrismaService } from "../prisma/prisma.service";
+import {
+    DEFAULT_AI_PROVIDER,
+    getProviderDisplayName,
+    SUPPORTED_AI_PROVIDERS,
+} from "./providers";
 
 const INSTANCE_SETTINGS_ID = "singleton";
 const GCM_IV_LENGTH = 12;
+
+type ProviderState = {
+    isConfigured: boolean;
+    isEnabled: boolean;
+};
 
 @Injectable()
 export class SettingsService {
@@ -34,121 +45,258 @@ export class SettingsService {
         }
     }
 
-    /**
-     * Returns whether an instance-level OpenAI API key is configured.
-     *
-     * @returns True when a non-empty API key exists.
-     */
-    async hasOpenAIApiKey(): Promise<boolean> {
-        const settings = await this.prismaService.instanceSettings.findUnique({
-            where: { id: INSTANCE_SETTINGS_ID },
-            select: { openAIApiKey: true },
-        });
-
-        return (settings?.openAIApiKey?.trim().length ?? 0) > 0;
+    getSupportedProviders(): readonly AIProvider[] {
+        return SUPPORTED_AI_PROVIDERS;
     }
 
     /**
-     * Stores the instance-level OpenAI API key.
+     * Gets the list of AI providers and their current state.
      *
-     * @param apiKey The new API key to persist.
-     * @returns Nothing.
+     * @returns An array of objects containing provider information for admin settings display.
      */
-    async setOpenAIApiKey(apiKey: string): Promise<void> {
-        const encryptedApiKey = this.encryptOpenAIApiKey(apiKey.trim());
+    async getAdminProviderSettings(): Promise<
+        Array<{
+            provider: AIProvider;
+            displayName: string;
+            isConfigured: boolean;
+            isEnabled: boolean;
+        }>
+    > {
+        return await Promise.all(
+            this.getSupportedProviders().map(async (provider) => {
+                const state = await this.getProviderState(provider);
+                return {
+                    provider,
+                    displayName: getProviderDisplayName(provider),
+                    isConfigured: state.isConfigured,
+                    isEnabled: state.isEnabled,
+                };
+            }),
+        );
+    }
 
+    /**
+     * Gets the list of AI providers that are selectable by the user.
+     *
+     * @returns An array of AI providers that are both configured and enabled.
+     */
+    async getSelectableProviders(): Promise<AIProvider[]> {
+        const states = await Promise.all(
+            this.getSupportedProviders().map(async (provider) => ({
+                provider,
+                state: await this.getProviderState(provider),
+            })),
+        );
+
+        return states
+            .filter(({ state }) => state.isConfigured && state.isEnabled)
+            .map(({ provider }) => provider);
+    }
+
+    /**
+     * Gets the default AI provider.
+     *
+     * @param selectableProviders The list of selectable providers.
+     * @returns The default AI provider, or null if none is available.
+     */
+    getDefaultProvider(selectableProviders: AIProvider[]): AIProvider | null {
+        if (selectableProviders.includes(DEFAULT_AI_PROVIDER)) {
+            return DEFAULT_AI_PROVIDER;
+        }
+
+        return selectableProviders[0] ?? null;
+    }
+
+    /**
+     * Gets the active AI provider, falling back to a default if necessary.
+     *
+     * @returns The active AI provider, or the default if none is active.
+     */
+    async getResolvedActiveProvider(): Promise<AIProvider> {
+        const selectableProviders = await this.getSelectableProviders();
+        const activeProvider = await this.getActiveProvider();
+
+        if (selectableProviders.includes(activeProvider)) {
+            return activeProvider;
+        }
+
+        const fallbackProvider =
+            this.getDefaultProvider(selectableProviders) ?? DEFAULT_AI_PROVIDER;
+
+        await this.setActiveProvider(fallbackProvider);
+        return fallbackProvider;
+    }
+
+    /**
+     * Gets the active AI provider.
+     *
+     * @returns The active AI provider.
+     */
+    async getActiveProvider(): Promise<AIProvider> {
+        const settings = await this.prismaService.instanceSettings.findUnique({
+            where: { id: INSTANCE_SETTINGS_ID },
+            select: { activeProvider: true },
+        });
+
+        return settings?.activeProvider ?? DEFAULT_AI_PROVIDER;
+    }
+
+    /**
+     * Sets the active AI provider.
+     *
+     * @param provider The AI provider to set as active.
+     */
+    async setActiveProvider(provider: AIProvider): Promise<void> {
         await this.prismaService.instanceSettings.upsert({
             where: { id: INSTANCE_SETTINGS_ID },
             create: {
                 id: INSTANCE_SETTINGS_ID,
-                openAIApiKey: encryptedApiKey,
-                openAIApiKeyEnabled: true,
+                activeProvider: provider,
             },
             update: {
-                openAIApiKey: encryptedApiKey,
-                openAIApiKeyEnabled: true,
+                activeProvider: provider,
             },
         });
     }
 
     /**
-     * Loads the configured OpenAI API key for this instance.
+     * Checks if a provider has an API key configured.
      *
-     * @returns The configured API key or null if none exists.
+     * @param provider The provider to check.
+     * @returns True if the provider has an API key configured, false otherwise.
      */
-    async getOpenAIApiKey(): Promise<string | null> {
-        const settings = await this.prismaService.instanceSettings.findUnique({
-            where: { id: INSTANCE_SETTINGS_ID },
-            select: { openAIApiKey: true },
+    async hasProviderApiKey(provider: AIProvider): Promise<boolean> {
+        const settings = await this.prismaService.providerSettings.findUnique({
+            where: { provider },
+            select: { apiKey: true },
         });
 
-        if (!settings?.openAIApiKey) {
+        return (settings?.apiKey?.trim().length ?? 0) > 0;
+    }
+
+    /**
+     * Sets the API key for a provider.
+     *
+     * @param provider The provider to set the API key for.
+     * @param apiKey The API key string.
+     */
+    async setProviderApiKey(
+        provider: AIProvider,
+        apiKey: string,
+    ): Promise<void> {
+        const encryptedApiKey = this.encryptApiKey(apiKey.trim());
+
+        await this.prismaService.providerSettings.upsert({
+            where: { provider },
+            create: {
+                provider,
+                apiKey: encryptedApiKey,
+                enabled: true,
+            },
+            update: {
+                apiKey: encryptedApiKey,
+                enabled: true,
+            },
+        });
+    }
+
+    /**
+     * Gets the API key for a provider.
+     *
+     * @param provider The provider to get the API key for.
+     * @returns The API key string, or null if not configured.
+     */
+    async getProviderApiKey(provider: AIProvider): Promise<string | null> {
+        const settings = await this.prismaService.providerSettings.findUnique({
+            where: { provider },
+            select: { apiKey: true },
+        });
+
+        if (!settings?.apiKey) {
             return null;
         }
 
-        return this.decryptOpenAIApiKey(settings.openAIApiKey);
+        return this.decryptApiKey(settings.apiKey);
     }
 
     /**
-     * Reads whether the configured OpenAI API key is enabled for usage.
+     * Checks if a provider is enabled.
      *
-     * @returns True when key usage is enabled.
+     * @param provider The provider to check.
+     * @returns True if the provider is enabled, false otherwise.
      */
-    async isOpenAIApiKeyEnabled(): Promise<boolean> {
-        const settings = await this.prismaService.instanceSettings.findUnique({
-            where: { id: INSTANCE_SETTINGS_ID },
-            select: { openAIApiKeyEnabled: true },
+    async isProviderEnabled(provider: AIProvider): Promise<boolean> {
+        const settings = await this.prismaService.providerSettings.findUnique({
+            where: { provider },
+            select: { enabled: true },
         });
 
-        return settings?.openAIApiKeyEnabled ?? false;
+        return settings?.enabled ?? false;
     }
 
     /**
-     * Updates the OpenAI API key usage flag.
+     * Enables or disables a provider.
      *
-     * @param enabled Indicates whether key usage should be enabled.
-     * @returns Nothing.
+     * @param provider The provider to enable or disable.
+     * @param enabled Whether to enable or disable the provider.
      */
-    async setOpenAIApiKeyEnabled(enabled: boolean): Promise<void> {
-        await this.prismaService.instanceSettings.upsert({
-            where: { id: INSTANCE_SETTINGS_ID },
+    async setProviderEnabled(
+        provider: AIProvider,
+        enabled: boolean,
+    ): Promise<void> {
+        await this.prismaService.providerSettings.upsert({
+            where: { provider },
             create: {
-                id: INSTANCE_SETTINGS_ID,
-                openAIApiKeyEnabled: enabled,
+                provider,
+                enabled,
             },
             update: {
-                openAIApiKeyEnabled: enabled,
+                enabled,
             },
         });
     }
 
     /**
-     * Removes the configured OpenAI API key from instance settings.
+     * Removes the configured API key for a provider and disables it.
      *
-     * @returns Nothing.
+     * @param provider The provider to clear.
      */
-    async clearOpenAIApiKey(): Promise<void> {
-        await this.prismaService.instanceSettings.upsert({
-            where: { id: INSTANCE_SETTINGS_ID },
+    async clearProviderApiKey(provider: AIProvider): Promise<void> {
+        await this.prismaService.providerSettings.upsert({
+            where: { provider },
             create: {
-                id: INSTANCE_SETTINGS_ID,
-                openAIApiKey: null,
-                openAIApiKeyEnabled: false,
+                provider,
+                apiKey: null,
+                enabled: false,
             },
             update: {
-                openAIApiKey: null,
-                openAIApiKeyEnabled: false,
+                apiKey: null,
+                enabled: false,
             },
         });
     }
 
+    private async getProviderState(
+        provider: AIProvider,
+    ): Promise<ProviderState> {
+        const [isConfigured, isEnabled] = await Promise.all([
+            this.hasProviderApiKey(provider),
+            this.isProviderEnabled(provider),
+        ]);
+
+        return {
+            isConfigured,
+            isEnabled,
+        };
+    }
+
     /**
-     * Encrypts an OpenAI API key before persistence.
+     * Encrypts an API key before persisting it.
      *
      * @param plainTextKey Raw API key.
-     * @returns Encrypted payload in `iv:ciphertext:authTag` base64 format.
+     * @returns Encrypted payload in `iv:ciphertext:authTag` format (base64-encoded).
      */
-    private encryptOpenAIApiKey(plainTextKey: string): string {
+    private encryptApiKey(plainTextKey: string): string {
         const iv = randomBytes(GCM_IV_LENGTH);
         const cipher = createCipheriv("aes-256-gcm", this.encryptionKey, iv);
         const encrypted = Buffer.concat([
@@ -161,12 +309,12 @@ export class SettingsService {
     }
 
     /**
-     * Decrypts a persisted OpenAI API key.
+     * Decrypts a persisted API key.
      *
-     * @param encryptedPayload Stored payload in `iv:ciphertext:authTag` base64 format.
+     * @param encryptedPayload Stored payload in `iv:ciphertext:authTag` format (base64-encoded).
      * @returns Decrypted API key string.
      */
-    private decryptOpenAIApiKey(encryptedPayload: string): string {
+    private decryptApiKey(encryptedPayload: string): string {
         const parts = encryptedPayload.split(":");
 
         // Backward-compatible fallback for legacy plaintext records.

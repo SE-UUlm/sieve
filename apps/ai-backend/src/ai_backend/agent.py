@@ -5,6 +5,8 @@ from langchain.agents import create_agent
 from langchain.messages import HumanMessage, SystemMessage
 from langchain.chat_models import init_chat_model
 from dotenv import load_dotenv
+
+from ai_backend.provider import Provider
 from ai_backend.schemas import ResponseFormat, ResponseFormatData, SearchResult, Context
 
 load_dotenv()
@@ -50,8 +52,21 @@ async def search_product(
         return rows_dicts
 
 
-def _build_model(api_key: str):
+def _build_model(provider: Provider, api_key: str):
+    if provider == "GOOGLE_VERTEX_AI":
+        return init_chat_model(
+            model="gemini-3.1-pro-preview",
+            max_tokens=10000,
+            api_key=api_key,
+        )
+    if provider == "ANTHROPIC":
+        return init_chat_model(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=10000,
+            api_key=api_key,
+        )
     return init_chat_model(
+        model_provider="openai",
         model="gpt-5.2",
         temperature=0.1,
         timeout=10,
@@ -73,8 +88,8 @@ def _build_response_agent(model):
 
 
 def _build_search_agent(model):
-    system_prompt = """Your job is to find the product(s) the customer wants to buy or is talking about in their email. 
-    Use the search_product tool to find the products, use the provided database schema (tables and their columns). Try multiple times with different keywords, variants, translations until you think you found the products the customer wants. 
+    system_prompt = """Your job is to find the product(s) the customer wants to buy or is talking about in their email.
+    Use the search_product tool to find the products, use the provided database schema (tables and their columns). Try multiple times with different keywords, variants, translations until you think you found the products the customer wants.
     If you think you found the right products return them using the provided output format. Together with your confidence score.
     Answer Language: English"""
     return create_agent(
@@ -125,20 +140,25 @@ async def get_database_schema(pool: asyncpg.Pool) -> dict[str, list[str]]:
 
 
 async def run_analyze_email_agent(
-    api_key: str, subject: str | None, body: str, db_pool: asyncpg.Pool
+    provider: Provider,
+    api_key: str,
+    subject: str | None,
+    body: str,
+    db_pool: asyncpg.Pool,
 ) -> ResponseFormatData:
     formatted_email = _build_email_for_analysis(subject=subject, body=body)
 
     db_schema = await get_database_schema(db_pool)
     print(f"🗂️ db_schema: {db_schema}")
 
-    model = _build_model(api_key)
+    model = _build_model(provider, api_key)
 
     search_agent = _build_search_agent(model)
     conversation = [
         SystemMessage(f"""Database Schema: {db_schema}"""),
         HumanMessage(formatted_email),
     ]
+
     result = await search_agent.ainvoke(
         {"messages": conversation},
         context=Context(db_pool=db_pool, db_schema=db_schema),

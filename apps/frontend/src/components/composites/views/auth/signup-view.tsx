@@ -166,8 +166,8 @@ export function SignupView() {
                         isLoading={isSubmitting}
                         label="Sign Up"
                         loadingLabel="Signing up..."
+                        sizeVariant="medium"
                         disabled={isSubmitting}
-                        className="h-12"
                     />
                 </form>
 

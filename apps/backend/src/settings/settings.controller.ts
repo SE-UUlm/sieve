@@ -4,6 +4,8 @@ import {
     Controller,
     Delete,
     Get,
+    Param,
+    ParseEnumPipe,
     Patch,
 } from "@nestjs/common";
 import {
@@ -13,8 +15,9 @@ import {
     ApiTags,
 } from "@nestjs/swagger";
 import { Roles } from "@thallesp/nestjs-better-auth";
-import { UserRole } from "../../prisma/client/enums";
+import { AIProvider, UserRole } from "../../prisma/client/enums";
 import { InstanceSettingsDto } from "./dto/instance-settings.dto";
+import { UpdateInstanceActiveProviderDto } from "./dto/update-instance-active-provider.dto";
 import { UpdateInstanceApiKeyDto } from "./dto/update-instance-api-key.dto";
 import { UpdateInstanceApiKeyEnabledDto } from "./dto/update-instance-api-key-enabled.dto";
 import { SettingsService } from "./settings.service";
@@ -28,7 +31,7 @@ export class SettingsController {
     @Roles([UserRole.ADMIN])
     @ApiCookieAuth("apiKeyCookie")
     @ApiOperation({
-        summary: "Get instance-level settings (admin only)",
+        summary: "Get instance-level provider settings (admin only)",
     })
     @ApiResponse({
         status: 200,
@@ -39,17 +42,52 @@ export class SettingsController {
     @ApiResponse({ status: 403, description: "Forbidden" })
     async getInstanceSettings(): Promise<InstanceSettingsDto> {
         return {
-            hasOpenAIApiKey: await this.settingsService.hasOpenAIApiKey(),
-            isOpenAIApiKeyEnabled:
-                await this.settingsService.isOpenAIApiKeyEnabled(),
+            activeProvider:
+                await this.settingsService.getResolvedActiveProvider(),
+            providers: await this.settingsService.getAdminProviderSettings(),
         };
     }
 
-    @Patch("instance/api-key")
+    @Patch("instance/active-provider")
     @Roles([UserRole.ADMIN])
     @ApiCookieAuth("apiKeyCookie")
     @ApiOperation({
-        summary: "Update instance-level OpenAI API key (admin only)",
+        summary: "Set active instance provider (admin only)",
+    })
+    @ApiResponse({
+        status: 200,
+        description: "Active provider successfully updated",
+        type: InstanceSettingsDto,
+    })
+    @ApiResponse({ status: 400, description: "Bad Request" })
+    @ApiResponse({ status: 401, description: "Unauthorized" })
+    @ApiResponse({ status: 403, description: "Forbidden" })
+    async updateActiveProvider(
+        @Body() dto: UpdateInstanceActiveProviderDto,
+    ): Promise<InstanceSettingsDto> {
+        const selectableProviders =
+            await this.settingsService.getSelectableProviders();
+
+        if (!selectableProviders.includes(dto.provider)) {
+            throw new BadRequestException(
+                "The selected provider is not currently available.",
+            );
+        }
+
+        await this.settingsService.setActiveProvider(dto.provider);
+
+        return {
+            activeProvider:
+                await this.settingsService.getResolvedActiveProvider(),
+            providers: await this.settingsService.getAdminProviderSettings(),
+        };
+    }
+
+    @Patch("instance/providers/:provider/api-key")
+    @Roles([UserRole.ADMIN])
+    @ApiCookieAuth("apiKeyCookie")
+    @ApiOperation({
+        summary: "Update instance provider API key (admin only)",
     })
     @ApiResponse({
         status: 200,
@@ -60,25 +98,27 @@ export class SettingsController {
     @ApiResponse({ status: 401, description: "Unauthorized" })
     @ApiResponse({ status: 403, description: "Forbidden" })
     async updateInstanceApiKey(
+        @Param("provider", new ParseEnumPipe(AIProvider)) provider: AIProvider,
         @Body() dto: UpdateInstanceApiKeyDto,
     ): Promise<InstanceSettingsDto> {
         if (!dto.apiKey.trim()) {
             throw new BadRequestException("API key cannot be empty.");
         }
 
-        await this.settingsService.setOpenAIApiKey(dto.apiKey);
+        await this.settingsService.setProviderApiKey(provider, dto.apiKey);
+
         return {
-            hasOpenAIApiKey: true,
-            isOpenAIApiKeyEnabled:
-                await this.settingsService.isOpenAIApiKeyEnabled(),
+            activeProvider:
+                await this.settingsService.getResolvedActiveProvider(),
+            providers: await this.settingsService.getAdminProviderSettings(),
         };
     }
 
-    @Patch("instance/api-key-enabled")
+    @Patch("instance/providers/:provider/api-key-enabled")
     @Roles([UserRole.ADMIN])
     @ApiCookieAuth("apiKeyCookie")
     @ApiOperation({
-        summary: "Enable or disable instance-level OpenAI API key usage",
+        summary: "Enable or disable provider API key usage (admin only)",
     })
     @ApiResponse({
         status: 200,
@@ -88,21 +128,23 @@ export class SettingsController {
     @ApiResponse({ status: 401, description: "Unauthorized" })
     @ApiResponse({ status: 403, description: "Forbidden" })
     async updateInstanceApiKeyEnabled(
+        @Param("provider", new ParseEnumPipe(AIProvider)) provider: AIProvider,
         @Body() dto: UpdateInstanceApiKeyEnabledDto,
     ): Promise<InstanceSettingsDto> {
-        await this.settingsService.setOpenAIApiKeyEnabled(dto.enabled);
+        await this.settingsService.setProviderEnabled(provider, dto.enabled);
+
         return {
-            hasOpenAIApiKey: await this.settingsService.hasOpenAIApiKey(),
-            isOpenAIApiKeyEnabled:
-                await this.settingsService.isOpenAIApiKeyEnabled(),
+            activeProvider:
+                await this.settingsService.getResolvedActiveProvider(),
+            providers: await this.settingsService.getAdminProviderSettings(),
         };
     }
 
-    @Delete("instance/api-key")
+    @Delete("instance/providers/:provider/api-key")
     @Roles([UserRole.ADMIN])
     @ApiCookieAuth("apiKeyCookie")
     @ApiOperation({
-        summary: "Delete instance-level OpenAI API key (admin only)",
+        summary: "Delete instance provider API key (admin only)",
     })
     @ApiResponse({
         status: 200,
@@ -111,11 +153,15 @@ export class SettingsController {
     })
     @ApiResponse({ status: 401, description: "Unauthorized" })
     @ApiResponse({ status: 403, description: "Forbidden" })
-    async deleteInstanceApiKey(): Promise<InstanceSettingsDto> {
-        await this.settingsService.clearOpenAIApiKey();
+    async deleteInstanceApiKey(
+        @Param("provider", new ParseEnumPipe(AIProvider)) provider: AIProvider,
+    ): Promise<InstanceSettingsDto> {
+        await this.settingsService.clearProviderApiKey(provider);
+
         return {
-            hasOpenAIApiKey: false,
-            isOpenAIApiKeyEnabled: false,
+            activeProvider:
+                await this.settingsService.getResolvedActiveProvider(),
+            providers: await this.settingsService.getAdminProviderSettings(),
         };
     }
 }

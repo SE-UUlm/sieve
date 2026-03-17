@@ -45,7 +45,3 @@ jobs:
             - name: Verify Frontend Availability
               run: |
                   curl -f http://localhost:3000 || (docker compose logs && exit 1)
-
-            - name: Verify ai-backend availability
-              run: |
-                  curl -f http://localhost:8000 || (docker compose logs && exit 1)

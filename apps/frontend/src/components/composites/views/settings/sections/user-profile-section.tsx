@@ -166,6 +166,7 @@ export function UserProfileSection() {
                             disabled={!form.formState.isValid || !hasChanges}
                             label="Save changes"
                             loadingLabel="Saving..."
+                            sizeVariant="large"
                         />
                     </div>
                 </div>

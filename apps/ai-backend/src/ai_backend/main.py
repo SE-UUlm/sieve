@@ -1,8 +1,11 @@
 import os
+
 import asyncpg
 from ai_backend.agent import run_analyze_email_agent
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
+
+from ai_backend.provider import Provider
 
 
 def create_pool():
@@ -21,27 +24,28 @@ def create_pool():
 
 
 class Email(BaseModel):
-    apiKey: str = Field(..., min_length=1, max_length=500)
     subject: str | None = Field(default=None, max_length=300)
     body: str = Field(..., min_length=1, max_length=10000)
+
+
+class AnalyzeEmailRequest(BaseModel):
+    email: Email
+    provider: Provider
+    apiKey: str = Field(..., min_length=1, max_length=500)
 
 
 app = FastAPI()
 
 
-@app.get("/")
-def read_root():
-    return {"Hello": "This", "Is": "The", "AI-Backend": ":)"}
-
-
 @app.post("/analyze-email")
-async def analyze_email(email: Email):
+async def analyze_email(request: AnalyzeEmailRequest):
     # Use a separate pool for each request to allow dynamic credentials from backend in the future
     async with create_pool() as pool:
         result = await run_analyze_email_agent(
-            api_key=email.apiKey,
-            subject=email.subject,
-            body=email.body,
+            provider=request.provider,
+            api_key=request.apiKey,
+            subject=request.email.subject,
+            body=request.email.body,
             db_pool=pool,
         )
         return {"status": "success", "data": result}

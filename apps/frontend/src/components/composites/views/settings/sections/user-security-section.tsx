@@ -171,6 +171,7 @@ export function UserSecuritySection() {
                             disabled={!form.formState.isValid}
                             label="Update Password"
                             loadingLabel="Updating..."
+                            sizeVariant="large"
                         />
                     </div>
                 </div>
