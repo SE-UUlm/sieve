@@ -1,12 +1,11 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import type { Prisma } from "../../prisma/client/client";
-import { JobResultStatus, JobStatus } from "../../prisma/client/enums";
+import { JobResultStatus, JobStatus, EmailSource } from "../../prisma/client/enums";
 import { AiBackendService } from "../ai-backend/ai-backend.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { SettingsService } from "../settings/settings.service";
 import { ImapService, ImapConfig } from "./imap.service";
-import { EmailSource } from "../../prisma/client/enums";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 
 export interface NewImapEmailEvent {

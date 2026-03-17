@@ -85,18 +85,31 @@ export class JobService {
 
     /**
      * Returns history entries for the active user.
+     * For IMAP source, returns all entries regardless of user (since IMAP is instance-wide).
+     * For MANUAL source or no filter, returns user-scoped entries.
      * @param source - Optional filter for email source (MANUAL or IMAP)
      */
     async getHistory(
         session: UserSession,
         source?: EmailSource,
     ): Promise<JobHistoryEntryDto[]> {
-        const where = this.getScopedJobWhere(session);
+        const where: Prisma.JobWhereInput = {};
 
-        if (source) {
-            where.email = {
-                source,
-            };
+        // IMAP emails are instance-wide and visible to all users
+        // Manual emails are user-scoped
+        if (source === "MANUAL") {
+            Object.assign(where, this.getScopedJobWhere(session));
+            where.email = { source: "MANUAL" };
+        } else if (source === "IMAP") {
+            // IMAP emails visible to all users
+            where.email = { source: "IMAP" };
+        } else {
+            // No source filter: show user's manual emails + all IMAP emails
+            Object.assign(where, this.getScopedJobWhere(session));
+            where.OR = [
+                { email: { source: "IMAP" } },
+                { userId: session.user.id, email: { source: "MANUAL" } },
+            ];
         }
 
         const jobs = await this.prismaService.job.findMany({

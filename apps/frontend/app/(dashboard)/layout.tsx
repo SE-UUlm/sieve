@@ -5,6 +5,7 @@ import type React from "react";
 import { useEffect } from "react";
 import { Sidebar } from "@/components/composites/sidebar/sidebar";
 import { DashboardLoadingView } from "@/components/composites/views/dashboard-loading-view";
+import { NotificationListener } from "@/components/notifications/notification-listener";
 import useLogout from "@/hooks/useLogout";
 import { authClient } from "@/lib/auth-client";
 
@@ -29,6 +30,7 @@ export default function DashboardLayout({
 
     return (
         <div className="flex h-screen w-screen overflow-hidden bg-slate-50 font-sans transition-colors duration-300 dark:bg-slate-950 dark:text-slate-200">
+            <NotificationListener />
             <Sidebar onLogout={logout} />
 
             <main className="relative flex h-full w-full overflow-hidden">
