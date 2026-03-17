@@ -1,11 +1,13 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import {
     IsDateString,
+    IsEnum,
     IsObject,
     IsOptional,
     IsString,
     IsUUID,
 } from "class-validator";
+import { EmailSource } from "../../../prisma/client/enums";
 import { EXAMPLE_USER_ID } from "../../common/examples.constants";
 import { EmailAnalysisResultDto } from "../../email/dto/email-analysis-result.dto";
 
@@ -50,4 +52,12 @@ export class JobHistoryEntryDto {
     })
     @IsDateString()
     createdAt!: string;
+
+    @ApiProperty({
+        description: "Source of the email (manual or IMAP)",
+        enum: EmailSource,
+        example: EmailSource.MANUAL,
+    })
+    @IsEnum(EmailSource)
+    source!: EmailSource;
 }

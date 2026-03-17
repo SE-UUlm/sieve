@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { type UserSession } from "@thallesp/nestjs-better-auth";
 import { type Prisma } from "../../prisma/client/client";
-import { JobStatus, UserRole } from "../../prisma/client/enums";
+import { JobStatus, UserRole, type EmailSource } from "../../prisma/client/enums";
 import type { EmailAnalysisResultDto } from "../email/dto/email-analysis-result.dto";
 import type { JobResultDto } from "../job-result/dto/job-result.dto";
 import { PrismaService } from "../prisma/prisma.service";
@@ -85,11 +85,23 @@ export class JobService {
 
     /**
      * Returns history entries for the active user.
+     * @param source - Optional filter for email source (MANUAL or IMAP)
      */
-    async getHistory(session: UserSession): Promise<JobHistoryEntryDto[]> {
+    async getHistory(
+        session: UserSession,
+        source?: EmailSource,
+    ): Promise<JobHistoryEntryDto[]> {
+        const where = this.getScopedJobWhere(session);
+
+        if (source) {
+            where.email = {
+                source,
+            };
+        }
+
         const jobs = await this.prismaService.job.findMany({
             where: {
-                ...this.getScopedJobWhere(session),
+                ...where,
                 status: JobStatus.COMPLETED,
             },
             include: { email: true, result: true },
@@ -187,6 +199,7 @@ export class JobService {
             body: job.email.body,
             result: this.toHistoryResult(job.result?.output),
             createdAt: job.createdAt.toISOString(),
+            source: job.email.source,
         };
     }
 

@@ -20,7 +20,11 @@ import {
     ImapStatusDto,
     SaveImapConfigDto,
     ImapConfigDto,
+    MailboxCountDto,
+    ProcessEmailsResponseDto,
 } from "./dto";
+import { ImapPollerService } from "./imap-poller.service";
+import { AuthUser } from "../lib/auth-user.decorator";
 
 @ApiTags("IMAP")
 @Controller("imap")
@@ -28,6 +32,7 @@ export class ImapController {
     constructor(
         private readonly imapService: ImapService,
         private readonly settingsService: SettingsService,
+        private readonly imapPollerService: ImapPollerService,
     ) {}
 
     @Post("test")
@@ -161,6 +166,69 @@ export class ImapController {
             lastError: testResult.lastError,
             lastSyncedAt: status.lastSyncedAt?.toISOString(),
             messageCount: testResult.messageCount,
+        };
+    }
+
+    @Post("mailbox-count")
+    @Roles([UserRole.ADMIN])
+    @ApiCookieAuth("apiKeyCookie")
+    @ApiOperation({
+        summary: "Get mailbox message count",
+        description: "Returns the total number of messages in the IMAP mailbox without marking them as read.",
+    })
+    @ApiResponse({
+        status: 200,
+        description: "Mailbox count retrieved",
+        type: MailboxCountDto,
+    })
+    @ApiResponse({ status: 401, description: "Unauthorized" })
+    @ApiResponse({ status: 403, description: "Forbidden" })
+    async getMailboxCount(@Body() dto: TestImapConnectionDto): Promise<MailboxCountDto> {
+        const count = await this.imapPollerService.getMailboxMessageCount({
+            host: dto.host,
+            port: dto.port,
+            username: dto.username,
+            password: dto.password,
+            security: dto.security,
+            mailbox: dto.mailbox,
+        });
+
+        return { count };
+    }
+
+    @Post("process-existing")
+    @Roles([UserRole.ADMIN])
+    @ApiCookieAuth("apiKeyCookie")
+    @ApiOperation({
+        summary: "Process existing emails",
+        description: "Processes all existing emails in the mailbox and creates history entries.",
+    })
+    @ApiResponse({
+        status: 200,
+        description: "Emails processed successfully",
+        type: ProcessEmailsResponseDto,
+    })
+    @ApiResponse({ status: 401, description: "Unauthorized" })
+    @ApiResponse({ status: 403, description: "Forbidden" })
+    async processExistingEmails(
+        @Body() dto: SaveImapConfigDto,
+        @AuthUser() user: { id: string },
+    ): Promise<ProcessEmailsResponseDto> {
+        const processedCount = await this.imapPollerService.processExistingEmails(
+            {
+                host: dto.host,
+                port: dto.port,
+                username: dto.username,
+                password: dto.password,
+                security: dto.security,
+                mailbox: dto.mailbox,
+            },
+            user.id,
+        );
+
+        return {
+            processedCount,
+            success: true,
         };
     }
 }

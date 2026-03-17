@@ -7,6 +7,7 @@ import { HealthModule } from "./health/health.module";
 import { ImapModule } from "./imap/imap.module";
 import { JobModule } from "./job/job.module";
 import { JobResultModule } from "./job-result/job-result.module";
+import { NotificationsModule } from "./notifications/notifications.module";
 import { auth } from "./lib/auth";
 import { PrismaModule } from "./prisma/prisma.module";
 import { SettingsModule } from "./settings/settings.module";
@@ -27,6 +28,7 @@ import { UserModule } from "./user/user.module";
         AiBackendModule,
         SmtpModule,
         ImapModule,
+        NotificationsModule,
     ],
 })
 export class AppModule {}

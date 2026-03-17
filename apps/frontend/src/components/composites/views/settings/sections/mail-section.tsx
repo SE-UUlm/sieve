@@ -20,9 +20,11 @@ import {
     useImapControllerGetConfig,
     useImapControllerTestConnection,
     useImapControllerSaveConfig,
+    useImapControllerGetMailboxCount,
+    useImapControllerProcessExistingEmails,
 } from "@/lib/client/imap/imap";
 import { showPersistentErrorToast, showSuccessToast } from "@/lib/toast";
-import { Loader2, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import { Loader2, CheckCircle2, XCircle, AlertCircle, Mail } from "lucide-react";
 
 const formSchema = z.object({
     imapHost: z
@@ -45,7 +47,6 @@ const formSchema = z.object({
         .string()
         .min(1, "Mailbox is required.")
         .max(255, "Mailbox must be at most 255 characters."),
-    enabled: z.boolean().default(false),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -56,11 +57,16 @@ export function MailSection() {
         messageCount?: number;
         lastError?: string;
     } | null>(null);
+    const [showImportDialog, setShowImportDialog] = useState(false);
+    const [mailboxCount, setMailboxCount] = useState(0);
+    const [isFirstTimeSetup, setIsFirstTimeSetup] = useState(false);
 
     const { data: statusData, isLoading: isLoadingStatus } = useImapControllerGetStatus();
     const { data: configData, isLoading: isLoadingConfig } = useImapControllerGetConfig();
     const testConnection = useImapControllerTestConnection();
     const saveConfig = useImapControllerSaveConfig();
+    const getMailboxCount = useImapControllerGetMailboxCount();
+    const processExistingEmails = useImapControllerProcessExistingEmails();
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -72,7 +78,6 @@ export function MailSection() {
             password: "",
             security: "ssl",
             mailbox: "INBOX",
-            enabled: false,
         },
     });
 
@@ -87,7 +92,6 @@ export function MailSection() {
                 password: "", // Password is not returned for security
                 security: config.security || "ssl",
                 mailbox: config.mailbox || "INBOX",
-                enabled: config.enabled || false,
             });
         }
     }, [configData, form]);
@@ -101,9 +105,8 @@ export function MailSection() {
                 messageCount: status.messageCount,
                 lastError: status.lastError,
             });
-            form.setValue("enabled", status.isEnabled);
         }
-    }, [statusData, form]);
+    }, [statusData]);
 
     const handleTestConnection = async (values: FormValues) => {
         setTestStatus(null);
@@ -169,7 +172,26 @@ export function MailSection() {
                 return;
             }
 
-            // Save the configuration
+            // Check if this is first time setup (no existing config)
+            const isFirstTime = !configData?.data?.host;
+            setIsFirstTimeSetup(isFirstTime);
+
+            if (isFirstTime) {
+                // Get mailbox count for import dialog
+                const countResult = await getMailboxCount.mutateAsync({
+                    data: {
+                        host: values.imapHost,
+                        port: values.imapPort,
+                        username: values.username,
+                        password: values.password,
+                        security: values.security,
+                        mailbox: values.mailbox,
+                    },
+                });
+                setMailboxCount(countResult.data?.count || 0);
+            }
+
+            // Save the configuration (enabled for automatic new mail processing)
             const result = await saveConfig.mutateAsync({
                 data: {
                     host: values.imapHost,
@@ -178,7 +200,7 @@ export function MailSection() {
                     password: values.password,
                     security: values.security,
                     mailbox: values.mailbox,
-                    enabled: values.enabled,
+                    enabled: true, // Always enabled for automatic new mail processing
                 },
             });
 
@@ -193,12 +215,49 @@ export function MailSection() {
                     title: "Settings saved",
                     description: "IMAP configuration has been saved successfully.",
                 });
+
+                // Show import dialog for first time setup
+                if (isFirstTime && mailboxCount > 0) {
+                    setShowImportDialog(true);
+                }
             }
         } catch (error) {
             showPersistentErrorToast({
                 title: "Save failed",
                 description: error instanceof Error ? error.message : "An unknown error occurred.",
             });
+        }
+    };
+
+    const handleProcessExistingEmails = async () => {
+        const values = form.getValues();
+        
+        try {
+            const result = await processExistingEmails.mutateAsync({
+                data: {
+                    host: values.imapHost,
+                    port: values.imapPort,
+                    username: values.username,
+                    password: values.password,
+                    security: values.security,
+                    mailbox: values.mailbox,
+                    enabled: true,
+                },
+            });
+
+            if (result.data?.success) {
+                showSuccessToast({
+                    title: "Import completed",
+                    description: `${result.data.processedCount} emails have been imported and are being processed.`,
+                });
+            }
+        } catch (error) {
+            showPersistentErrorToast({
+                title: "Import failed",
+                description: error instanceof Error ? error.message : "Failed to process existing emails.",
+            });
+        } finally {
+            setShowImportDialog(false);
         }
     };
 
@@ -428,30 +487,20 @@ export function MailSection() {
                     </div>
                 </div>
 
-                {/* Enable IMAP Toggle */}
-                <div className="flex items-center gap-3 rounded-lg border border-slate-200 p-4 dark:border-slate-800">
-                    <Controller
-                        name="enabled"
-                        control={form.control}
-                        render={({ field }) => (
-                            <>
-                                <input
-                                    type="checkbox"
-                                    id="imap-enabled"
-                                    checked={field.value}
-                                    onChange={(e) => field.onChange(e.target.checked)}
-                                    disabled={isLoading}
-                                    className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50"
-                                />
-                                <label
-                                    htmlFor="imap-enabled"
-                                    className="text-sm font-medium text-slate-700 dark:text-slate-300 disabled:opacity-50"
-                                >
-                                    Enable automatic email import from IMAP
-                                </label>
-                            </>
-                        )}
-                    />
+                {/* Info Box */}
+                <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950/30">
+                    <div className="flex items-start gap-3">
+                        <Mail className="mt-0.5 h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        <div>
+                            <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                                Automatic Email Processing
+                            </p>
+                            <p className="mt-1 text-sm text-blue-700 dark:text-blue-300">
+                                Once connected, new emails will be automatically processed. 
+                                On first setup, you can choose to import existing emails.
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Buttons */}
@@ -472,7 +521,7 @@ export function MailSection() {
                         <StyledButton
                             type="button"
                             onClick={form.handleSubmit(handleSaveConfig)}
-                            isLoading={saveConfig.isPending || testConnection.isPending}
+                            isLoading={saveConfig.isPending || testConnection.isPending || getMailboxCount.isPending}
                             disabled={!form.formState.isValid || saveConfig.isPending || testConnection.isPending || isLoading}
                             label="Save Settings"
                             loadingLabel="Saving..."
@@ -481,6 +530,56 @@ export function MailSection() {
                     </div>
                 </div>
             </form>
+
+            {/* Import Dialog */}
+            {showImportDialog && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                    <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-xl dark:border-slate-800 dark:bg-slate-900">
+                        <div className="mb-4 flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
+                                <Mail className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                            </div>
+                            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                                Import Existing Emails?
+                            </h3>
+                        </div>
+                        
+                        <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
+                            Your mailbox contains <strong>{mailboxCount}</strong> messages. 
+                            Would you like to import and process these existing emails?
+                        </p>
+                        
+                        <p className="mb-6 text-xs text-slate-500 dark:text-slate-400">
+                            All future new emails will be automatically processed. This action only imports existing messages.
+                        </p>
+                        
+                        <div className="flex gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setShowImportDialog(false)}
+                                className="flex-1 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                            >
+                                Skip
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleProcessExistingEmails}
+                                disabled={processExistingEmails.isPending}
+                                className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 disabled:opacity-50"
+                            >
+                                {processExistingEmails.isPending ? (
+                                    <span className="flex items-center justify-center gap-2">
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                        Importing...
+                                    </span>
+                                ) : (
+                                    `Import ${mailboxCount} Emails`
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </SettingsSection>
     );
 }

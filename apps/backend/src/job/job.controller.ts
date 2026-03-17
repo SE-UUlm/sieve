@@ -6,7 +6,7 @@ import {
     ApiTags,
 } from "@nestjs/swagger";
 import { Session, type UserSession } from "@thallesp/nestjs-better-auth";
-import { JobStatus } from "../../prisma/client/enums";
+import { JobStatus, EmailSource } from "../../prisma/client/enums";
 import { JobResultDto } from "../job-result/dto/job-result.dto";
 import { JobDto } from "./dto/job.dto";
 import { JobHistoryEntryDto } from "./dto/job-history-entry.dto";
@@ -28,8 +28,11 @@ export class JobController {
         type: [JobHistoryEntryDto],
     })
     @ApiResponse({ status: 401, description: "Unauthorized" })
-    getHistory(@Session() session: UserSession): Promise<JobHistoryEntryDto[]> {
-        return this.jobService.getHistory(session);
+    getHistory(
+        @Session() session: UserSession,
+        @Query("source") source?: EmailSource,
+    ): Promise<JobHistoryEntryDto[]> {
+        return this.jobService.getHistory(session, source);
     }
 
     @Get()
