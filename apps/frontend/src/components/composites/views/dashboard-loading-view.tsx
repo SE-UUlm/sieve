@@ -1,15 +1,57 @@
-import { Spinner } from "@/components/primitives/spinner";
+import {
+    ListSkeleton,
+    NavigationRailSkeleton,
+    SplitViewSkeleton,
+    TextBlockSkeleton,
+} from "@/components/composites/skeletons";
+import { StyledSkeleton } from "@/components/ui/styled-skeleton";
 
 /**
- * Displays a centralized loading state while dashboard authentication is resolving.
+ * Displays a dashboard-shaped skeleton while authentication is resolving.
  */
 export function DashboardLoadingView() {
-    return (
-        <div className="flex h-screen w-screen items-center justify-center bg-slate-50 dark:bg-slate-950">
-            <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-5 py-3 text-sm text-slate-700 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
-                <Spinner className="size-4" />
-                Loading dashboard...
+    const primaryContent = (
+        <div className="mx-auto flex h-full w-full flex-col">
+            <div className="mb-8 space-y-3">
+                <StyledSkeleton className="h-9 w-56" />
+                <TextBlockSkeleton
+                    lineCount={2}
+                    lineWidths={["w-3/4", "w-1/2"]}
+                />
             </div>
+
+            <ListSkeleton
+                itemCount={3}
+                renderItem={(index) => (
+                    <div className={index > 0 ? "opacity-80" : undefined}>
+                        <StyledSkeleton className="mb-3 h-4 w-1/3" />
+                        <TextBlockSkeleton
+                            lineCount={2}
+                            lineWidths={["w-full", "w-2/3"]}
+                        />
+                    </div>
+                )}
+            />
+        </div>
+    );
+
+    const secondaryContent = (
+        <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col space-y-4">
+            <StyledSkeleton className="h-10 w-32" />
+            <TextBlockSkeleton lineCount={3} />
+            <StyledSkeleton className="h-56 w-full" />
+        </div>
+    );
+
+    return (
+        <div className="flex h-screen w-screen overflow-hidden bg-slate-50 dark:bg-slate-950">
+            <NavigationRailSkeleton />
+            <main className="relative flex h-full w-full overflow-hidden">
+                <SplitViewSkeleton
+                    primaryContent={primaryContent}
+                    secondaryContent={secondaryContent}
+                />
+            </main>
         </div>
     );
 }

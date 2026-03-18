@@ -2,10 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { type SubmitEventHandler, useState } from "react";
-import AlreadyLoggedIn from "@/components/composites/auth/already-logged-in";
-import SessionLoading from "@/components/composites/auth/session-loading";
+import { type SubmitEventHandler, useEffect, useState } from "react";
 import { LogoWithLabel } from "@/components/composites/logo-with-label";
+import { CenteredFormViewSkeleton } from "@/components/composites/skeletons";
 import { ThemeToggleButton } from "@/components/composites/theme/theme-toggle-button";
 import { StyledButton } from "@/components/ui/styled-button";
 import { StyledInput } from "@/components/ui/styled-input";
@@ -23,6 +22,12 @@ export function SignupView() {
     const [password, setPassword] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [hasSubmittedAuth, setHasSubmittedAuth] = useState(false);
+
+    useEffect(() => {
+        if (!isSessionPending && session && !hasSubmittedAuth) {
+            router.replace("/analyze");
+        }
+    }, [hasSubmittedAuth, isSessionPending, router, session]);
 
     const handleSubmit: SubmitEventHandler<HTMLFormElement> = async (event) => {
         event.preventDefault();
@@ -77,11 +82,11 @@ export function SignupView() {
     };
 
     if (isSessionPending) {
-        return <SessionLoading />;
+        return <CenteredFormViewSkeleton fieldCount={3} />;
     }
 
     if (session && !hasSubmittedAuth) {
-        return <AlreadyLoggedIn />;
+        return <CenteredFormViewSkeleton fieldCount={3} />;
     }
 
     return (

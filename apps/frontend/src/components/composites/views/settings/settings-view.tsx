@@ -1,17 +1,26 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import {
+    FormSkeleton,
+    ListSkeleton,
+    SkeletonCard,
+    SplitViewSkeleton,
+    TextBlockSkeleton,
+} from "@/components/composites/skeletons";
 import { ProviderSection } from "@/components/composites/views/settings/sections/provider/provider-section";
 import { UserProfileSection } from "@/components/composites/views/settings/sections/user-profile-section";
 import { UserSecuritySection } from "@/components/composites/views/settings/sections/user-security-section";
 import { SplitView } from "@/components/composites/views/split-view/split-view";
 import { SplitViewPane } from "@/components/composites/views/split-view/split-view-pane";
+import { StyledSkeleton } from "@/components/ui/styled-skeleton";
 import { authClient } from "@/lib/auth-client";
 
 type SettingsSectionKey = "profile" | "security" | "provider";
 
 export function SettingsView() {
-    const { data: session } = authClient.useSession();
+    const { data: session, isPending: isSessionPending } =
+        authClient.useSession();
     const isAdmin = useMemo(
         () =>
             (session?.user as { role?: string } | undefined)?.role === "ADMIN",
@@ -57,6 +66,35 @@ export function SettingsView() {
         }
         setSelectedSection(sections[0]?.key ?? "profile");
     }, [sections, selectedSection]);
+
+    if (isSessionPending && !session) {
+        return (
+            <SplitViewSkeleton
+                primaryContent={
+                    <div className="mx-auto flex h-full w-full flex-col">
+                        <div className="mb-8 space-y-3">
+                            <StyledSkeleton className="h-9 w-40" />
+                            <TextBlockSkeleton
+                                lineCount={2}
+                                lineWidths={["w-full", "w-3/4"]}
+                            />
+                        </div>
+                        <ListSkeleton itemCount={3} />
+                    </div>
+                }
+                secondaryContent={
+                    <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col gap-4">
+                        <SkeletonCard>
+                            <FormSkeleton
+                                fieldCount={2}
+                                includeHeader={false}
+                            />
+                        </SkeletonCard>
+                    </div>
+                }
+            />
+        );
+    }
 
     return (
         <SplitView>

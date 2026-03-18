@@ -8,7 +8,10 @@ export function StyledSkeleton({
 }: React.ComponentProps<typeof Skeleton>) {
     return (
         <Skeleton
-            className={cn("rounded bg-slate-200 dark:bg-slate-800", className)}
+            className={cn(
+                "rounded-md bg-slate-200/90 dark:bg-slate-800/80",
+                className,
+            )}
             {...props}
         />
     );
