@@ -1,10 +1,16 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import {
+    ListSkeleton,
+    SkeletonCard,
+    TextBlockSkeleton,
+} from "@/components/composites/skeletons";
 import { ProviderActiveSelector } from "@/components/composites/views/settings/sections/provider/provider-active-selector";
 import { ProviderCard } from "@/components/composites/views/settings/sections/provider/provider-card";
 import { useProviderMutations } from "@/components/composites/views/settings/sections/provider/use-provider-mutations";
 import { SettingsSection } from "@/components/composites/views/settings/settings-section";
+import { StyledSkeleton } from "@/components/ui/styled-skeleton";
 import {
     getSettingsControllerGetInstanceSettingsQueryKey,
     useSettingsControllerGetInstanceSettings,
@@ -70,6 +76,31 @@ export function ProviderSection() {
         updateActiveProvider,
         updateProviderApiKey,
     } = useProviderMutations();
+
+    if (settingsQuery.isPending && !settingsQuery.data) {
+        return (
+            <SettingsSection
+                title="Provider"
+                description="Configure AI provider settings for this workspace."
+            >
+                <div className="space-y-3">
+                    <SkeletonCard className="space-y-4">
+                        <StyledSkeleton className="h-4 w-48" />
+                        <div className="flex flex-wrap items-center gap-2">
+                            <StyledSkeleton className="h-10 min-w-56 flex-1" />
+                            <StyledSkeleton className="h-10 w-28" />
+                        </div>
+                        <TextBlockSkeleton
+                            lineCount={1}
+                            lineWidths={["w-3/5"]}
+                        />
+                    </SkeletonCard>
+
+                    <ListSkeleton itemCount={2} />
+                </div>
+            </SettingsSection>
+        );
+    }
 
     const onUpdateProvider = (
         provider: UpdateInstanceActiveProviderDtoProvider,
