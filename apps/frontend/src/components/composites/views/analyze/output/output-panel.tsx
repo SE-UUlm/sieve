@@ -43,7 +43,7 @@ export function OutputPanel({
                     value="result"
                     className="mt-0 w-full flex-1 outline-none"
                 >
-                    <ResultTab result={result} />
+                    <ResultTab result={result} isLoading={isAnalyzing} />
                 </StyledTabsContent>
 
                 <StyledTabsContent
