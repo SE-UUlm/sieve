@@ -1,3 +1,4 @@
+export { CenteredFormViewSkeleton } from "./centered-form-view-skeleton";
 export { FormSkeleton } from "./form-skeleton";
 export { ListItemSkeleton } from "./list-item-skeleton";
 export { ListSkeleton } from "./list-skeleton";

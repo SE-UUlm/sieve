@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type SubmitEventHandler, useState } from "react";
 import AlreadyLoggedIn from "@/components/composites/auth/already-logged-in";
-import SessionLoading from "@/components/composites/auth/session-loading";
 import { LogoWithLabel } from "@/components/composites/logo-with-label";
+import { CenteredFormViewSkeleton } from "@/components/composites/skeletons";
 import { ThemeToggleButton } from "@/components/composites/theme/theme-toggle-button";
 import { StyledButton } from "@/components/ui/styled-button";
 import { StyledInput } from "@/components/ui/styled-input";
@@ -59,7 +59,7 @@ export function LoginView() {
     };
 
     if (isSessionPending) {
-        return <SessionLoading />;
+        return <CenteredFormViewSkeleton fieldCount={2} />;
     }
 
     if (session && !hasSubmittedAuth) {
