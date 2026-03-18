@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { type SubmitEventHandler, useState } from "react";
-import AlreadyLoggedIn from "@/components/composites/auth/already-logged-in";
+import { type SubmitEventHandler, useEffect, useState } from "react";
 import { LogoWithLabel } from "@/components/composites/logo-with-label";
 import { CenteredFormViewSkeleton } from "@/components/composites/skeletons";
 import { ThemeToggleButton } from "@/components/composites/theme/theme-toggle-button";
@@ -22,6 +21,12 @@ export function LoginView() {
     const [password, setPassword] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [hasSubmittedAuth, setHasSubmittedAuth] = useState(false);
+
+    useEffect(() => {
+        if (!isSessionPending && session && !hasSubmittedAuth) {
+            router.replace("/analyze");
+        }
+    }, [hasSubmittedAuth, isSessionPending, router, session]);
 
     const handleSubmit: SubmitEventHandler<HTMLFormElement> = async (event) => {
         event.preventDefault();
@@ -63,7 +68,7 @@ export function LoginView() {
     }
 
     if (session && !hasSubmittedAuth) {
-        return <AlreadyLoggedIn />;
+        return <CenteredFormViewSkeleton fieldCount={2} />;
     }
 
     return (
