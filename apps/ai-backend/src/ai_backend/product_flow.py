@@ -7,6 +7,7 @@ from langchain.agents import create_agent
 from ai_backend.schemas import Context, SubGraphState, SearchResult, FlowResult
 from langchain.tools import tool, ToolRuntime
 from langgraph.graph import StateGraph, START, END
+from langchain.agents.middleware.tool_call_limit import ToolCallLimitMiddleware
 
 
 @tool
@@ -53,15 +54,23 @@ async def find_related_products(
     state: SubGraphState, runtime: ToolRuntime[Context]
 ) -> dict:
     system_prompt = """Your job is to find the product(s) the customer wants to buy or is talking about in their email. 
-        Use the search_product tool to find the products the customer might want, use the provided database schema (tables and their columns). Try multiple different keywords, variants, translations and try again if you are not satisfied with the results. 
+        Use the search_product tool to find the products the customer might want, use the provided database schema (tables and their columns). Try multiple different keywords, variants, translations and try again (maximum 10 times) if you are not satisfied with the results. 
         If you think you found the right products return them using the provided output format. Together with your confidence score.
         Answer Language: English"""
+
+    middleware = [
+        ToolCallLimitMiddleware(
+            run_limit=10,  # Max 10 tool calls per user message
+        )
+    ]
+
     agent = create_agent(
-        model=runtime.context.simple_model,
+        model=runtime.context.complex_model,
         system_prompt=system_prompt,
         response_format=SearchResult,
         tools=[search_product],
         context_schema=Context,
+        middleware=middleware,
     )
     conversation = [
         SystemMessage(f"""Database Schema: {runtime.context.db_schema}"""),
@@ -105,7 +114,7 @@ async def generate_structured_response(
         category=state.category,
         structured_output=result,
         steps={
-            "find_related_products": {"related_products": state.related_products},
+            "db_step": {"related_products": state.related_products},
             "summary": state.steps["summary"],
         },
     )
@@ -132,8 +141,8 @@ product_subgraph = (
     .add_node("generate_structured_response", generate_structured_response)
     .add_node("summary", summary)
     .add_edge(START, "find_related_products")
-    .add_edge("find_related_products", "summary")
-    .add_edge("summary", "generate_structured_response")
+    .add_edge(START, "summary")
+    .add_edge(["summary", "find_related_products"], "generate_structured_response")
     .add_edge("generate_structured_response", END)
     .compile()
 )
