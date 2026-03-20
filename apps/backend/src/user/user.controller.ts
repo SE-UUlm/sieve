@@ -10,8 +10,6 @@ import { UserRole } from "../../prisma/client/enums";
 import { SimpleUserDto } from "./dto/simple-user.dto";
 import { UserDto } from "./dto/user.dto";
 
-// TODO: Remove eslint-disable when implementing methods
-/* eslint-disable @typescript-eslint/no-unused-vars */
 @ApiTags("Users")
 @Controller("users")
 export class UserController {
