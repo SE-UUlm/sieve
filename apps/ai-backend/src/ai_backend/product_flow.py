@@ -1,13 +1,17 @@
-import json
-from ai_backend.agent import category_to_schema
-import pprint
+from typing import Annotated
+from ai_backend.shared_flow import summary, structured_response
 from ai_backend.utils import format_email
 from langchain.messages import SystemMessage, HumanMessage
-from langchain.agents import create_agent
-from ai_backend.schemas import Context, SubGraphState, SearchResult, FlowResult
-from langchain.tools import tool, ToolRuntime
+from langchain.agents import create_agent, AgentState
+from ai_backend.schemas import (
+    Context,
+    FlowGraphState,
+    FlowResult,
+    SearchResult,
+    ProductFlowSteps,
+)
+from langchain.tools import tool, ToolRuntime, InjectedState, ToolException
 from langgraph.graph import StateGraph, START, END
-from langchain.agents.middleware.tool_call_limit import ToolCallLimitMiddleware
 
 
 @tool
@@ -16,10 +20,20 @@ async def search_product(
     search_columns: list[str],
     return_columns: list[str],
     query: list[str],
+    state: Annotated[AgentState, InjectedState],
     runtime: ToolRuntime[Context],
 ):
-    """Useful to search for product information. Use multiple keywords for query. If one keyword is contained in any specified column value, the item is returned.
-    Database hints: The database only contains lego sets. The metadata column contains the part count. The products in the database are named in german"""
+    """Useful to search for product information. Use multiple keywords for query.
+    If of the query items is contained in any specified column value, the item is returned.
+    Try to use short query items, ideally only one word per item. But multiple items."""
+
+    tool_calls = len([m for m in state["messages"] if m.type == "tool"])
+
+    if tool_calls >= 5:
+        return "search_product Tool call limit exceeded. Now return the result with the potentialProducts and your confidence score."
+
+    if tool_calls >= 10:
+        raise ToolException("Max tries (10) for this tool reached.")
 
     db_schema = runtime.context.db_schema
     if table_name not in db_schema:
@@ -45,113 +59,61 @@ async def search_product(
         rows = await conn.fetch(sqlQuery, search_patterns)
         rows_dicts = [dict(row) for row in rows]
         print(
-            f"🛠️ search_product: {table_name}, {search_columns}, {return_columns}, {query} -> {rows_dicts}"
+            f"🛠️ search_product ({tool_calls}): {table_name}, {search_columns}, {return_columns}, {query} -> {rows_dicts}"
         )
         return rows_dicts
 
 
-async def find_related_products(
-    state: SubGraphState, runtime: ToolRuntime[Context]
-) -> dict:
-    system_prompt = """Your job is to find the product(s) the customer wants to buy or is talking about in their email. 
-        Use the search_product tool to find the products the customer might want, use the provided database schema (tables and their columns). Try multiple different keywords, variants, translations and try again (maximum 10 times) if you are not satisfied with the results. 
-        If you think you found the right products return them using the provided output format. Together with your confidence score.
-        Answer Language: English"""
-
-    middleware = [
-        ToolCallLimitMiddleware(
-            run_limit=10,  # Max 10 tool calls per user message
-        )
-    ]
+async def db_step(state: FlowGraphState, runtime: ToolRuntime[Context]) -> dict:
+    """Tries to find products from the database that are the ones the customer is talking about"""
 
     agent = create_agent(
         model=runtime.context.complex_model,
-        system_prompt=system_prompt,
         response_format=SearchResult,
         tools=[search_product],
         context_schema=Context,
-        middleware=middleware,
     )
     conversation = [
+        SystemMessage("""Your job is to find the product(s) the customer wants to buy or is talking about in their email. 
+        Use the search_product tool to find the products the customer might want, use the provided database schema (tables and their columns). 
+        Try multiple different keywords, variants, translation and try again a maximum of 5 times until you're satisfied with the results.
+        If you think you found the right products return them using the provided output format. Together with your confidence score.
+        Answer Language: English"""),
         SystemMessage(f"""Database Schema: {runtime.context.db_schema}"""),
-        HumanMessage(format_email(state.email)),
+        HumanMessage(format_email(runtime.context.email)),
     ]
     result = await agent.ainvoke(
         {"messages": conversation},
     )
 
+    # TODO: Sometimes it doesnt finish. Especially with 4o-mini and if it does not find the right products. Maybe try to debug with streaming. Maybe now its fixed?
+
     for msg in result["messages"]:
         msg.pretty_print()
 
-    return {"related_products": result["structured_response"].potentialProducts}
-
-
-async def generate_structured_response(
-    state: SubGraphState, runtime: ToolRuntime[Context]
-) -> FlowResult:
-    pprint.pprint(state)
-    schema = category_to_schema(state.category)
-    print(schema)
-    structured = runtime.context.simple_model.with_structured_output(
-        schema.model_json_schema()
-    )
-    result = await structured.ainvoke(
-        [
-            SystemMessage("""Your job is to categorize a given email from a customer or potential customer and convert it into a structured form.
-    If none of the categories match, classify the email as 'Other'.
-    Write answers in the third person about the customer. Be as concise as possible.
-    Answer Language: English"""),
-            SystemMessage(
-                "Related products: \n"
-                + json.dumps(
-                    [product.model_dump() for product in state.related_products]
-                )
-            ),
-            HumanMessage(format_email(state.email)),
-        ]
-    )
-    return FlowResult(
-        category=state.category,
-        structured_output=result,
-        steps={
-            "db_step": {"related_products": state.related_products},
-            "summary": state.steps["summary"],
-        },
-    )
-
-
-async def summary(state: SubGraphState, runtime: ToolRuntime[Context]) -> dict:
-    result = await runtime.context.simple_model.ainvoke(
-        [
-            SystemMessage(f"""Your job is to summarize a customer's email regarding the category '{state.category}'.
-            Be as concise as possible.
-            Answer Language: English"""),
-            HumanMessage(format_email(state.email)),
-        ]
-    )
-
-    pprint.pprint(result)
-
-    return {"steps": {"summary": result.content}}
+    return {"steps": {"db_step": result["structured_response"].potentialProducts}}
 
 
 product_subgraph = (
-    StateGraph(SubGraphState, output_schema=FlowResult)
-    .add_node("find_related_products", find_related_products)
-    .add_node("generate_structured_response", generate_structured_response)
+    StateGraph(FlowGraphState, output_schema=FlowResult[ProductFlowSteps])
+    .add_node("db_step", db_step)
+    .add_node("structured_response", structured_response)
     .add_node("summary", summary)
-    .add_edge(START, "find_related_products")
+    .add_edge(START, "db_step")
     .add_edge(START, "summary")
-    .add_edge(["summary", "find_related_products"], "generate_structured_response")
-    .add_edge("generate_structured_response", END)
+    .add_edge("db_step", "structured_response")
+    .add_edge(["structured_response", "summary"], END)
     .compile()
 )
 
 
-async def product_flow(state: SubGraphState, runtime: ToolRuntime[Context]) -> dict:
-    """Search for products"""
-    print("product flow", state.category)
-    pprint.pprint(state)
-    response = await product_subgraph.ainvoke(state)
-    pprint.pprint(response)
+async def product_flow(state: FlowGraphState, runtime: ToolRuntime[Context]) -> dict:
+    """Flow that additionally tries to find products in the database. Plus summary and structured response"""
+
+    print(f"▶️ START product flow Category {state.category}")
+
+    response: FlowResult[ProductFlowSteps] = await product_subgraph.ainvoke(state)
+
+    print(f"✔️ END Category {state.category} Result: ", response)
+
     return {"results": [response]}

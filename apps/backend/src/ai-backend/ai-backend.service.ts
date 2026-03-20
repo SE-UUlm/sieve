@@ -72,15 +72,291 @@ export class AiBackendService implements OnModuleInit {
                         subject,
                         body,
                     },
-                    provider,
-                    apiKey,
+                    model: {
+                        provider,
+                        api_key: apiKey,
+                        simple_model: "gpt-4o-mini",
+                        complex_model: "gpt-5.2",
+                    },
+                    categories: [
+                        {
+                            name: "Complaint",
+                            description:
+                                "The user expresses dissatisfaction, frustration or complaints and is not product support",
+                            flow: {
+                                name: "simple",
+                                structured_response_schema: {
+                                    properties: {
+                                        complaints: {
+                                            description:
+                                                "Only one item per individual complaint",
+                                            items: { type: "string" },
+                                            type: "array",
+                                        },
+                                        urgency: {
+                                            description:
+                                                "How urgent is the complaint from 0 (not urgent) to 100 (very urgent)",
+                                            title: "Urgency",
+                                            type: "integer",
+                                        },
+                                    },
+                                    required: ["complaints", "urgency"],
+                                    title: "Complaint",
+                                    type: "object",
+                                },
+                                structured_reponse_prompt:
+                                    "Be extremely concise",
+                                summary_prompt:
+                                    "Include every little detail of the complaint",
+                            },
+                        },
+                        {
+                            name: "Product Inquiry",
+                            description:
+                                "The user wants to order a product or wants to ask for information regarding a product they do not yet own or wants suggestion which product(s) to buy.",
+                            flow: {
+                                name: "product",
+                                structured_response_schema: {
+                                    properties: {
+                                        products: {
+                                            description:
+                                                "List all Products from 'Related Products'",
+                                            items: {
+                                                description:
+                                                    "Use the provided 'related products' to fill out the products, or if not matching, fill out only name and quantity with the user provided info.",
+                                                properties: {
+                                                    product_name: {
+                                                        title: "Product Name",
+                                                        type: "string",
+                                                    },
+                                                    quantity: {
+                                                        title: "Quantity",
+                                                        type: "integer",
+                                                    },
+                                                    product_id: {
+                                                        anyOf: [
+                                                            { type: "string" },
+                                                            { type: "null" },
+                                                        ],
+                                                        default: null,
+                                                        description:
+                                                            "If not known, set to null",
+                                                        title: "Product Id",
+                                                    },
+                                                    product_category: {
+                                                        anyOf: [
+                                                            { type: "string" },
+                                                            { type: "null" },
+                                                        ],
+                                                        default: null,
+                                                        description:
+                                                            "If not known, set to null",
+
+                                                        title: "Product Category",
+                                                    },
+                                                    metadata: {
+                                                        type: "object",
+                                                        default: null,
+                                                        description:
+                                                            "If not known, leave empty",
+                                                        title: "Metadata",
+                                                    },
+                                                    price: {
+                                                        anyOf: [
+                                                            { type: "number" },
+                                                            { type: "null" },
+                                                        ],
+                                                        default: null,
+                                                        description:
+                                                            "If not known, set to null",
+
+                                                        title: "Price",
+                                                    },
+                                                },
+                                                required: [
+                                                    "product_name",
+                                                    "quantity",
+                                                ],
+                                                title: "Product",
+                                                type: "object",
+                                            },
+                                            title: "Products",
+                                            type: "array",
+                                        },
+                                        question: {
+                                            anyOf: [
+                                                { type: "string" },
+                                                { type: "null" },
+                                            ],
+                                            default: null,
+                                            title: "Question",
+                                        },
+                                        answer: {
+                                            anyOf: [
+                                                { type: "string" },
+                                                { type: "null" },
+                                            ],
+                                            default: null,
+                                            description:
+                                                "If the customer asked a question and you can answer the question based on the provided product details, then answer here",
+                                            title: "Answer",
+                                        },
+                                        urgency: {
+                                            description:
+                                                "How urgent is the complaint from 0 (not urgent) to 100 (very urgent)",
+                                            title: "Urgency",
+                                            type: "integer",
+                                        },
+                                    },
+                                    required: ["products", "urgency"],
+                                    title: "Product_Inquiry",
+                                    type: "object",
+                                },
+                                db_step_prompt:
+                                    "Database hints: The database only contains lego sets. The metadata column contains the part count. The products in the database are named in german",
+                            },
+                        },
+                        {
+                            name: "Product Support",
+                            description:
+                                "The user asks about an existing product they already have or use.",
+                            flow: {
+                                name: "product",
+                                structured_response_schema: {
+                                    $defs: {
+                                        Issue: {
+                                            properties: {
+                                                product: {
+                                                    $ref: "#/$defs/Product",
+                                                },
+                                                issue: {
+                                                    description:
+                                                        "A short summary of the issue",
+                                                    title: "Issue",
+                                                    type: "string",
+                                                },
+                                                urgency: {
+                                                    description:
+                                                        "How urgent is the complaint from 0 (not urgent) to 100 (very urgent)",
+                                                    title: "Urgency",
+                                                    type: "integer",
+                                                },
+                                            },
+                                            required: [
+                                                "product",
+                                                "issue",
+                                                "urgency",
+                                            ],
+                                            title: "Issue",
+                                            type: "object",
+                                        },
+                                        Product: {
+                                            description:
+                                                "Use the provided 'related products' to fill out the products, or if not matching, fill out only name and quantity with the user provided info.",
+                                            properties: {
+                                                product_name: {
+                                                    title: "Product Name",
+                                                    type: "string",
+                                                },
+                                                quantity: {
+                                                    title: "Quantity",
+                                                    type: "integer",
+                                                },
+                                                product_id: {
+                                                    anyOf: [
+                                                        { type: "string" },
+                                                        { type: "null" },
+                                                    ],
+                                                    default: null,
+                                                    description:
+                                                        "If not known, set to null",
+                                                    title: "Product Id",
+                                                },
+                                                product_category: {
+                                                    anyOf: [
+                                                        { type: "string" },
+                                                        { type: "null" },
+                                                    ],
+                                                    default: null,
+                                                    description:
+                                                        "If not known, set to null",
+                                                    title: "Product Category",
+                                                },
+                                                metadata: {
+                                                    anyOf: [
+                                                        { type: "object" },
+                                                        { type: "null" },
+                                                    ],
+                                                    default: null,
+                                                    description:
+                                                        "If not known, set to null",
+                                                    title: "Metadata",
+                                                },
+                                                price: {
+                                                    anyOf: [
+                                                        { type: "number" },
+                                                        { type: "null" },
+                                                    ],
+                                                    default: null,
+                                                    description:
+                                                        "If not known, set to null",
+                                                    title: "Price",
+                                                },
+                                            },
+                                            required: [
+                                                "product_name",
+                                                "quantity",
+                                            ],
+                                            title: "Product",
+                                            type: "object",
+                                        },
+                                    },
+                                    properties: {
+                                        issues: {
+                                            items: { $ref: "#/$defs/Issue" },
+                                            title: "Issues",
+                                            type: "array",
+                                        },
+                                    },
+                                    required: ["issues"],
+                                    title: "Product_Support",
+                                    type: "object",
+                                },
+                                db_step_prompt:
+                                    "Database hints: The database only contains lego sets. The metadata column contains the part count. The products in the database are named in german",
+                            },
+                        },
+                        {
+                            name: "Other",
+                            description:
+                                "The email or a relevant concern in the email does not match any of the other categories.",
+                            flow: {
+                                name: "simple",
+                                structured_response_schema: {
+                                    properties: {
+                                        summary: {
+                                            type: "string",
+                                        },
+                                    },
+                                    required: ["summary"],
+                                    type: "object",
+                                    title: "Other",
+                                },
+                            },
+                        },
+                    ],
                 }),
-                signal: AbortSignal.timeout(60000),
+                signal: AbortSignal.timeout(120000),
             });
 
             Logger.log("AiBackend execution finished");
 
             if (!response.ok) {
+                Logger.error(
+                    "AiBackend returned an error:",
+                    response.status,
+                    (await response.text()).slice(0, 200),
+                );
                 throw new BadGatewayException(
                     `AiBackend returned an error ${response.status}`,
                 );

@@ -1,10 +1,8 @@
 from ai_backend.schemas import (
     Email,
-    Category,
-    ProductInquiry,
-    ProductSupport,
-    Complaint,
-    Other,
+    Categories,
+    FlowConfig,
+    CategoryConfig,
 )
 
 
@@ -14,27 +12,32 @@ def format_email(email: Email) -> str:
     return f"Email subject:\n{email.subject}\n\nEmail body:\n{email.body}"
 
 
-def category_to_schema(category: Category):
-    if category == "Product_Inquiry":
-        return ProductInquiry
-    elif category == "Product_Support":
-        return ProductSupport
-    elif category == "Complaint":
-        return Complaint
-    elif category == "Other":
-        return Other
-    else:
-        raise ValueError(f"Unknown category: {category}")
+def get_categories(categories: Categories) -> list[str]:
+    return [category.name for category in categories]
 
 
-def category_to_flow(category: Category):
-    if category == "Product_Inquiry":
-        return "product"
-    elif category == "Product_Support":
-        return "product"
-    elif category == "Complaint":
-        return "simple"
-    elif category == "Other":
-        return "simple"
+def get_category(category: str, categories: Categories) -> CategoryConfig:
+    for cat in categories:
+        if cat.name == category:
+            return cat
+
+    raise ValueError(f"Unknown category: {category}")
+
+
+def get_category_flow(category: str, categories: Categories) -> FlowConfig:
+    for cat in categories:
+        if cat.name == category:
+            return cat.flow
+
+    raise ValueError(f"Unknown category: {category}")
+
+
+def get_provider_name(provider: str) -> str:
+    if provider == "OPENAI":
+        return "OpenAI"
+    elif provider == "ANTHROPIC":
+        return "Anthropic"
+    elif provider == "GOOGLE_VERTEX_AI":
+        return "Google Vertex AI"
     else:
-        raise ValueError(f"Unknown category: {category}")
+        raise ValueError(f"Unknown provider: {provider}")

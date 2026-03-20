@@ -2,136 +2,129 @@ from langchain.chat_models import BaseChatModel
 import operator
 import asyncpg
 from dataclasses import dataclass
-from typing import Literal, Union, Any, TypedDict, Annotated
+from typing import Literal, Union, Any, Annotated, TypeVar, Generic
 
 from pydantic import BaseModel, Field
 
+## Analyze Request ##
 
+
+class Email(BaseModel):
+    subject: str | None = Field(default=None, max_length=300)
+    body: str = Field(min_length=1, max_length=10000)
+
+
+Provider = Literal["OPENAI", "GOOGLE_VERTEX_AI", "ANTHROPIC"]
+
+
+class ModelConfig(BaseModel):
+    provider: Provider
+    api_key: str = Field(min_length=1, max_length=500)
+    simple_model: str = Field(min_length=1, max_length=100)
+    complex_model: str = Field(min_length=1, max_length=100)
+
+
+class SimpleFlowConfig(BaseModel):
+    name: Literal["simple"]
+    structured_response_schema: dict[str, Any]
+    structured_reponse_prompt: str | None = Field(None, max_length=1000)
+    summary_prompt: str | None = Field(None, max_length=1000)
+
+
+class ProductFlowConfig(BaseModel):
+    name: Literal["product"]
+    structured_response_schema: dict[str, Any]
+    structured_reponse_prompt: str | None = Field(None, max_length=1000)
+    summary_prompt: str | None = Field(None, max_length=1000)
+    db_step_prompt: str | None = Field(None, max_length=1000)
+
+
+FlowConfig = Union[SimpleFlowConfig, ProductFlowConfig]
+
+
+class CategoryConfig(BaseModel):
+    name: str = Field(min_length=1, max_length=32)
+    description: str = Field(max_length=1000)
+    flow: FlowConfig
+
+
+Categories = list[CategoryConfig]
+
+
+class AnalyzeEmailRequest(BaseModel):
+    email: Email
+    model: ModelConfig
+    categories: Categories
+
+
+## LangGraph Schemas ##
+
+
+## Product Flow Schemas
+class Product(BaseModel):
+    product_name: str
+    product_id: str | None = Field(
+        default=None, description="If not known, set to null"
+    )
+    product_category: str | None = Field(
+        default=None, description="If not known, set to null"
+    )
+    metadata: dict[str, Any] | None = Field(
+        default=None,
+        description="Use a json object directly, not a string. If not known, set to null",
+    )
+    price: float | None = Field(default=None, description="If not known, set to null")
+
+
+class SearchResult(BaseModel):
+    potentialProducts: list[Product] = Field(
+        description="Products from the search you think are the ones the customer was talking about"
+    )
+    confidence: float = Field(
+        description="How confident you are that the products are the ones the customer meant"
+    )
+
+
+## Flow Graph:
+class SimpleFlowSteps(BaseModel):
+    summary: str
+
+
+class ProductFlowSteps(BaseModel):
+    summary: str
+    db_step: list[Product]
+
+
+FlowSteps = Union[SimpleFlowSteps, ProductFlowSteps]
+
+FlowType = TypeVar("FlowType", bound=FlowSteps)
+
+
+class FlowResult(BaseModel, Generic[FlowType]):
+    category: str
+    structured_output: Any
+    steps: FlowType
+
+
+class FlowGraphState(BaseModel):
+    category: str
+    steps: Annotated[dict[str, Any], operator.ior] = dict()
+
+
+## Top Level Graph:
 @dataclass
 class Context:
     db_pool: asyncpg.Pool
     db_schema: dict[str, list[str]]
     simple_model: BaseChatModel
     complex_model: BaseChatModel
-
-
-class Other(BaseModel):
-    """The email does not match any of the other categories."""
-
-    summary: str
-
-
-class Complaint(BaseModel):
-    """The user expresses dissatisfaction, frustration or is serious and angry."""
-
-    complaints: list[str] = Field(description="Only one item per individual complaint")
-    urgency: int = Field(
-        description="How urgent is the complaint from 0 (not urgent) to 100 (very urgent)"
-    )
-
-
-class Product(BaseModel):
-    """Use the provided 'related products' to fill out the products, or if not matching, fill out only name and quantity with the user provided info."""
-
-    product_name: str
-    quantity: int
-    product_id: str | None = Field(
-        default=None, description="If not known, leave empty"
-    )
-    product_category: str | None = Field(
-        default=None, description="If not known, leave empty"
-    )
-    metadata: dict[str, Any] | None = Field(
-        default=None, description="If not known, leave empty"
-    )
-    price: float | None = Field(default=None, description="If not known, leave empty")
-
-
-class ProductInquiry(BaseModel):
-    """The user wants to order a product or wants to ask for information regarding a product they do not yet own or wants suggestion which product(s) to buy."""
-
-    products: list[Product] = Field(
-        description="List all Products from 'Related Products'"
-    )
-    question: str | None = Field(default=None)
-    answer: str | None = Field(
-        default=None,
-        description="If the customer asked a question and you can answer the question based on the provided product details, then answer here",
-    )
-    urgency: int = Field(
-        description="How urgent is the complaint from 0 (not urgent) to 100 (very urgent)"
-    )
-
-
-class Issue(BaseModel):
-    product: Product
-    issue: str = Field(description="A short summary of the issue")
-    urgency: int = Field(
-        description="How urgent is the complaint from 0 (not urgent) to 100 (very urgent)"
-    )
-
-
-class ProductSupport(BaseModel):
-    """The user asks about an existing product they already have or use."""
-
-    issues: list[Issue]
-
-
-ResponseFormatData = Union[
-    ProductInquiry,
-    ProductSupport,
-    Complaint,
-    Other,
-]
-
-
-class ResponseFormat(BaseModel):
-    data: ResponseFormatData
-
-
-## Neu ##
-
-
-class SearchResult(BaseModel):
-    potentialProducts: list[Product] = Field(
-        description="Products from the search you think are the ones the customer wanted"
-    )
-    confidence: float = Field(
-        description="How confident you are that the products are the ones the customer wanted"
-    )
-
-
-Category = Literal["Product_Inquiry", "Product_Support", "Complaint", "Other"]
-
-
-class CategorizationResult(BaseModel):
-    """Result of classifying a customer email into categories."""
-
-    categories: list[Category] = Field(
-        description="List of Categories that match the customers email"
-    )
-
-
-class Email(BaseModel):
-    subject: str | None
-    body: str
-
-
-class FlowResult(BaseModel):
-    category: Category
-    structured_output: Any
-    steps: dict[str, Any]
-
-
-class SubGraphState(BaseModel):
     email: Email
-    category: Category
-    result: Any | None = None
-    related_products: list[Product] | None = None
-    steps: dict[str, Any] = dict()
+    categories: Categories
 
 
-class RouterState(BaseModel):
-    email: Email
-    categories: list[Category] | None = None
+class GraphOutput(BaseModel):
     results: Annotated[list[FlowResult], operator.add] = []
+
+
+class GraphState(GraphOutput):
+    categories: list[str] = []
