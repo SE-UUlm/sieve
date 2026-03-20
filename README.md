@@ -37,7 +37,8 @@ pnpm run generate:clients
 cd ../..
 ```
 
-After the first admin login, configure the instance-wide OpenAI API key in `Settings -> Provider`.
+After the first admin login, configure provider credentials and model settings in `Settings -> Provider`
+(active provider, provider API keys, and simple/complex model identifiers).
 
 The application will be available at:
 

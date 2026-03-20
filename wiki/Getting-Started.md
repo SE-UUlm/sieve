@@ -71,8 +71,9 @@ For a detailed guide on all configuration options, see the
      - This proxying is configured in `next.config.ts`
    - AI-Backend: `http://localhost:8000`
 
-   After the first admin login, configure the instance-wide OpenAI API key in
-   `Settings -> Provider`.
+   After the first admin login, configure provider credentials and model
+   settings in `Settings -> Provider` (active provider, provider API keys, and
+   simple/complex model identifiers).
 
 ### Running Individual Services
 
