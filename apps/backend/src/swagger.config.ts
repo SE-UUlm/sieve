@@ -80,6 +80,11 @@ Therefore, the 'Default' tag is used for endpoints that are related to user auth
         .build();
 
     const nestDocument = SwaggerModule.createDocument(app, config);
+    if (process.env.GENERATE_OPENAPI === "true") {
+        // CI / Orval generation → use ONLY NestJS spec
+        return nestDocument;
+    }
+
     const betterAuthSchema =
         (await auth.api.generateOpenAPISchema()) as OpenAPIObject;
 
