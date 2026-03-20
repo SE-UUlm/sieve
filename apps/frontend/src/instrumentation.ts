@@ -2,6 +2,7 @@ import { setupServer } from "msw/node";
 import { getEmailsMock } from "@/lib/client/emails/emails.msw";
 import { getHealthMock } from "@/lib/client/health/health.msw";
 import { getJobsMock } from "@/lib/client/jobs/jobs.msw";
+import { getSettingsMock } from "@/lib/client/settings/settings.msw";
 import { getUsersMock } from "@/lib/client/users/users.msw";
 
 export async function register() {
@@ -16,6 +17,7 @@ export async function register() {
             ...getUsersMock(),
             ...getEmailsMock(),
             ...getHealthMock(),
+            ...getSettingsMock(),
         ];
         server.use(...mockHandler);
         server.listen();
