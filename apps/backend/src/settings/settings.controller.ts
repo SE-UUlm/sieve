@@ -17,9 +17,12 @@ import {
 import { Roles } from "@thallesp/nestjs-better-auth";
 import { AIProvider, UserRole } from "../../prisma/client/enums";
 import { InstanceSettingsDto } from "./dto/instance-settings.dto";
+import { ProviderModelAvailabilityDto } from "./dto/provider-model-availability.dto";
 import { UpdateInstanceActiveProviderDto } from "./dto/update-instance-active-provider.dto";
 import { UpdateInstanceApiKeyDto } from "./dto/update-instance-api-key.dto";
 import { UpdateInstanceApiKeyEnabledDto } from "./dto/update-instance-api-key-enabled.dto";
+import { UpdateInstanceProviderModelsDto } from "./dto/update-instance-provider-models.dto";
+import { ValidateInstanceProviderModelDto } from "./dto/validate-instance-provider-model.dto";
 import { SettingsService } from "./settings.service";
 
 @ApiTags("Settings")
@@ -137,6 +140,75 @@ export class SettingsController {
             activeProvider:
                 await this.settingsService.getResolvedActiveProvider(),
             providers: await this.settingsService.getAdminProviderSettings(),
+        };
+    }
+
+    @Patch("instance/providers/:provider/models")
+    @Roles([UserRole.ADMIN])
+    @ApiCookieAuth("apiKeyCookie")
+    @ApiOperation({
+        summary: "Update provider simple/complex model settings (admin only)",
+    })
+    @ApiResponse({
+        status: 200,
+        description: "Provider model settings successfully updated",
+        type: InstanceSettingsDto,
+    })
+    @ApiResponse({ status: 400, description: "Bad Request" })
+    @ApiResponse({ status: 401, description: "Unauthorized" })
+    @ApiResponse({ status: 403, description: "Forbidden" })
+    async updateInstanceProviderModels(
+        @Param("provider", new ParseEnumPipe(AIProvider)) provider: AIProvider,
+        @Body() dto: UpdateInstanceProviderModelsDto,
+    ): Promise<InstanceSettingsDto> {
+        if (!dto.simpleModel.trim() || !dto.complexModel.trim()) {
+            throw new BadRequestException("Model identifiers cannot be empty.");
+        }
+
+        await this.settingsService.setProviderModels(
+            provider,
+            dto.simpleModel,
+            dto.complexModel,
+        );
+
+        return {
+            activeProvider:
+                await this.settingsService.getResolvedActiveProvider(),
+            providers: await this.settingsService.getAdminProviderSettings(),
+        };
+    }
+
+    @Patch("instance/providers/:provider/model-availability")
+    @Roles([UserRole.ADMIN])
+    @ApiCookieAuth("apiKeyCookie")
+    @ApiOperation({
+        summary:
+            "Validate provider model availability (admin only, mocked always available)",
+    })
+    @ApiResponse({
+        status: 200,
+        description: "Model availability successfully checked",
+        type: ProviderModelAvailabilityDto,
+    })
+    @ApiResponse({ status: 400, description: "Bad Request" })
+    @ApiResponse({ status: 401, description: "Unauthorized" })
+    @ApiResponse({ status: 403, description: "Forbidden" })
+    async validateInstanceProviderModelAvailability(
+        @Param("provider", new ParseEnumPipe(AIProvider)) provider: AIProvider,
+        @Body() dto: ValidateInstanceProviderModelDto,
+    ): Promise<ProviderModelAvailabilityDto> {
+        if (!dto.model.trim()) {
+            throw new BadRequestException("Model identifier cannot be empty.");
+        }
+
+        const isAvailable =
+            await this.settingsService.validateProviderModelAvailability(
+                provider,
+                dto.model,
+            );
+
+        return {
+            isAvailable,
         };
     }
 

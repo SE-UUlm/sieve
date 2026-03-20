@@ -17,6 +17,11 @@ type ProviderState = {
     isEnabled: boolean;
 };
 
+type ProviderModels = {
+    simpleModel: string | null;
+    complexModel: string | null;
+};
+
 @Injectable()
 export class SettingsService {
     private readonly encryptionKey: Buffer;
@@ -60,16 +65,23 @@ export class SettingsService {
             displayName: string;
             isConfigured: boolean;
             isEnabled: boolean;
+            simpleModel: string | null;
+            complexModel: string | null;
         }>
     > {
         return await Promise.all(
             this.getSupportedProviders().map(async (provider) => {
-                const state = await this.getProviderState(provider);
+                const [state, models] = await Promise.all([
+                    this.getProviderState(provider),
+                    this.getProviderModels(provider),
+                ]);
                 return {
                     provider,
                     displayName: getProviderDisplayName(provider),
                     isConfigured: state.isConfigured,
                     isEnabled: state.isEnabled,
+                    simpleModel: models.simpleModel,
+                    complexModel: models.complexModel,
                 };
             }),
         );
@@ -274,6 +286,72 @@ export class SettingsService {
                 enabled: false,
             },
         });
+    }
+
+    /**
+     * Gets configured simple and complex models for a provider.
+     *
+     * @param provider The provider to get model settings for.
+     * @returns Configured simple and complex model identifiers, or null values when unset.
+     */
+    async getProviderModels(provider: AIProvider): Promise<ProviderModels> {
+        const settings = await this.prismaService.providerSettings.findUnique({
+            where: { provider },
+            select: {
+                simpleModel: true,
+                complexModel: true,
+            },
+        });
+
+        return {
+            simpleModel: settings?.simpleModel ?? null,
+            complexModel: settings?.complexModel ?? null,
+        };
+    }
+
+    /**
+     * Sets simple and complex model identifiers for a provider.
+     *
+     * @param provider The provider to update.
+     * @param simpleModel Model identifier used for simple analysis steps.
+     * @param complexModel Model identifier used for complex analysis steps.
+     */
+    async setProviderModels(
+        provider: AIProvider,
+        simpleModel: string,
+        complexModel: string,
+    ): Promise<void> {
+        await this.prismaService.providerSettings.upsert({
+            where: { provider },
+            create: {
+                provider,
+                simpleModel: simpleModel.trim(),
+                complexModel: complexModel.trim(),
+            },
+            update: {
+                simpleModel: simpleModel.trim(),
+                complexModel: complexModel.trim(),
+            },
+        });
+    }
+
+    /**
+     * Validates whether a model is available for a provider.
+     *
+     * This is intentionally mocked to always return true until AI backend
+     * model availability validation support is implemented.
+     *
+     * TODO: Implement AI backend model availability validation.
+     *
+     * @param _provider The provider for which model availability is checked.
+     * @param _model The model identifier to validate.
+     * @returns Always true (temporary mocked behavior).
+     */
+    async validateProviderModelAvailability(
+        _provider: AIProvider,
+        _model: string,
+    ): Promise<boolean> {
+        return true;
     }
 
     private async getProviderState(
