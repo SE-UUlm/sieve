@@ -56,7 +56,7 @@ async def search_product(
         column_conditions = [f'"{col}"::text ILIKE ANY($1)' for col in search_columns]
         where_clause = " OR ".join(column_conditions)
 
-        sqlQuery = f"SELECT {select_columns} FROM {table_name} WHERE {where_clause};"
+        sqlQuery = f'SELECT {select_columns} FROM "{table_name}" WHERE {where_clause};'
 
         rows = await conn.fetch(sqlQuery, search_patterns)
         rows_dicts = [dict(row) for row in rows]

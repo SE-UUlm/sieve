@@ -25,10 +25,10 @@ def get_category(category: str, categories: Categories) -> CategoryConfig:
 
 def get_provider_name(provider: str) -> str:
     if provider == "OPENAI":
-        return "OpenAI"
+        return "openai"
     elif provider == "ANTHROPIC":
-        return "Anthropic"
+        return "anthropic"
     elif provider == "GOOGLE_VERTEX_AI":
-        return "Google Vertex AI"
+        return "google_vertexai"
     else:
         raise ValueError(f"Unknown provider: {provider}")

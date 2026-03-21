@@ -29,7 +29,10 @@ async def structured_response(state: FlowGraphState, runtime: Runtime[Context]) 
     )  # Copy before modifying
 
     # top level title of json schema cannot contain spaces, because OpenAI does not like that. So we'll replace them with underscores
-    schema["title"] = schema["title"].replace(" ", "_")
+    if "title" in schema:
+        schema["title"] = schema["title"].replace(" ", "_")
+    else:  # top level title is required. Generate if not exists
+        schema["title"] = state.category_config.name.replace(" ", "_")
 
     structured = runtime.context.simple_model.with_structured_output(schema)
 

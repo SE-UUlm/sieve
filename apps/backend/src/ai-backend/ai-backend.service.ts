@@ -101,7 +101,6 @@ export class AiBackendService implements OnModuleInit {
                                         },
                                     },
                                     required: ["complaints", "urgency"],
-                                    title: "Complaint",
                                     type: "object",
                                 },
                                 structured_response_prompt:
