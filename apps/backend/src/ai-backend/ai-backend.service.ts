@@ -107,7 +107,7 @@ export class AiBackendService implements OnModuleInit {
                                 structured_reponse_prompt:
                                     "Be extremely concise",
                                 summary_prompt:
-                                    "Include every little detail of the complaint",
+                                    "Include every little detail of the complaint. Answer in French.",
                             },
                         },
                         {
@@ -209,7 +209,7 @@ export class AiBackendService implements OnModuleInit {
                                         },
                                     },
                                     required: ["products", "urgency"],
-                                    title: "Product_Inquiry",
+                                    title: "Product Inquiry",
                                     type: "object",
                                 },
                                 db_step_prompt:
@@ -319,11 +319,13 @@ export class AiBackendService implements OnModuleInit {
                                         },
                                     },
                                     required: ["issues"],
-                                    title: "Product_Support",
+                                    title: "Product Support",
                                     type: "object",
                                 },
                                 db_step_prompt:
                                     "Database hints: The database only contains lego sets. The metadata column contains the part count. The products in the database are named in german",
+                                summary_prompt:
+                                    "Answer in German. In sehr kurzen Stichworten antworten",
                             },
                         },
                         {
@@ -342,6 +344,8 @@ export class AiBackendService implements OnModuleInit {
                                     type: "object",
                                     title: "Other",
                                 },
+                                summary_prompt:
+                                    "Be extremely concise. Answer in English",
                             },
                         },
                     ],

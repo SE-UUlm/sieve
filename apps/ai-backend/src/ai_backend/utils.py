@@ -24,14 +24,6 @@ def get_category(category: str, categories: Categories) -> CategoryConfig:
     raise ValueError(f"Unknown category: {category}")
 
 
-def get_category_flow(category: str, categories: Categories) -> FlowConfig:
-    for cat in categories:
-        if cat.name == category:
-            return cat.flow
-
-    raise ValueError(f"Unknown category: {category}")
-
-
 def get_provider_name(provider: str) -> str:
     if provider == "OPENAI":
         return "OpenAI"

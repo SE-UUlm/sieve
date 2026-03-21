@@ -2,8 +2,8 @@ from ai_backend.simple_flow import simple_flow
 from ai_backend.utils import (
     format_email,
     get_categories,
-    get_category_flow,
     get_provider_name,
+    get_category,
 )
 from ai_backend.product_flow import product_flow
 from langchain_core.callbacks import UsageMetadataCallbackHandler
@@ -69,14 +69,13 @@ def route_to_flows(state: GraphState, runtime: ToolRuntime[Context]) -> list[Sen
 
     return [
         Send(
-            get_category_flow(category, runtime.context.categories).name,
+            get_category(
+                category, runtime.context.categories
+            ).flow.name,  # TODO: include Category Config with specific FlowCOnfig?
             FlowGraphState(category=category),
         )
         for category in categories
     ]
-
-
-# TODO include custom prompts
 
 
 # TODO: Improve prevention that a single concern is assigned multiple categories. And that especially the Other category includes content from other categories. Maybe do a email segmentation

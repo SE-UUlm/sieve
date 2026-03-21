@@ -1,6 +1,6 @@
 from typing import Annotated
 from ai_backend.shared_flow import summary, structured_response
-from ai_backend.utils import format_email
+from ai_backend.utils import format_email, get_category
 from langchain.messages import SystemMessage, HumanMessage
 from langchain.agents import create_agent, AgentState
 from ai_backend.schemas import (
@@ -67,6 +67,8 @@ async def search_product(
 async def db_step(state: FlowGraphState, runtime: ToolRuntime[Context]) -> dict:
     """Tries to find products from the database that are the ones the customer is talking about"""
 
+    flow = get_category(state.category, runtime.context.categories).flow
+
     agent = create_agent(
         model=runtime.context.complex_model,
         response_format=SearchResult,
@@ -77,16 +79,20 @@ async def db_step(state: FlowGraphState, runtime: ToolRuntime[Context]) -> dict:
         SystemMessage("""Your job is to find the product(s) the customer wants to buy or is talking about in their email. 
         Use the search_product tool to find the products the customer might want, use the provided database schema (tables and their columns). 
         Try multiple different keywords, variants, translation and try again a maximum of 5 times until you're satisfied with the results.
-        If you think you found the right products return them using the provided output format. Together with your confidence score.
-        Answer Language: English"""),
+        If you think you found the right products return them using the provided output format. Together with your confidence score."""),
         SystemMessage(f"""Database Schema: {runtime.context.db_schema}"""),
-        HumanMessage(format_email(runtime.context.email)),
     ]
+
+    if flow.db_step_prompt:
+        conversation.append(SystemMessage(flow.db_step_prompt))
+
+    conversation.append(HumanMessage(format_email(runtime.context.email)))
+
     result = await agent.ainvoke(
         {"messages": conversation},
     )
 
-    # TODO: Sometimes it doesnt finish. Especially with 4o-mini and if it does not find the right products. Maybe try to debug with streaming. Maybe now its fixed?
+    # TODO: Sometimes it doesnt finish with 4o-mini and if it does not find the right products. Maybe try to debug with streaming.
 
     for msg in result["messages"]:
         msg.pretty_print()
