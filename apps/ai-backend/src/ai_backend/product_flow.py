@@ -68,7 +68,7 @@ async def search_product(
 async def db_step(state: FlowGraphState, runtime: Runtime[Context]) -> dict:
     """Tries to find products from the database that are the ones the customer is talking about"""
 
-    flow = get_category(state.category, runtime.context.categories).flow
+    category = get_category(state.category, runtime.context.categories)
 
     agent = create_agent(
         model=runtime.context.complex_model,
@@ -77,15 +77,16 @@ async def db_step(state: FlowGraphState, runtime: Runtime[Context]) -> dict:
         context_schema=Context,
     )
     conversation = [
-        SystemMessage("""Your job is to find the product(s) the customer wants to buy or is talking about in their email. 
+        SystemMessage(f"""Your job is to find the product(s) the customer wants to buy or is talking about in their email. 
+        Only use the parts of the email that relates to the category '{category.name}: {category.description}' and ignore other parts.
         Use the search_product tool to find the products the customer might want, use the provided database schema (tables and their columns). 
         Try multiple different keywords, variants, translation and try again a maximum of 5 times until you're satisfied with the results.
         If you think you found the right products or tried too many times, return them using the provided output format. Together with your confidence score."""),
         SystemMessage(f"""Database Schema: {runtime.context.db_schema}"""),
     ]
 
-    if flow.db_step_prompt:
-        conversation.append(SystemMessage(flow.db_step_prompt))
+    if category.flow.db_step_prompt:
+        conversation.append(SystemMessage(category.flow.db_step_prompt))
 
     conversation.append(HumanMessage(format_email(runtime.context.email)))
 
