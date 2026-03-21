@@ -1,7 +1,6 @@
 from ai_backend.schemas import (
     Email,
     Categories,
-    FlowConfig,
     CategoryConfig,
 )
 

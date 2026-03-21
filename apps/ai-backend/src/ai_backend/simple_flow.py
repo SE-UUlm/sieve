@@ -1,11 +1,15 @@
 from ai_backend.shared_flow import summary, structured_response
-from langchain.tools import ToolRuntime
+from langgraph.runtime import Runtime
 from ai_backend.schemas import FlowGraphState, FlowResult, Context, SimpleFlowSteps
 from langgraph.graph import StateGraph, START, END
 
 
 simple_subgraph = (
-    StateGraph(FlowGraphState, output_schema=FlowResult[SimpleFlowSteps])
+    StateGraph(
+        FlowGraphState,
+        output_schema=FlowResult[SimpleFlowSteps],
+        context_schema=Context,
+    )
     .add_node("structured_response", structured_response)
     .add_node("summary", summary)
     .add_edge(START, "summary")
@@ -15,12 +19,15 @@ simple_subgraph = (
 )
 
 
-async def simple_flow(state: FlowGraphState, runtime: ToolRuntime[Context]) -> dict:
+async def simple_flow(state: FlowGraphState, runtime: Runtime[Context]) -> dict:
     """Flow that only does summary and structured response"""
 
     print(f"▶️ START simple flow Category {state.category}")
 
-    response: FlowResult[SimpleFlowSteps] = await simple_subgraph.ainvoke(state)
+    raw_response = await simple_subgraph.ainvoke(state)
+
+    # Check if really valid and make ty happy
+    response = FlowResult[SimpleFlowSteps](**raw_response)
 
     print(f"✔️ END Category {state.category} Result: ", response)
 

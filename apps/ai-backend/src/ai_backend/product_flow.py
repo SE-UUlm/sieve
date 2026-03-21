@@ -10,6 +10,7 @@ from ai_backend.schemas import (
     SearchResult,
     ProductFlowSteps,
 )
+from langgraph.runtime import Runtime
 from langchain.tools import tool, ToolRuntime, InjectedState, ToolException
 from langgraph.graph import StateGraph, START, END
 
@@ -64,7 +65,7 @@ async def search_product(
         return rows_dicts
 
 
-async def db_step(state: FlowGraphState, runtime: ToolRuntime[Context]) -> dict:
+async def db_step(state: FlowGraphState, runtime: Runtime[Context]) -> dict:
     """Tries to find products from the database that are the ones the customer is talking about"""
 
     flow = get_category(state.category, runtime.context.categories).flow
@@ -101,7 +102,11 @@ async def db_step(state: FlowGraphState, runtime: ToolRuntime[Context]) -> dict:
 
 
 product_subgraph = (
-    StateGraph(FlowGraphState, output_schema=FlowResult[ProductFlowSteps])
+    StateGraph(
+        FlowGraphState,
+        output_schema=FlowResult[ProductFlowSteps],
+        context_schema=Context,
+    )
     .add_node("db_step", db_step)
     .add_node("structured_response", structured_response)
     .add_node("summary", summary)
@@ -113,12 +118,15 @@ product_subgraph = (
 )
 
 
-async def product_flow(state: FlowGraphState, runtime: ToolRuntime[Context]) -> dict:
+async def product_flow(state: FlowGraphState, runtime: Runtime[Context]) -> dict:
     """Flow that additionally tries to find products in the database. Plus summary and structured response"""
 
     print(f"▶️ START product flow Category {state.category}")
 
-    response: FlowResult[ProductFlowSteps] = await product_subgraph.ainvoke(state)
+    raw_response = await product_subgraph.ainvoke(state)
+
+    # Check if really valid and make ty happy
+    response = FlowResult[ProductFlowSteps](**raw_response)
 
     print(f"✔️ END Category {state.category} Result: ", response)
 

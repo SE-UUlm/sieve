@@ -1,11 +1,11 @@
 from pydantic import TypeAdapter
 from ai_backend.utils import format_email, get_category
 from langchain.messages import SystemMessage, HumanMessage
-from langchain.tools import ToolRuntime
+from langgraph.runtime import Runtime
 from ai_backend.schemas import FlowGraphState, Context
 
 
-async def summary(state: FlowGraphState, runtime: ToolRuntime[Context]) -> dict:
+async def summary(state: FlowGraphState, runtime: Runtime[Context]) -> dict:
     category = get_category(state.category, runtime.context.categories)
 
     messages = [
@@ -25,9 +25,7 @@ async def summary(state: FlowGraphState, runtime: ToolRuntime[Context]) -> dict:
     return {"steps": {"summary": result.content}}
 
 
-async def structured_response(
-    state: FlowGraphState, runtime: ToolRuntime[Context]
-) -> dict:
+async def structured_response(state: FlowGraphState, runtime: Runtime[Context]) -> dict:
     category = get_category(state.category, runtime.context.categories)
     schema = category.flow.structured_response_schema
 

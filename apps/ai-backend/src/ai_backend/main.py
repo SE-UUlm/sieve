@@ -1,6 +1,5 @@
 from typing import Literal
 from anthropic import BaseModel
-from numpy.random.tests.test_direct import Base
 from ai_backend.schemas import AnalyzeEmailRequest, FlowResult
 import os
 import asyncpg

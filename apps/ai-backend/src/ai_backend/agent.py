@@ -1,3 +1,5 @@
+from langchain_core.runnables import RunnableConfig
+from langgraph.runtime import Runtime
 from ai_backend.simple_flow import simple_flow
 from ai_backend.utils import (
     format_email,
@@ -8,7 +10,6 @@ from ai_backend.utils import (
 from ai_backend.product_flow import product_flow
 from langchain_core.callbacks import UsageMetadataCallbackHandler
 import asyncpg
-from langchain.tools import ToolRuntime
 from langchain.messages import HumanMessage, SystemMessage
 from langgraph.types import Send
 from langchain.chat_models import init_chat_model
@@ -59,7 +60,7 @@ async def get_database_schema(pool: asyncpg.Pool) -> dict[str, list[str]]:
         return schema
 
 
-def route_to_flows(state: GraphState, runtime: ToolRuntime[Context]) -> list[Send]:
+def route_to_flows(state: GraphState, runtime: Runtime[Context]) -> list[Send]:
     """Fan out to agents based on categories."""
 
     categories = set(state.categories)
@@ -79,13 +80,14 @@ def route_to_flows(state: GraphState, runtime: ToolRuntime[Context]) -> list[Sen
 
 
 # TODO: Improve prevention that a single concern is assigned multiple categories. And that especially the Other category includes content from other categories. Maybe do a email segmentation
-async def categorize(state: GraphState, runtime: ToolRuntime[Context]) -> dict:
+async def categorize(state: GraphState, runtime: Runtime[Context]) -> dict:
+    context = runtime.context
     # Langchain only supports objects/dicts as structured output, not arrays directly
     json_schema = {
         "properties": {
             "categories": {
                 "items": {
-                    "enum": get_categories(runtime.context.categories),
+                    "enum": get_categories(context.categories),
                     "type": "string",
                 },
                 "type": "array",
@@ -96,7 +98,7 @@ async def categorize(state: GraphState, runtime: ToolRuntime[Context]) -> dict:
         "type": "object",
     }
 
-    structured = runtime.context.simple_model.with_structured_output(json_schema)
+    structured = context.simple_model.with_structured_output(json_schema)
 
     result = await structured.ainvoke(
         [
@@ -110,13 +112,18 @@ async def categorize(state: GraphState, runtime: ToolRuntime[Context]) -> dict:
                 + "\n".join(
                     [
                         f"{category.name}: {category.description}"
-                        for category in runtime.context.categories
+                        for category in context.categories
                     ]
                 )
             ),
-            HumanMessage(format_email(runtime.context.email)),
+            HumanMessage(format_email(context.email)),
         ]
     )
+
+    assert isinstance(
+        result, dict
+    )  # Tell ty that this is a dict, not a BaseModel because we used a json schema not a pydantic model
+
     print(f"📁 Categories: {result['categories']}")
     return {"categories": result["categories"]}
 
@@ -144,7 +151,7 @@ def init_complex_model(model_config: ModelConfig):
 
 
 workflow = (
-    StateGraph(GraphState, output_schema=GraphOutput)
+    StateGraph(GraphState, output_schema=GraphOutput, context_schema=Context)
     .add_node("categorize", categorize)
     .add_node("simple", simple_flow)
     .add_node("product", product_flow)
@@ -176,10 +183,10 @@ async def run_analyze_email_agent(
         email=analyseRequest.email,
         categories=analyseRequest.categories,
     )
-    config = {"callbacks": [cb]}
+    config = RunnableConfig(callbacks=[cb])
 
     result = await workflow.ainvoke(
-        {},
+        GraphState(),
         config=config,
         context=context,
     )
