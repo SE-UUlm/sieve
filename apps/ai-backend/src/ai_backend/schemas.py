@@ -41,11 +41,13 @@ class ProductFlowConfig(BaseModel):
 
 FlowConfig = Union[SimpleFlowConfig, ProductFlowConfig]
 
+FlowConfigType = TypeVar("FlowConfigType", bound=FlowConfig)
 
-class CategoryConfig(BaseModel):
+
+class CategoryConfig(BaseModel, Generic[FlowConfigType]):
     name: str = Field(min_length=1, max_length=32)
     description: str = Field(max_length=1000)
-    flow: FlowConfig
+    flow: FlowConfigType
 
 
 Categories = list[CategoryConfig]
@@ -106,8 +108,9 @@ class FlowResult(BaseModel, Generic[FlowType]):
     steps: FlowType
 
 
-class FlowGraphState(BaseModel):
+class FlowGraphState(BaseModel, Generic[FlowConfigType]):
     category: str
+    category_config: CategoryConfig[FlowConfigType]
     steps: Annotated[dict[str, Any], operator.ior] = dict()
 
 

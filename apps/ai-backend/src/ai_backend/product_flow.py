@@ -1,6 +1,6 @@
 from typing import Annotated
 from ai_backend.shared_flow import summary, structured_response
-from ai_backend.utils import format_email, get_category
+from ai_backend.utils import format_email
 from langchain.messages import SystemMessage, HumanMessage
 from langchain.agents import create_agent, AgentState
 from ai_backend.schemas import (
@@ -9,6 +9,7 @@ from ai_backend.schemas import (
     FlowResult,
     SearchResult,
     ProductFlowSteps,
+    ProductFlowConfig,
 )
 from langgraph.runtime import Runtime
 from langchain.tools import tool, ToolRuntime, InjectedState, ToolException
@@ -65,10 +66,12 @@ async def search_product(
         return rows_dicts
 
 
-async def db_step(state: FlowGraphState, runtime: Runtime[Context]) -> dict:
+async def db_step(
+    state: FlowGraphState[ProductFlowConfig], runtime: Runtime[Context]
+) -> dict:
     """Tries to find products from the database that are the ones the customer is talking about"""
 
-    category = get_category(state.category, runtime.context.categories)
+    category = state.category_config
 
     agent = create_agent(
         model=runtime.context.complex_model,
@@ -104,7 +107,7 @@ async def db_step(state: FlowGraphState, runtime: Runtime[Context]) -> dict:
 
 product_subgraph = (
     StateGraph(
-        FlowGraphState,
+        FlowGraphState[ProductFlowConfig],
         output_schema=FlowResult[ProductFlowSteps],
         context_schema=Context,
     )
@@ -122,13 +125,13 @@ product_subgraph = (
 async def product_flow(state: FlowGraphState, runtime: Runtime[Context]) -> dict:
     """Flow that additionally tries to find products in the database. Plus summary and structured response"""
 
-    print(f"▶️ START product flow Category {state.category}")
+    print(f"▶️ START product flow Category {state.category_config}")
 
     raw_response = await product_subgraph.ainvoke(state)
 
     # Check if really valid and make ty happy
     response = FlowResult[ProductFlowSteps](**raw_response)
 
-    print(f"✔️ END Category {state.category} Result: ", response)
+    print(f"✔️ END Category {state.category_config} Result: ", response)
 
     return {"results": [response]}

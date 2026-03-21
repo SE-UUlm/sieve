@@ -70,10 +70,11 @@ def route_to_flows(state: GraphState, runtime: Runtime[Context]) -> list[Send]:
 
     return [
         Send(
-            get_category(
-                category, runtime.context.categories
-            ).flow.name,  # TODO: include Category Config with specific FlowCOnfig?
-            FlowGraphState(category=category),
+            get_category(category, runtime.context.categories).flow.name,
+            FlowGraphState(
+                category=category,
+                category_config=get_category(category, runtime.context.categories),
+            ),
         )
         for category in categories
     ]

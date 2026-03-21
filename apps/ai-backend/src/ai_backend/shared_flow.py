@@ -1,20 +1,18 @@
 from pydantic import TypeAdapter
-from ai_backend.utils import format_email, get_category
+from ai_backend.utils import format_email
 from langchain.messages import SystemMessage, HumanMessage
 from langgraph.runtime import Runtime
 from ai_backend.schemas import FlowGraphState, Context
 
 
 async def summary(state: FlowGraphState, runtime: Runtime[Context]) -> dict:
-    category = get_category(state.category, runtime.context.categories)
-
     messages = [
         SystemMessage(
-            f"""Your job is to summarize the part of the customer's email that relates to the category '{category.name}: {category.description}' and ignore other parts."""
+            f"""Your job is to summarize the part of the customer's email that relates to the category '{state.category_config.name}: {state.category_config.description}' and ignore other parts."""
         ),
     ]
 
-    summary_prompt = category.flow.summary_prompt
+    summary_prompt = state.category_config.flow.summary_prompt
     if summary_prompt:
         messages.append(SystemMessage(summary_prompt))
 
@@ -26,8 +24,9 @@ async def summary(state: FlowGraphState, runtime: Runtime[Context]) -> dict:
 
 
 async def structured_response(state: FlowGraphState, runtime: Runtime[Context]) -> dict:
-    category = get_category(state.category, runtime.context.categories)
-    schema = dict(category.flow.structured_response_schema)  # Copy before modifying
+    schema = dict(
+        state.category_config.flow.structured_response_schema
+    )  # Copy before modifying
 
     # top level title of json schema cannot contain spaces, because OpenAI does not like that. So we'll replace them with underscores
     schema["title"] = schema["title"].replace(" ", "_")
@@ -41,13 +40,15 @@ async def structured_response(state: FlowGraphState, runtime: Runtime[Context]) 
 
     messages = [
         SystemMessage(
-            f"""Your job is to convert a customer's email into a structured form. Only use the parts of the email that relates to the category '{category.name}: {category.description}' and ignore other parts."""
+            f"""Your job is to convert a customer's email into a structured form. Only use the parts of the email that relates to the category '{state.category_config.name}: {state.category_config.description}' and ignore other parts."""
         ),
         SystemMessage("Related information: " + json_string),
     ]
 
-    if category.flow.structured_response_prompt:
-        messages.append(SystemMessage(category.flow.structured_response_prompt))
+    if state.category_config.flow.structured_response_prompt:
+        messages.append(
+            SystemMessage(state.category_config.flow.structured_response_prompt)
+        )
 
     messages.append(HumanMessage(format_email(runtime.context.email)))
 
