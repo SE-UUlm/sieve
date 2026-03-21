@@ -1,5 +1,5 @@
+from pydantic import BaseModel
 from typing import Literal
-from anthropic import BaseModel
 from ai_backend.schemas import AnalyzeEmailRequest, FlowResult
 import os
 import asyncpg

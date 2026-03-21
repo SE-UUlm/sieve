@@ -27,9 +27,9 @@ async def summary(state: FlowGraphState, runtime: Runtime[Context]) -> dict:
 
 async def structured_response(state: FlowGraphState, runtime: Runtime[Context]) -> dict:
     category = get_category(state.category, runtime.context.categories)
-    schema = category.flow.structured_response_schema
+    schema = dict(category.flow.structured_response_schema)  # Copy before modifying
 
-    # top level title of json schema cannot contain spaces, because OpenAI does not like that. So we'll replace them with undescores
+    # top level title of json schema cannot contain spaces, because OpenAI does not like that. So we'll replace them with underscores
     schema["title"] = schema["title"].replace(" ", "_")
 
     structured = runtime.context.simple_model.with_structured_output(schema)
@@ -46,8 +46,8 @@ async def structured_response(state: FlowGraphState, runtime: Runtime[Context]) 
         SystemMessage("Related information: " + json_string),
     ]
 
-    if category.flow.structured_reponse_prompt:
-        messages.append(SystemMessage(category.flow.structured_reponse_prompt))
+    if category.flow.structured_response_prompt:
+        messages.append(SystemMessage(category.flow.structured_response_prompt))
 
     messages.append(HumanMessage(format_email(runtime.context.email)))
 

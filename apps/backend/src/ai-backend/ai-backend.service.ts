@@ -104,8 +104,8 @@ export class AiBackendService implements OnModuleInit {
                                     title: "Complaint",
                                     type: "object",
                                 },
-                                structured_reponse_prompt:
-                                    "Be extremely concise",
+                                structured_response_prompt:
+                                    "Be extremely concise. List every complaint twice. Once in English, once in French",
                                 summary_prompt:
                                     "Include every little detail of the complaint. Answer in French.",
                             },

@@ -30,11 +30,11 @@ async def search_product(
 
     tool_calls = len([m for m in state["messages"] if m.type == "tool"])
 
-    if tool_calls >= 5:
-        return "search_product Tool call limit exceeded. Now return the result with the potentialProducts and your confidence score."
-
     if tool_calls >= 10:
         raise ToolException("Max tries (10) for this tool reached.")
+
+    if tool_calls >= 5:
+        return "search_product Tool call limit exceeded. Now return the result with the potentialProducts and your confidence score."
 
     db_schema = runtime.context.db_schema
     if table_name not in db_schema:
@@ -80,7 +80,7 @@ async def db_step(state: FlowGraphState, runtime: Runtime[Context]) -> dict:
         SystemMessage("""Your job is to find the product(s) the customer wants to buy or is talking about in their email. 
         Use the search_product tool to find the products the customer might want, use the provided database schema (tables and their columns). 
         Try multiple different keywords, variants, translation and try again a maximum of 5 times until you're satisfied with the results.
-        If you think you found the right products return them using the provided output format. Together with your confidence score."""),
+        If you think you found the right products or tried too many times, return them using the provided output format. Together with your confidence score."""),
         SystemMessage(f"""Database Schema: {runtime.context.db_schema}"""),
     ]
 

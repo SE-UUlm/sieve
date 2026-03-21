@@ -27,14 +27,14 @@ class ModelConfig(BaseModel):
 class SimpleFlowConfig(BaseModel):
     name: Literal["simple"]
     structured_response_schema: dict[str, Any]
-    structured_reponse_prompt: str | None = Field(None, max_length=1000)
+    structured_response_prompt: str | None = Field(None, max_length=1000)
     summary_prompt: str | None = Field(None, max_length=1000)
 
 
 class ProductFlowConfig(BaseModel):
     name: Literal["product"]
     structured_response_schema: dict[str, Any]
-    structured_reponse_prompt: str | None = Field(None, max_length=1000)
+    structured_response_prompt: str | None = Field(None, max_length=1000)
     summary_prompt: str | None = Field(None, max_length=1000)
     db_step_prompt: str | None = Field(None, max_length=1000)
 
