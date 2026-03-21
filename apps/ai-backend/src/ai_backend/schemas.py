@@ -1,111 +1,133 @@
+from langchain.chat_models import BaseChatModel
+import operator
 import asyncpg
 from dataclasses import dataclass
-from typing import Literal, Union, Any
+from typing import Literal, Union, Any, Annotated, TypeVar, Generic
 
 from pydantic import BaseModel, Field
 
-
-@dataclass
-class Context:
-    db_pool: asyncpg.Pool
-    db_schema: dict[str, list[str]]
+## Analyze Request ##
 
 
-class Other(BaseModel):
-    """The email does not match any of the other categories."""
-
-    category: Literal["Other"]
-    summary: str
+class Email(BaseModel):
+    subject: str | None = Field(default=None, max_length=300)
+    body: str = Field(min_length=1, max_length=10000)
 
 
-class Complaint(BaseModel):
-    """The user expresses dissatisfaction, frustration or is serious and angry."""
-
-    category: Literal["Complaint"]
-    complaints: list[str] = Field(description="Only one item per individual complaint")
-    urgency: int = Field(
-        description="How urgent is the complaint from 0 (not urgent) to 100 (very urgent)"
-    )
+Provider = Literal["OPENAI", "GOOGLE_VERTEX_AI", "ANTHROPIC"]
 
 
+class ModelConfig(BaseModel):
+    provider: Provider
+    api_key: str = Field(min_length=1, max_length=500)
+    simple_model: str = Field(min_length=1, max_length=100)
+    complex_model: str = Field(min_length=1, max_length=100)
+
+
+class SimpleFlowConfig(BaseModel):
+    name: Literal["simple"]
+    structured_response_schema: dict[str, Any]
+    structured_response_prompt: str | None = Field(None, max_length=1000)
+    summary_prompt: str | None = Field(None, max_length=1000)
+
+
+class ProductFlowConfig(BaseModel):
+    name: Literal["product"]
+    structured_response_schema: dict[str, Any]
+    structured_response_prompt: str | None = Field(None, max_length=1000)
+    summary_prompt: str | None = Field(None, max_length=1000)
+    db_step_prompt: str | None = Field(None, max_length=1000)
+
+
+FlowConfig = Union[SimpleFlowConfig, ProductFlowConfig]
+
+FlowConfigType = TypeVar("FlowConfigType", bound=FlowConfig)
+
+
+class CategoryConfig(BaseModel, Generic[FlowConfigType]):
+    name: str = Field(min_length=1, max_length=32)
+    description: str = Field(max_length=1000)
+    flow: FlowConfigType
+
+
+Categories = list[CategoryConfig]
+
+
+class AnalyzeEmailRequest(BaseModel):
+    email: Email
+    model: ModelConfig
+    categories: Categories
+
+
+## LangGraph Schemas ##
+
+
+## Product Flow Schemas
 class Product(BaseModel):
-    """Use the provided 'related products' to fill out the products, or if not matching, fill out only name and quantity with the user provided info."""
-
     product_name: str
-    quantity: int
     product_id: str | None = Field(
-        default=None, description="If not known, leave empty"
+        default=None, description="If not known, set to null"
     )
     product_category: str | None = Field(
-        default=None, description="If not known, leave empty"
+        default=None, description="If not known, set to null"
     )
     metadata: dict[str, Any] | None = Field(
-        default=None, description="If not known, leave empty"
-    )
-    price: float | None = Field(default=None, description="If not known, leave empty")
-
-
-class ProductOrder(BaseModel):
-    """The user has an immediate desire to order one or more specific products."""
-
-    category: Literal["Product_Order"]
-    products: list[Product] = Field(
-        description="List the products the user wants to order"
-    )
-    urgency: int = Field(
-        description="How urgent is the complaint from 0 (not urgent) to 100 (very urgent)"
-    )
-
-
-class ProductInquiry(BaseModel):
-    """The user wants to ask for information regarding a product they do not yet own or wants suggestion which product(s) to buy."""
-
-    category: Literal["Product_Inquiry"]
-    products: list[Product] = Field(
-        description="List all Products from 'Related Products'"
-    )
-    question: str | None = Field(default=None)
-    answer: str | None = Field(
         default=None,
-        description="If the customer asked a question and you can answer the question based on the provided product details, then answer here",
+        description="Use a json object directly, not a string. If not known, set to null",
     )
-    urgency: int = Field(
-        description="How urgent is the complaint from 0 (not urgent) to 100 (very urgent)"
-    )
-
-
-class Issue(BaseModel):
-    product: Product
-    issue: str = Field(description="A short summary of the issue")
-    urgency: int = Field(
-        description="How urgent is the complaint from 0 (not urgent) to 100 (very urgent)"
-    )
-
-
-class ProductSupport(BaseModel):
-    """The user asks about an existing product they already have or use."""
-
-    category: Literal["Product_Support"]
-    issues: list[Issue]
-
-
-ResponseFormatData = Union[
-    ProductOrder,
-    ProductInquiry,
-    ProductSupport,
-    Complaint,
-    Other,
-]
-
-
-class ResponseFormat(BaseModel):
-    data: ResponseFormatData
+    price: float | None = Field(default=None, description="If not known, set to null")
 
 
 class SearchResult(BaseModel):
     potentialProducts: list[Product] = Field(
-        description="Products from the search you think are the ones the customer wanted"
+        description="Products from the search you think are the ones the customer was talking about"
     )
     confidence: float = Field(
-        description="How confident you are that the products are the ones the customer wanted"
+        description="How confident you are that the products are the ones the customer meant"
     )
+
+
+## Flow Graph:
+class SimpleFlowSteps(BaseModel):
+    summary: str
+
+
+class ProductFlowSteps(BaseModel):
+    summary: str
+    db_step: list[Product]
+
+
+FlowSteps = Union[SimpleFlowSteps, ProductFlowSteps]
+
+FlowType = TypeVar("FlowType", bound=FlowSteps)
+
+
+class FlowResult(BaseModel, Generic[FlowType]):
+    category: str
+    structured_output: Any
+    steps: FlowType
+
+
+class FlowGraphState(BaseModel, Generic[FlowConfigType]):
+    category: str
+    category_config: CategoryConfig[FlowConfigType]
+    steps: Annotated[dict[str, Any], operator.ior] = dict()
+
+
+## Top Level Graph:
+@dataclass
+class Context:
+    db_pool: asyncpg.Pool
+    db_schema: dict[str, list[str]]
+    simple_model: BaseChatModel
+    complex_model: BaseChatModel
+    email: Email
+    categories: Categories
+
+
+class GraphOutput(BaseModel):
+    results: Annotated[list[FlowResult], operator.add] = []
+
+
+class GraphState(GraphOutput):
+    categories: list[str] = []

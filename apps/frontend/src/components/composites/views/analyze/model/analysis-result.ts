@@ -12,6 +12,9 @@ export type AnalysisResult = SubmitEmailResponseDto["data"];
  * @returns Human-readable category label.
  */
 export function getAnalysisCategory(result: AnalysisResult): string {
+    if (!result.category) {
+        return "Unknown";
+    }
     return result.category.replaceAll("_", " ");
 }
 
