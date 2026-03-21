@@ -30,7 +30,7 @@ async def simple_flow(state: FlowGraphState, runtime: Runtime[Context]) -> dict:
 
     print(f"▶️ START simple flow Category {state.category_config.name}")
 
-    raw_response = await simple_subgraph.ainvoke(state)
+    raw_response = await simple_subgraph.ainvoke(state, context=runtime.context)
 
     # Check if really valid and make ty happy
     response = FlowResult[SimpleFlowSteps](**raw_response)

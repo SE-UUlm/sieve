@@ -95,6 +95,7 @@ async def db_step(
 
     result = await agent.ainvoke(
         {"messages": conversation},
+        context=runtime.context,
     )
 
     # TODO: Sometimes it doesnt finish with 4o-mini and if it does not find the right products. Maybe try to debug with streaming.
@@ -127,7 +128,7 @@ async def product_flow(state: FlowGraphState, runtime: Runtime[Context]) -> dict
 
     print(f"▶️ START product flow Category {state.category_config}")
 
-    raw_response = await product_subgraph.ainvoke(state)
+    raw_response = await product_subgraph.ainvoke(state, context=runtime.context)
 
     # Check if really valid and make ty happy
     response = FlowResult[ProductFlowSteps](**raw_response)
