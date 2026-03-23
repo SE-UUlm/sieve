@@ -35,7 +35,10 @@ export class ImapService {
                 host: config.host,
                 port: config.port,
                 secure: config.security === "ssl",
-                tls: config.security === "starttls" ? { rejectUnauthorized: false } : undefined,
+                tls:
+                    config.security === "starttls"
+                        ? { rejectUnauthorized: false }
+                        : undefined,
                 auth: {
                     user: config.username,
                     pass: config.password,
@@ -55,7 +58,10 @@ export class ImapService {
         } catch (error) {
             return {
                 isConnected: false,
-                lastError: error instanceof Error ? error.message : "Unknown error occurred",
+                lastError:
+                    error instanceof Error
+                        ? error.message
+                        : "Unknown error occurred",
             };
         }
     }

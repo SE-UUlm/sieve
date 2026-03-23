@@ -1,10 +1,4 @@
-import {
-    Body,
-    Controller,
-    Get,
-    Post,
-    Put,
-} from "@nestjs/common";
+import { Body, Controller, Get, Post, Put } from "@nestjs/common";
 import {
     ApiCookieAuth,
     ApiOperation,
@@ -13,18 +7,18 @@ import {
 } from "@nestjs/swagger";
 import { Roles } from "@thallesp/nestjs-better-auth";
 import { UserRole } from "../../prisma/client/enums";
-import { ImapService } from "./imap.service";
+import { AuthUser } from "../lib/auth-user.decorator";
 import { SettingsService } from "../settings/settings.service";
 import {
-    TestImapConnectionDto,
-    ImapStatusDto,
-    SaveImapConfigDto,
     ImapConfigDto,
+    ImapStatusDto,
     MailboxCountDto,
     ProcessEmailsResponseDto,
+    SaveImapConfigDto,
+    TestImapConnectionDto,
 } from "./dto";
+import { ImapService } from "./imap.service";
 import { ImapPollerService } from "./imap-poller.service";
-import { AuthUser } from "../lib/auth-user.decorator";
 
 @ApiTags("IMAP")
 @Controller("imap")
@@ -40,7 +34,8 @@ export class ImapController {
     @ApiCookieAuth("apiKeyCookie")
     @ApiOperation({
         summary: "Test IMAP connection",
-        description: "Tests the IMAP connection with the provided credentials. If successful, processes all emails in the background.",
+        description:
+            "Tests the IMAP connection with the provided credentials. Does not process any emails - use 'process-existing' endpoint for that.",
     })
     @ApiResponse({
         status: 200,
@@ -51,7 +46,6 @@ export class ImapController {
     @ApiResponse({ status: 403, description: "Forbidden" })
     async testConnection(
         @Body() dto: TestImapConnectionDto,
-        @AuthUser() user: { id: string },
     ): Promise<ImapStatusDto> {
         const result = await this.imapService.testConnection({
             host: dto.host,
@@ -65,38 +59,12 @@ export class ImapController {
         // Update the stored connection status based on test result
         await this.settingsService.setImapConnectionStatus(result.isConnected);
 
-        // If connection successful, process emails in background
-        if (result.isConnected) {
-            this.processEmailsInBackground(dto, user.id);
-        }
-
         return {
             isConnected: result.isConnected,
             lastError: result.lastError,
             messageCount: result.messageCount,
             isEnabled: false,
         };
-    }
-
-    /**
-     * Processes emails in the background after successful connection test.
-     * Does not block the response - runs asynchronously.
-     */
-    private processEmailsInBackground(dto: TestImapConnectionDto, userId: string): void {
-        this.imapPollerService.processExistingEmails(
-            {
-                host: dto.host,
-                port: dto.port,
-                username: dto.username,
-                password: dto.password,
-                security: dto.security,
-                mailbox: dto.mailbox,
-            },
-            userId,
-        ).catch((error) => {
-            // Log error but don't fail the request - this is fire-and-forget
-            console.error("[IMAP] Background email processing failed:", error);
-        });
     }
 
     @Get("status")
@@ -157,7 +125,7 @@ export class ImapController {
     @ApiCookieAuth("apiKeyCookie")
     @ApiOperation({
         summary: "Save IMAP configuration",
-        description: "Saves the IMAP configuration and tests the connection.",
+        description: "Saves the IMAP configuration, tests the connection, and processes existing emails (excluding ai_analyzed folder).",
     })
     @ApiResponse({
         status: 200,
@@ -167,7 +135,10 @@ export class ImapController {
     @ApiResponse({ status: 400, description: "Bad Request" })
     @ApiResponse({ status: 401, description: "Unauthorized" })
     @ApiResponse({ status: 403, description: "Forbidden" })
-    async saveConfig(@Body() dto: SaveImapConfigDto): Promise<ImapStatusDto> {
+    async saveConfig(
+        @Body() dto: SaveImapConfigDto,
+        @AuthUser() user: { id: string },
+    ): Promise<ImapStatusDto> {
         // Test connection first
         const testResult = await this.imapService.testConnection({
             host: dto.host,
@@ -192,6 +163,11 @@ export class ImapController {
             testResult.isConnected,
         );
 
+        // If connection successful, process emails in background
+        if (testResult.isConnected) {
+            this.processEmailsInBackground(dto, user.id);
+        }
+
         const status = await this.settingsService.getImapStatus();
         return {
             isConnected: testResult.isConnected,
@@ -202,12 +178,34 @@ export class ImapController {
         };
     }
 
+    /**
+     * Processes emails in the background after successful connection test.
+     * Does not block the response - runs asynchronously.
+     */
+    private processEmailsInBackground(dto: SaveImapConfigDto, userId: string): void {
+        this.imapPollerService.processExistingEmails(
+            {
+                host: dto.host,
+                port: dto.port,
+                username: dto.username,
+                password: dto.password,
+                security: dto.security,
+                mailbox: dto.mailbox,
+            },
+            userId,
+        ).catch((error) => {
+            // Log error but don't fail the request - this is fire-and-forget
+            console.error("[IMAP] Background email processing failed:", error);
+        });
+    }
+
     @Post("mailbox-count")
     @Roles([UserRole.ADMIN])
     @ApiCookieAuth("apiKeyCookie")
     @ApiOperation({
         summary: "Get mailbox message count",
-        description: "Returns the total number of messages in the IMAP mailbox without marking them as read.",
+        description:
+            "Returns the total number of messages in the IMAP mailbox without marking them as read.",
     })
     @ApiResponse({
         status: 200,
@@ -216,7 +214,9 @@ export class ImapController {
     })
     @ApiResponse({ status: 401, description: "Unauthorized" })
     @ApiResponse({ status: 403, description: "Forbidden" })
-    async getMailboxCount(@Body() dto: TestImapConnectionDto): Promise<MailboxCountDto> {
+    async getMailboxCount(
+        @Body() dto: TestImapConnectionDto,
+    ): Promise<MailboxCountDto> {
         const count = await this.imapPollerService.getMailboxMessageCount({
             host: dto.host,
             port: dto.port,
@@ -234,7 +234,8 @@ export class ImapController {
     @ApiCookieAuth("apiKeyCookie")
     @ApiOperation({
         summary: "Process existing emails",
-        description: "Processes all existing emails in the mailbox and creates history entries.",
+        description:
+            "Processes all existing emails in the mailbox and creates history entries.",
     })
     @ApiResponse({
         status: 200,
@@ -247,17 +248,18 @@ export class ImapController {
         @Body() dto: SaveImapConfigDto,
         @AuthUser() user: { id: string },
     ): Promise<ProcessEmailsResponseDto> {
-        const processedCount = await this.imapPollerService.processExistingEmails(
-            {
-                host: dto.host,
-                port: dto.port,
-                username: dto.username,
-                password: dto.password,
-                security: dto.security,
-                mailbox: dto.mailbox,
-            },
-            user.id,
-        );
+        const processedCount =
+            await this.imapPollerService.processExistingEmails(
+                {
+                    host: dto.host,
+                    port: dto.port,
+                    username: dto.username,
+                    password: dto.password,
+                    security: dto.security,
+                    mailbox: dto.mailbox,
+                },
+                user.id,
+            );
 
         return {
             processedCount,

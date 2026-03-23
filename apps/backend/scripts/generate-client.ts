@@ -49,18 +49,28 @@ function fixPathParameters(document: OpenAPIObject): OpenAPIObject {
         const paramNames = pathParams.map((p) => p.slice(1, -1)); // Remove { and }
 
         // Check each HTTP method
-        for (const method of ["get", "post", "put", "patch", "delete"] as const) {
+        for (const method of [
+            "get",
+            "post",
+            "put",
+            "patch",
+            "delete",
+        ] as const) {
             const operation = pathItem[method];
             if (!operation) continue;
 
             const existingParams = (operation.parameters || []) as Parameter[];
-            const pathParams = existingParams.filter(isParameterObject).filter((p) => p.in === "path");
+            const pathParams = existingParams
+                .filter(isParameterObject)
+                .filter((p) => p.in === "path");
             const existingParamNames = new Set(pathParams.map((p) => p.name));
 
             // Add missing path parameters
             for (const paramName of paramNames) {
                 if (!existingParamNames.has(paramName)) {
-                    console.log(`  Fixing missing path parameter '${paramName}' for ${method.toUpperCase()} ${pathKey}`);
+                    console.log(
+                        `  Fixing missing path parameter '${paramName}' for ${method.toUpperCase()} ${pathKey}`,
+                    );
                     existingParams.push({
                         name: paramName,
                         in: "path",

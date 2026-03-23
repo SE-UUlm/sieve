@@ -6,8 +6,7 @@ import {
     ApiTags,
 } from "@nestjs/swagger";
 import { Session, type UserSession } from "@thallesp/nestjs-better-auth";
-import { JobStatus } from "../../prisma/client/enums";
-import { EmailSource } from "../../prisma/client/enums"; // Separate import for clarity
+import { EmailSource, JobStatus } from "../../prisma/client/enums"; // Separate import for clarity
 import { JobResultDto } from "../job-result/dto/job-result.dto";
 import { JobDto } from "./dto/job.dto";
 import { JobHistoryEntryDto } from "./dto/job-history-entry.dto";

@@ -1,12 +1,12 @@
-import {
-    WebSocketGateway,
-    WebSocketServer,
-    OnGatewayConnection,
-    OnGatewayDisconnect,
-} from "@nestjs/websockets";
-import { Server, Socket } from "socket.io";
 import { Logger } from "@nestjs/common";
 import { OnEvent } from "@nestjs/event-emitter";
+import {
+    type OnGatewayConnection,
+    type OnGatewayDisconnect,
+    WebSocketGateway,
+    WebSocketServer,
+} from "@nestjs/websockets";
+import type { Server, Socket } from "socket.io";
 import type { NewImapEmailEvent } from "../imap/imap-poller.service";
 
 @WebSocketGateway({
@@ -16,7 +16,9 @@ import type { NewImapEmailEvent } from "../imap/imap-poller.service";
         credentials: true,
     },
 })
-export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class NotificationsGateway
+    implements OnGatewayConnection, OnGatewayDisconnect
+{
     @WebSocketServer()
     server!: Server;
 
@@ -35,8 +37,10 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
 
     @OnEvent("imap.email.received")
     handleNewImapEmail(event: NewImapEmailEvent) {
-        this.logger.log(`Broadcasting new IMAP email notification: ${event.subject || "(no subject)"}`);
-        
+        this.logger.log(
+            `Broadcasting new IMAP email notification: ${event.subject || "(no subject)"}`,
+        );
+
         this.server.emit("notification", {
             type: "NEW_IMAP_EMAIL",
             data: {

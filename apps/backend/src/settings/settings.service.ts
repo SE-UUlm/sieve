@@ -397,7 +397,11 @@ export class SettingsService {
             },
         });
 
-        if (!settings?.imapHost || !settings.imapPort || !settings.imapUsername) {
+        if (
+            !settings?.imapHost ||
+            !settings.imapPort ||
+            !settings.imapUsername
+        ) {
             return null;
         }
 
@@ -408,7 +412,8 @@ export class SettingsService {
             password: settings.imapPassword
                 ? this.decryptValue(settings.imapPassword)
                 : "",
-            security: (settings.imapSecurity as "ssl" | "starttls" | "none") || "ssl",
+            security:
+                (settings.imapSecurity as "ssl" | "starttls" | "none") || "ssl",
             mailbox: settings.imapMailbox || "INBOX",
         };
     }
@@ -646,7 +651,11 @@ export class SettingsService {
         const encrypted = Buffer.from(encryptedBase64, "base64");
         const authTag = Buffer.from(authTagBase64, "base64");
 
-        const decipher = createDecipheriv("aes-256-gcm", this.encryptionKey, iv);
+        const decipher = createDecipheriv(
+            "aes-256-gcm",
+            this.encryptionKey,
+            iv,
+        );
         decipher.setAuthTag(authTag);
         const decrypted = Buffer.concat([
             decipher.update(encrypted),

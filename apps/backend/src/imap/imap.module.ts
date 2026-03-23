@@ -1,12 +1,12 @@
 import { Module } from "@nestjs/common";
-import { ScheduleModule } from "@nestjs/schedule";
 import { EventEmitterModule } from "@nestjs/event-emitter";
-import { ImapService } from "./imap.service";
-import { ImapController } from "./imap.controller";
-import { ImapPollerService } from "./imap-poller.service";
-import { SettingsModule } from "../settings/settings.module";
-import { PrismaModule } from "../prisma/prisma.module";
+import { ScheduleModule } from "@nestjs/schedule";
 import { AiBackendModule } from "../ai-backend/ai-backend.module";
+import { PrismaModule } from "../prisma/prisma.module";
+import { SettingsModule } from "../settings/settings.module";
+import { ImapController } from "./imap.controller";
+import { ImapService } from "./imap.service";
+import { ImapPollerService } from "./imap-poller.service";
 
 @Module({
     imports: [
