@@ -11,6 +11,7 @@ import {
     type JobHistoryEntryDtoResult,
     useJobControllerGetHistory,
 } from "@/lib/client";
+import { showPersistentErrorToast } from "@/lib/toast";
 import { HistoryListItem } from "./history-list-item";
 
 type HistoryEntry = {
@@ -87,6 +88,16 @@ export function HistoryView({ history = [] }: HistoryViewProps) {
         setSelectedId(filteredHistory[0]?.id ?? null);
     }, [filteredHistory, selectedId]);
 
+    useEffect(() => {
+        if (historyQuery.isError && !hasProvidedHistory) {
+            showPersistentErrorToast({
+                title: "Failed to Load History",
+                description:
+                    "Could not load history. Please try again later.",
+            });
+        }
+    }, [historyQuery.isError, hasProvidedHistory]);
+
     const selectedItem =
         filteredHistory.find((item) => item.id === selectedId) ?? null;
 
@@ -123,8 +134,8 @@ export function HistoryView({ history = [] }: HistoryViewProps) {
                                 Loading history...
                             </div>
                         ) : historyQuery.isError && !hasProvidedHistory ? (
-                            <div className="rounded-2xl border border-dashed border-red-300 bg-red-50 p-6 text-sm text-red-600 dark:border-red-900/70 dark:bg-red-950/40 dark:text-red-300">
-                                Could not load history. Please try again.
+                            <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-400">
+                                Failed to load history.
                             </div>
                         ) : filteredHistory.length > 0 ? (
                             filteredHistory.map((entry) => (
