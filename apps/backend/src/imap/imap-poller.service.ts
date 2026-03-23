@@ -3,6 +3,7 @@ import { Cron, CronExpression } from "@nestjs/schedule";
 import type { Prisma } from "../../prisma/client/client";
 import { JobResultStatus, JobStatus, EmailSource } from "../../prisma/client/enums";
 import { AiBackendService } from "../ai-backend/ai-backend.service";
+import { decodeMailHeader, decodeQuotedPrintable } from "../lib/mail-encoding";
 import { PrismaService } from "../prisma/prisma.service";
 import { SettingsService } from "../settings/settings.service";
 import { ImapService, ImapConfig } from "./imap.service";
@@ -128,9 +129,9 @@ export class ImapPollerService {
                 }
 
                 // Parse email content
-                const subject = message.envelope?.subject || null;
+                const subject = decodeMailHeader(message.envelope?.subject || "");
                 const sender = message.envelope?.from?.[0]?.address || null;
-                const body = this.extractTextContent(message);
+                const body = decodeQuotedPrintable(this.extractTextContent(message));
 
                 // Process email through AI backend and save results
                 try {
@@ -280,9 +281,9 @@ export class ImapPollerService {
                     continue;
                 }
 
-                const subject = message.envelope?.subject || null;
+                const subject = decodeMailHeader(message.envelope?.subject || "");
                 const sender = message.envelope?.from?.[0]?.address || null;
-                const body = this.extractTextContent(message);
+                const body = decodeQuotedPrintable(this.extractTextContent(message));
 
                 // Process email through AI backend
                 try {
