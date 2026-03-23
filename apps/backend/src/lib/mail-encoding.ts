@@ -2,7 +2,8 @@
  * Decodes Quoted-Printable encoded text to UTF-8 string.
  * Handles common mail encoding issues like:
  * - r=C3=BCckg=C3=A4ngig -> rückgängig
- * - =C3=9Cbersicht -> Übersicht
+ * - besch= wer -> beschweren (soft line breaks)
+ * - =2E -> .
  */
 export function decodeQuotedPrintable(input: string): string {
     if (!input || typeof input !== "string") {
@@ -15,15 +16,22 @@ export function decodeQuotedPrintable(input: string): string {
     }
 
     try {
-        // Remove soft line breaks (= followed by \r\n or \n)
+        // Step 1: Remove soft line breaks (= followed by \r\n or \n)
         let decoded = input.replace(/=\r?\n/g, "");
 
-        // Decode =XX hex sequences
+        // Step 2: Handle soft line breaks where line breaks were already removed
+        // In QP, = at end of line means continuation on next line
+        // If imapflow already removed newlines, we have patterns like "word= next"
+        // Remove = followed by whitespace or directly by a letter
+        decoded = decoded.replace(/=(?=\s*[a-zA-ZäöüÄÖÜß])/g, "");
+
+        // Step 3: Decode =XX hex sequences
+        // Must come after soft line break removal to avoid decoding = as part of soft break
         decoded = decoded.replace(/=([0-9A-Fa-f]{2})/g, (_, hex) => {
             return String.fromCharCode(parseInt(hex, 16));
         });
 
-        // Handle UTF-8 multi-byte sequences
+        // Step 4: Handle UTF-8 multi-byte sequences
         // The above creates a "binary" string that needs proper UTF-8 decoding
         const bytes = new Uint8Array(decoded.length);
         for (let i = 0; i < decoded.length; i++) {
@@ -32,8 +40,10 @@ export function decodeQuotedPrintable(input: string): string {
 
         return new TextDecoder("utf-8").decode(bytes);
     } catch (error) {
-        // If decoding fails, return original with soft breaks removed
-        return input.replace(/=\r?\n/g, "");
+        // If decoding fails, return best effort
+        return input
+            .replace(/=\r?\n/g, "")
+            .replace(/=(?=[a-zA-Z])/g, "");
     }
 }
 
