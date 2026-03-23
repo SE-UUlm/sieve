@@ -132,7 +132,7 @@ export class ImapPollerService {
 
                 // Process email through AI backend and save results
                 try {
-                    const analysisResult = await this.aiBackendService.runFlow(body);
+                    const analysisResult = await this.aiBackendService.runFlow(body, subject);
                     const now = new Date();
 
                     await this.prismaService.$transaction(async (transaction) => {
@@ -282,7 +282,7 @@ export class ImapPollerService {
 
                 // Process email through AI backend
                 try {
-                    const analysisResult = await this.aiBackendService.runFlow(body);
+                    const analysisResult = await this.aiBackendService.runFlow(body, subject);
                     const now = new Date();
 
                     await this.prismaService.$transaction(async (transaction) => {
