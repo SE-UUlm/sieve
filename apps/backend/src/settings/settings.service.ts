@@ -453,30 +453,53 @@ export class SettingsService {
             where: { id: INSTANCE_SETTINGS_ID },
             select: {
                 imapEnabled: true,
+                imapIsConnected: true,
                 imapLastSyncedAt: true,
             },
         });
 
         return {
-            isConnected: false, // Actual connection status requires testing
+            isConnected: settings?.imapIsConnected ?? false,
             isEnabled: settings?.imapEnabled ?? false,
             lastSyncedAt: settings?.imapLastSyncedAt ?? undefined,
         };
     }
 
     /**
+     * Updates the IMAP connection status.
+     * @param isConnected - Whether the IMAP connection is currently working.
+     */
+    async setImapConnectionStatus(isConnected: boolean): Promise<void> {
+        await this.prismaService.instanceSettings.upsert({
+            where: { id: INSTANCE_SETTINGS_ID },
+            create: {
+                id: INSTANCE_SETTINGS_ID,
+                imapIsConnected: isConnected,
+                imapEnabled: isConnected,
+            },
+            update: {
+                imapIsConnected: isConnected,
+            },
+        });
+    }
+
+    /**
      * Saves the IMAP configuration to settings.
      * @param config - The IMAP configuration to save.
+     * @param isConnected - Whether the IMAP connection is currently working.
      */
-    async saveImapConfig(config: {
-        host: string;
-        port: number;
-        username: string;
-        password: string;
-        security: "ssl" | "starttls" | "none";
-        mailbox: string;
-        enabled: boolean;
-    }): Promise<void> {
+    async saveImapConfig(
+        config: {
+            host: string;
+            port: number;
+            username: string;
+            password: string;
+            security: "ssl" | "starttls" | "none";
+            mailbox: string;
+            enabled: boolean;
+        },
+        isConnected?: boolean,
+    ): Promise<void> {
         const encryptedPassword = config.password
             ? this.encryptValue(config.password)
             : null;
@@ -492,6 +515,7 @@ export class SettingsService {
                 imapSecurity: config.security,
                 imapMailbox: config.mailbox,
                 imapEnabled: config.enabled,
+                imapIsConnected: isConnected ?? false,
             },
             update: {
                 imapHost: config.host,
@@ -501,6 +525,7 @@ export class SettingsService {
                 imapSecurity: config.security,
                 imapMailbox: config.mailbox,
                 imapEnabled: config.enabled,
+                imapIsConnected: isConnected ?? false,
             },
         });
     }

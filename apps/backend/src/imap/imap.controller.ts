@@ -61,6 +61,9 @@ export class ImapController {
             mailbox: dto.mailbox,
         });
 
+        // Update the stored connection status based on test result
+        await this.settingsService.setImapConnectionStatus(result.isConnected);
+
         return {
             isConnected: result.isConnected,
             lastError: result.lastError,
@@ -149,15 +152,18 @@ export class ImapController {
         });
 
         // Save config regardless of test result, but don't enable if test failed
-        await this.settingsService.saveImapConfig({
-            host: dto.host,
-            port: dto.port,
-            username: dto.username,
-            password: dto.password,
-            security: dto.security,
-            mailbox: dto.mailbox,
-            enabled: dto.enabled && testResult.isConnected,
-        });
+        await this.settingsService.saveImapConfig(
+            {
+                host: dto.host,
+                port: dto.port,
+                username: dto.username,
+                password: dto.password,
+                security: dto.security,
+                mailbox: dto.mailbox,
+                enabled: dto.enabled && testResult.isConnected,
+            },
+            testResult.isConnected,
+        );
 
         const status = await this.settingsService.getImapStatus();
         return {
