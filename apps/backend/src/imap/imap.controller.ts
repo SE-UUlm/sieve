@@ -40,7 +40,7 @@ export class ImapController {
     @ApiCookieAuth("apiKeyCookie")
     @ApiOperation({
         summary: "Test IMAP connection",
-        description: "Tests the IMAP connection with the provided credentials without saving them.",
+        description: "Tests the IMAP connection with the provided credentials. If successful, processes all emails in the background.",
     })
     @ApiResponse({
         status: 200,
@@ -51,6 +51,7 @@ export class ImapController {
     @ApiResponse({ status: 403, description: "Forbidden" })
     async testConnection(
         @Body() dto: TestImapConnectionDto,
+        @AuthUser() user: { id: string },
     ): Promise<ImapStatusDto> {
         const result = await this.imapService.testConnection({
             host: dto.host,
@@ -64,12 +65,38 @@ export class ImapController {
         // Update the stored connection status based on test result
         await this.settingsService.setImapConnectionStatus(result.isConnected);
 
+        // If connection successful, process emails in background
+        if (result.isConnected) {
+            this.processEmailsInBackground(dto, user.id);
+        }
+
         return {
             isConnected: result.isConnected,
             lastError: result.lastError,
             messageCount: result.messageCount,
             isEnabled: false,
         };
+    }
+
+    /**
+     * Processes emails in the background after successful connection test.
+     * Does not block the response - runs asynchronously.
+     */
+    private processEmailsInBackground(dto: TestImapConnectionDto, userId: string): void {
+        this.imapPollerService.processExistingEmails(
+            {
+                host: dto.host,
+                port: dto.port,
+                username: dto.username,
+                password: dto.password,
+                security: dto.security,
+                mailbox: dto.mailbox,
+            },
+            userId,
+        ).catch((error) => {
+            // Log error but don't fail the request - this is fire-and-forget
+            console.error("[IMAP] Background email processing failed:", error);
+        });
     }
 
     @Get("status")

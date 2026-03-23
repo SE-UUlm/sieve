@@ -52,36 +52,43 @@ export function HistoryView({ history = [] }: HistoryViewProps) {
     const hasProvidedHistory = history.length > 0;
     
     // Fetch all history
-    const allHistoryQuery = useJobControllerGetHistory({
-        query: {
-            queryKey: getJobControllerGetHistoryQueryKey({}),
-            enabled: !hasProvidedHistory,
-            staleTime: 30_000,
-            retry: false,
+    const allHistoryQuery = useJobControllerGetHistory(
+        {},
+        {
+            query: {
+                queryKey: getJobControllerGetHistoryQueryKey({}),
+                enabled: !hasProvidedHistory,
+                staleTime: 30_000,
+                retry: false,
+            },
         },
-    });
+    );
 
     // Fetch manual history
-    const manualHistoryQuery = useJobControllerGetHistory({
-        source: "MANUAL",
-        query: {
-            queryKey: getJobControllerGetHistoryQueryKey({ source: "MANUAL" }),
-            enabled: !hasProvidedHistory && selectedSource === "MANUAL",
-            staleTime: 30_000,
-            retry: false,
+    const manualHistoryQuery = useJobControllerGetHistory(
+        { source: "MANUAL" },
+        {
+            query: {
+                queryKey: getJobControllerGetHistoryQueryKey({ source: "MANUAL" }),
+                enabled: !hasProvidedHistory && selectedSource === "MANUAL",
+                staleTime: 30_000,
+                retry: false,
+            },
         },
-    });
+    );
 
     // Fetch IMAP history
-    const imapHistoryQuery = useJobControllerGetHistory({
-        source: "IMAP",
-        query: {
-            queryKey: getJobControllerGetHistoryQueryKey({ source: "IMAP" }),
-            enabled: !hasProvidedHistory && selectedSource === "IMAP",
-            staleTime: 30_000,
-            retry: false,
+    const imapHistoryQuery = useJobControllerGetHistory(
+        { source: "IMAP" },
+        {
+            query: {
+                queryKey: getJobControllerGetHistoryQueryKey({ source: "IMAP" }),
+                enabled: !hasProvidedHistory && selectedSource === "IMAP",
+                staleTime: 30_000,
+                retry: false,
+            },
         },
-    });
+    );
 
     const currentQuery = useMemo(() => {
         if (selectedSource === "MANUAL") return manualHistoryQuery;
