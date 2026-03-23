@@ -47,12 +47,21 @@ export class AiBackendService implements OnModuleInit {
                 await this.settingsService.getResolvedActiveProvider();
             const apiKey =
                 await this.settingsService.getProviderApiKey(provider);
+            const providerModels =
+                await this.settingsService.getProviderModels(provider);
             const isApiKeyEnabled =
                 await this.settingsService.isProviderEnabled(provider);
+            const simpleModel = providerModels.simpleModel?.trim();
+            const complexModel = providerModels.complexModel?.trim();
 
             if (!apiKey || !apiKey.trim()) {
                 throw new ServiceUnavailableException(
                     `${provider} API key is not configured for this instance.`,
+                );
+            }
+            if (!simpleModel || !complexModel) {
+                throw new ServiceUnavailableException(
+                    `${provider} models are not configured for this instance.`,
                 );
             }
             if (!isApiKeyEnabled) {
@@ -75,8 +84,8 @@ export class AiBackendService implements OnModuleInit {
                     model: {
                         provider,
                         api_key: apiKey,
-                        simple_model: "gpt-4o-mini",
-                        complex_model: "gpt-5.2",
+                        simple_model: simpleModel,
+                        complex_model: complexModel,
                     },
                     config: {
                         overall_email_response_prompt:

@@ -182,8 +182,7 @@ export class SettingsController {
     @Roles([UserRole.ADMIN])
     @ApiCookieAuth("apiKeyCookie")
     @ApiOperation({
-        summary:
-            "Validate provider model availability (admin only, mocked always available)",
+        summary: "Validate provider model availability (admin only)",
     })
     @ApiResponse({
         status: 200,

@@ -1,5 +1,9 @@
 import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
-import { Injectable } from "@nestjs/common";
+import {
+    BadGatewayException,
+    Injectable,
+    ServiceUnavailableException,
+} from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { AIProvider } from "../../prisma/client/enums";
 import { PrismaService } from "../prisma/prisma.service";
@@ -25,6 +29,7 @@ type ProviderModels = {
 @Injectable()
 export class SettingsService {
     private readonly encryptionKey: Buffer;
+    private readonly aiBackendUrl: string = "";
 
     constructor(
         private readonly prismaService: PrismaService,
@@ -48,6 +53,12 @@ export class SettingsService {
                 "SETTINGS_ENCRYPTION_KEY must decode to 32 bytes (base64).",
             );
         }
+
+        const configuredAiBackendUrl =
+            configService.get<string>("AI_BACKEND_URL") ?? "";
+        this.aiBackendUrl = configuredAiBackendUrl.endsWith("/")
+            ? configuredAiBackendUrl
+            : `${configuredAiBackendUrl}/`;
     }
 
     getSupportedProviders(): readonly AIProvider[] {
@@ -336,22 +347,52 @@ export class SettingsService {
     }
 
     /**
-     * Validates whether a model is available for a provider.
+     * Validates whether a model is available for a provider via AI backend.
      *
-     * This is intentionally mocked to always return true until AI backend
-     * model availability validation support is implemented.
-     *
-     * TODO: Implement AI backend model availability validation.
-     *
-     * @param _provider The provider for which model availability is checked.
-     * @param _model The model identifier to validate.
-     * @returns Always true (temporary mocked behavior).
+     * @param provider The provider for which model availability is checked.
+     * @param model The model identifier to validate.
+     * @returns True if AI backend confirms model availability, false otherwise.
      */
     async validateProviderModelAvailability(
-        _provider: AIProvider,
-        _model: string,
+        provider: AIProvider,
+        model: string,
     ): Promise<boolean> {
-        return true;
+        const apiKey = await this.getProviderApiKey(provider);
+        if (!apiKey || !apiKey.trim()) {
+            throw new ServiceUnavailableException(
+                `${provider} API key is not configured for this instance.`,
+            );
+        }
+
+        if (!this.aiBackendUrl) {
+            throw new ServiceUnavailableException(
+                "AI backend URL is not configured.",
+            );
+        }
+
+        const response = await fetch(`${this.aiBackendUrl}validate-model`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                provider,
+                api_key: apiKey,
+                model: model.trim(),
+            }),
+            signal: AbortSignal.timeout(30000),
+        });
+
+        if (!response.ok) {
+            throw new BadGatewayException(
+                `AiBackend model validation failed with status ${response.status}`,
+            );
+        }
+
+        const data = (await response.json()) as {
+            is_available: boolean;
+        };
+        return data.is_available;
     }
 
     private async getProviderState(
