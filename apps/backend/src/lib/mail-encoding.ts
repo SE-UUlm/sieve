@@ -3,7 +3,7 @@
  * Handles common mail encoding issues like:
  * - r=C3=BCckg=C3=A4ngig -> rückgängig
  * - besch= wer -> beschweren (soft line breaks)
- * - =2E -> .
+ * - rC3=BCckg= C3=A4ngig -> rückgängig (missing = before hex)
  */
 export function decodeQuotedPrintable(input: string): string {
     if (!input || typeof input !== "string") {
@@ -11,28 +11,49 @@ export function decodeQuotedPrintable(input: string): string {
     }
 
     // Check if input contains QP sequences
-    if (!input.includes("=")) {
+    if (!input.includes("=") && !/[0-9A-Fa-f]{4}/.test(input)) {
         return input;
     }
 
     try {
-        // Step 1: Remove soft line breaks (= followed by \r\n or \n)
-        let decoded = input.replace(/=\r?\n/g, "");
+        let decoded = input;
 
-        // Step 2: Handle soft line breaks where line breaks were already removed
-        // In QP, = at end of line means continuation on next line
-        // If imapflow already removed newlines, we have patterns like "word= next"
-        // Remove = followed by whitespace or directly by a letter
+        // Step 1: Remove soft line breaks (= followed by \r\n or \n)
+        decoded = decoded.replace(/=\r?\n/g, "");
+
+        // Step 2: Handle soft line breaks where newlines were already removed
+        // Pattern: = followed by whitespace(s) and letter
         decoded = decoded.replace(/=(?=\s*[a-zA-ZäöüÄÖÜß])/g, "");
 
-        // Step 3: Decode =XX hex sequences
-        // Must come after soft line break removal to avoid decoding = as part of soft break
+        // Step 3: Fix missing = before hex sequences (common QP corruption)
+        // Pattern: letter + XXYY + letter (where XXYY is hex for UTF-8)
+        // Common UTF-8 patterns: C3XX (äöüß), C2XX (special chars), etc.
+        decoded = decoded.replace(
+            /([a-zA-Z])(C3[0-9A-Fa-f]{2})([a-zA-Z])/g,
+            "$1=$2=$3",
+        );
+        decoded = decoded.replace(
+            /([a-zA-Z])(C2[0-9A-Fa-f]{2})([a-zA-Z])/g,
+            "$1=$2=$3",
+        );
+        decoded = decoded.replace(
+            /([a-zA-Z])(E2[0-9A-Fa-f]{2})([a-zA-Z])/g,
+            "$1=$2=$3",
+        );
+
+        // Step 4: Also handle cases where only one = is missing
+        // Pattern: =XXYY (with =) or XX=YY (with = in middle)
+        decoded = decoded.replace(
+            /([a-zA-Z])=([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})([a-zA-Z])/g,
+            (_, before, hex1, hex2, after) => `${before}=${hex1}=${hex2}${after}`,
+        );
+
+        // Step 5: Decode =XX hex sequences
         decoded = decoded.replace(/=([0-9A-Fa-f]{2})/g, (_, hex) => {
             return String.fromCharCode(parseInt(hex, 16));
         });
 
-        // Step 4: Handle UTF-8 multi-byte sequences
-        // The above creates a "binary" string that needs proper UTF-8 decoding
+        // Step 6: Handle UTF-8 multi-byte sequences
         const bytes = new Uint8Array(decoded.length);
         for (let i = 0; i < decoded.length; i++) {
             bytes[i] = decoded.charCodeAt(i);
@@ -40,10 +61,11 @@ export function decodeQuotedPrintable(input: string): string {
 
         return new TextDecoder("utf-8").decode(bytes);
     } catch (error) {
-        // If decoding fails, return best effort
+        // Best effort fallback
         return input
             .replace(/=\r?\n/g, "")
-            .replace(/=(?=[a-zA-Z])/g, "");
+            .replace(/=(?=[a-zA-Z])/g, "")
+            .replace(/C3=([0-9A-Fa-f]{2})/g, "=$1");
     }
 }
 
@@ -95,7 +117,7 @@ export function decodeMailHeader(input: string): string {
     });
 
     // Also try to decode raw QP content (for body text)
-    if (decoded.includes("=")) {
+    if (decoded.includes("=") || /[0-9A-Fa-f]{4}/.test(decoded)) {
         decoded = decodeQuotedPrintable(decoded);
     }
 
