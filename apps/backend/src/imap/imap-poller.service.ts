@@ -95,7 +95,9 @@ export class ImapPollerService {
                 uid: true,
                 envelope: true,
                 source: true,
-            });
+                text: true,
+                html: true,
+            } as unknown as import("imapflow").FetchQueryObject);
 
             let newEmailCount = 0;
 
@@ -128,7 +130,7 @@ export class ImapPollerService {
                 // Parse email content
                 const subject = message.envelope?.subject || null;
                 const sender = message.envelope?.from?.[0]?.address || null;
-                const body = message.source?.toString() || "";
+                const body = this.extractTextContent(message);
 
                 // Process email through AI backend and save results
                 try {
@@ -258,7 +260,9 @@ export class ImapPollerService {
                 uid: true,
                 envelope: true,
                 source: true,
-            });
+                text: true,
+                html: true,
+            } as unknown as import("imapflow").FetchQueryObject);
 
             for await (const message of messages) {
                 // Check if already processed
@@ -278,7 +282,7 @@ export class ImapPollerService {
 
                 const subject = message.envelope?.subject || null;
                 const sender = message.envelope?.from?.[0]?.address || null;
-                const body = message.source?.toString() || "";
+                const body = this.extractTextContent(message);
 
                 // Process email through AI backend
                 try {
@@ -328,5 +332,59 @@ export class ImapPollerService {
             this.logger.error("Error processing existing emails:", error);
             throw error;
         }
+    }
+
+    /**
+     * Extracts plain text content from an IMAP message.
+     * Falls back to HTML content if no plain text is available.
+     * Strips HTML tags if only HTML content is available.
+     */
+    private extractTextContent(message: {
+        text?: string;
+        html?: string;
+        source?: Buffer;
+    }): string {
+        // Prefer plain text content
+        if (message.text) {
+            return message.text.slice(0, 10000);
+        }
+
+        // Fall back to HTML content with tags stripped
+        if (message.html) {
+            return this.stripHtmlTags(message.html).slice(0, 10000);
+        }
+
+        // Last resort: try to extract from source
+        if (message.source) {
+            const sourceStr = message.source.toString();
+            // Try to find text/plain content in MIME
+            const textMatch = sourceStr.match(
+                /Content-Type:\s*text\/plain[^]*?\r?\n\r?\n([^]*?)(?:\r?\n--|$)/i,
+            );
+            if (textMatch) {
+                return textMatch[1].trim().slice(0, 10000);
+            }
+            // Try to find text/html content and strip tags
+            const htmlMatch = sourceStr.match(
+                /Content-Type:\s*text\/html[^]*?\r?\n\r?\n([^]*?)(?:\r?\n--|$)/i,
+            );
+            if (htmlMatch) {
+                return this.stripHtmlTags(htmlMatch[1]).trim().slice(0, 10000);
+            }
+        }
+
+        return "";
+    }
+
+    /**
+     * Strips HTML tags from a string, preserving text content.
+     */
+    private stripHtmlTags(html: string): string {
+        return html
+            .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+            .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+            .replace(/<[^>]+>/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
     }
 }
