@@ -186,6 +186,7 @@ async def run_analyze_email_agent(
     )
     config = RunnableConfig(callbacks=[cb])
 
+    # Result is not a pydantic object but a normal python dict
     result = await workflow.ainvoke(
         GraphState(),
         config=config,

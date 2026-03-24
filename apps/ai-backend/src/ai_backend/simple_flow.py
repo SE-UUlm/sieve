@@ -35,6 +35,6 @@ async def simple_flow(state: FlowGraphState, runtime: Runtime[Context]) -> dict:
     # Check if really valid and make ty happy
     response = FlowResult[SimpleFlowSteps](**raw_response)
 
-    print(f"✔️ END Category {state.category_config.name} Result: ", response)
+    print(f"✔️ END Category {state.category}")
 
     return {"results": [response]}

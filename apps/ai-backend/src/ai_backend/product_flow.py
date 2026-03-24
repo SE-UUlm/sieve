@@ -11,6 +11,7 @@ from ai_backend.schemas import (
     ProductFlowSteps,
     ProductFlowConfig,
 )
+from langgraph.types import RetryPolicy
 from langgraph.runtime import Runtime
 from langchain.tools import tool, ToolRuntime, InjectedState, ToolException
 from langgraph.graph import StateGraph, START, END
@@ -112,7 +113,7 @@ product_subgraph = (
         output_schema=FlowResult[ProductFlowSteps],
         context_schema=Context,
     )
-    .add_node("db_step", db_step)
+    .add_node("db_step", db_step, retry_policy=RetryPolicy(max_attempts=3))
     .add_node("structured_response", structured_response)
     .add_node("summary", summary)
     .add_edge(START, "db_step")
@@ -133,6 +134,6 @@ async def product_flow(state: FlowGraphState, runtime: Runtime[Context]) -> dict
     # Check if really valid and make ty happy
     response = FlowResult[ProductFlowSteps](**raw_response)
 
-    print(f"✔️ END Category {state.category_config} Result: ", response)
+    print(f"✔️ END Category {state.category}")
 
     return {"results": [response]}
