@@ -61,6 +61,10 @@ export function ProviderCard({
     onDeleteKeyAction,
 }: ProviderCardProps) {
     const [isOpen, setIsOpen] = useState(openByDefault);
+    const simpleModelInputId = `${provider.provider.toLowerCase()}-simple-model`;
+    const complexModelInputId = `${provider.provider.toLowerCase()}-complex-model`;
+    const modelErrorId = `${provider.provider.toLowerCase()}-models-error`;
+    const modelErrorDescribedBy = modelError ? modelErrorId : undefined;
     const providerStatus = !provider.isConfigured
         ? "Not configured"
         : provider.isEnabled
@@ -165,7 +169,9 @@ export function ProviderCard({
 
                     <div className="space-y-2">
                         <div className="flex items-center gap-2">
-                            <StyledLabel>Simple model</StyledLabel>
+                            <StyledLabel htmlFor={simpleModelInputId}>
+                                Simple model
+                            </StyledLabel>
                             {simpleModelValidationState === "valid" && (
                                 <CheckCircle2
                                     className="size-4 text-emerald-600 dark:text-emerald-400"
@@ -181,6 +187,7 @@ export function ProviderCard({
                         </div>
                         <div className="flex flex-wrap items-center gap-2">
                             <StyledInput
+                                id={simpleModelInputId}
                                 value={simpleModelValue}
                                 onChange={(event) => {
                                     onSimpleModelChangeAction(
@@ -189,13 +196,16 @@ export function ProviderCard({
                                 }}
                                 placeholder="e.g. gpt-5.2-mini"
                                 aria-invalid={Boolean(modelError)}
+                                aria-describedby={modelErrorDescribedBy}
                             />
                         </div>
                     </div>
 
                     <div className="space-y-2">
                         <div className="flex items-center gap-2">
-                            <StyledLabel>Complex model</StyledLabel>
+                            <StyledLabel htmlFor={complexModelInputId}>
+                                Complex model
+                            </StyledLabel>
                             {complexModelValidationState === "valid" && (
                                 <CheckCircle2
                                     className="size-4 text-emerald-600 dark:text-emerald-400"
@@ -211,6 +221,7 @@ export function ProviderCard({
                         </div>
                         <div className="flex flex-wrap items-center gap-2">
                             <StyledInput
+                                id={complexModelInputId}
                                 value={complexModelValue}
                                 onChange={(event) => {
                                     onComplexModelChangeAction(
@@ -219,12 +230,16 @@ export function ProviderCard({
                                 }}
                                 placeholder="e.g. gpt-5.2"
                                 aria-invalid={Boolean(modelError)}
+                                aria-describedby={modelErrorDescribedBy}
                             />
                         </div>
                     </div>
 
                     {modelError && (
-                        <p className="text-xs text-red-700 dark:text-red-300">
+                        <p
+                            id={modelErrorId}
+                            className="text-xs text-red-700 dark:text-red-300"
+                        >
                             {modelError}
                         </p>
                     )}
