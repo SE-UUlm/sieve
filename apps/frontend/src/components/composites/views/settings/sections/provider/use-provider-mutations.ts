@@ -380,7 +380,8 @@ export function useProviderMutations() {
         updateMutation.isPending ||
         toggleEnabledMutation.isPending ||
         deleteMutation.isPending ||
-        updateProviderModelsMutation.isPending;
+        updateProviderModelsMutation.isPending ||
+        validateProviderModelAvailabilityMutation.isPending;
 
     const isUpdatingProvider = (
         provider: UpdateInstanceActiveProviderDtoProvider,
