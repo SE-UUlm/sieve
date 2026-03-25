@@ -377,29 +377,42 @@ export class SettingsService {
             );
         }
 
-        const response = await fetch(`${this.aiBackendUrl}validate-model`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                provider,
-                api_key: apiKey,
-                model: model.trim(),
-            }),
-            signal: AbortSignal.timeout(30000),
-        });
+        try {
+            const response = await fetch(`${this.aiBackendUrl}validate-model`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    provider,
+                    api_key: apiKey,
+                    model: model.trim(),
+                }),
+                signal: AbortSignal.timeout(30000),
+            });
 
-        if (!response.ok) {
-            throw new BadGatewayException(
-                `AiBackend model validation failed with status ${response.status}`,
+            if (!response.ok) {
+                throw new BadGatewayException(
+                    `AiBackend model validation failed with status ${response.status}`,
+                );
+            }
+
+            const data = (await response.json()) as {
+                is_available: boolean;
+            };
+            return data.is_available;
+        } catch (error: unknown) {
+            if (error instanceof BadGatewayException) {
+                throw error;
+            }
+            const message =
+                error instanceof Error && error.message
+                    ? error.message
+                    : "Unknown error";
+            throw new ServiceUnavailableException(
+                `Unable to reach AI backend for model validation: ${message}`,
             );
         }
-
-        const data = (await response.json()) as {
-            is_available: boolean;
-        };
-        return data.is_available;
     }
 
     private async getProviderState(
