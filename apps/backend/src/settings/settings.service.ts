@@ -18,6 +18,7 @@ const GCM_IV_LENGTH = 12;
 
 type ProviderState = {
     isConfigured: boolean;
+    isModelConfigured: boolean;
     isEnabled: boolean;
 };
 
@@ -79,6 +80,7 @@ export class SettingsService {
             provider: AIProvider;
             displayName: string;
             isConfigured: boolean;
+            isModelConfigured: boolean;
             isEnabled: boolean;
             simpleModel: string | null;
             complexModel: string | null;
@@ -94,6 +96,7 @@ export class SettingsService {
                     provider,
                     displayName: getProviderDisplayName(provider),
                     isConfigured: state.isConfigured,
+                    isModelConfigured: state.isModelConfigured,
                     isEnabled: state.isEnabled,
                     simpleModel: models.simpleModel,
                     complexModel: models.complexModel,
@@ -402,13 +405,18 @@ export class SettingsService {
     private async getProviderState(
         provider: AIProvider,
     ): Promise<ProviderState> {
-        const [isConfigured, isEnabled] = await Promise.all([
+        const [isConfigured, isEnabled, models] = await Promise.all([
             this.hasProviderApiKey(provider),
             this.isProviderEnabled(provider),
+            this.getProviderModels(provider),
         ]);
+        const isModelConfigured =
+            Boolean(models.simpleModel?.trim()) &&
+            Boolean(models.complexModel?.trim());
 
         return {
             isConfigured,
+            isModelConfigured,
             isEnabled,
         };
     }

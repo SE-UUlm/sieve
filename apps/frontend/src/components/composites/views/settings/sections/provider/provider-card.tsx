@@ -67,14 +67,18 @@ export function ProviderCard({
     const modelErrorDescribedBy = modelError ? modelErrorId : undefined;
     const providerStatus = !provider.isConfigured
         ? "Not configured"
-        : provider.isEnabled
-          ? "Configured and enabled"
-          : "Configured but disabled";
+        : !provider.isModelConfigured
+          ? "Configured, models missing"
+          : provider.isEnabled
+            ? "Configured and enabled"
+            : "Configured but disabled";
     const providerStatusClasses = !provider.isConfigured
         ? "border-slate-300 bg-slate-100 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
-        : provider.isEnabled
-          ? "border-emerald-300 bg-emerald-100 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300"
-          : "border-amber-300 bg-amber-100 text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300";
+        : !provider.isModelConfigured
+          ? "border-amber-300 bg-amber-100 text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300"
+          : provider.isEnabled
+            ? "border-emerald-300 bg-emerald-100 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300"
+            : "border-amber-300 bg-amber-100 text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300";
 
     return (
         <details

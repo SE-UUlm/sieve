@@ -33,6 +33,14 @@ export class ProviderSettingsDto {
     isConfigured!: boolean;
 
     @ApiProperty({
+        description:
+            "Whether both required model fields are currently configured for this provider.",
+        example: true,
+    })
+    @IsBoolean()
+    isModelConfigured!: boolean;
+
+    @ApiProperty({
         description: "Whether this provider is enabled for usage.",
         example: true,
     })
