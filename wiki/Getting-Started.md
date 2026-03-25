@@ -75,6 +75,11 @@ For a detailed guide on all configuration options, see the
    settings in `Settings -> Provider` (active provider, provider API keys, and
    simple/complex model identifiers).
 
+   You can configure analysis categories in `Settings -> Category` by editing
+   the categories JSON. Each category must provide `name`, `description`, and a
+   `flow` object with `flow.name` (`simple` or `product`) and
+   `flow.structured_response_schema`.
+
 ### Running Individual Services
 
 You can also run services individually using Docker Compose profiles:
