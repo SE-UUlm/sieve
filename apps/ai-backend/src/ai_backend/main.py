@@ -55,7 +55,7 @@ class ValidateModelResult(BaseModel):
     is_available: bool
 
 
-def is_invalid_model_error(error: BaseException) -> bool:
+def is_invalid_model_error(error: Exception) -> bool:
     if isinstance(error, (openai.BadRequestError, openai.NotFoundError)):
         return True
     if isinstance(error, (anthropic.BadRequestError, anthropic.NotFoundError)):
@@ -98,7 +98,7 @@ async def validate_model(request: ValidateModelRequest) -> ValidateModelResult:
     try:
         await simple_model.ainvoke("Ping")
         await complex_model.ainvoke("Ping")
-    except BaseException as error:
+    except Exception as error:
         if is_invalid_model_error(error):
             return ValidateModelResult(is_available=False)
         raise
