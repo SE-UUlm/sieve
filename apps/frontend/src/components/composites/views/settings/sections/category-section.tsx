@@ -206,7 +206,7 @@ export function CategorySection() {
 
     const onFormat = () => {
         const parsed = parseCategoriesJson(categoriesJson);
-        if (parsed.error) {
+        if (parsed.error || !parsed.categories) {
             setJsonError(parsed.error);
             return;
         }
@@ -218,7 +218,7 @@ export function CategorySection() {
 
     const onSave = () => {
         const parsed = parseCategoriesJson(categoriesJson);
-        if (parsed.error) {
+        if (parsed.error || !parsed.categories) {
             setJsonError(parsed.error);
             return;
         }
