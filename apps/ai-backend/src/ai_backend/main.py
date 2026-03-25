@@ -55,15 +55,50 @@ class ValidateModelResult(BaseModel):
     is_available: bool
 
 
+def _is_invalid_google_model_error(error: GoogleClientError) -> bool:
+    code = getattr(error, "code", None)
+    code_value = getattr(code, "value", code)
+    try:
+        status_code = int(code_value) if code_value is not None else None
+    except (TypeError, ValueError):
+        status_code = None
+
+    if status_code in (400, 404):
+        message = str(error).lower()
+        return "model" in message and (
+            "not found" in message
+            or "unknown" in message
+            or "invalid argument" in message
+        )
+
+    return False
+
+
+def _is_invalid_httpx_model_error(error: httpx.HTTPStatusError) -> bool:
+    response = getattr(error, "response", None)
+    status_code = getattr(response, "status_code", None) if response else None
+
+    if status_code in (400, 404, 422):
+        body_text = ""
+        if response is not None:
+            body_text = response.text or ""
+        message = (body_text or str(error)).lower()
+        return "model" in message and (
+            "not found" in message or "unknown" in message or "invalid" in message
+        )
+
+    return False
+
+
 def is_invalid_model_error(error: Exception) -> bool:
     if isinstance(error, (openai.BadRequestError, openai.NotFoundError)):
         return True
     if isinstance(error, (anthropic.BadRequestError, anthropic.NotFoundError)):
         return True
     if isinstance(error, GoogleClientError):
-        return True
+        return _is_invalid_google_model_error(error)
     if isinstance(error, httpx.HTTPStatusError):
-        return True
+        return _is_invalid_httpx_model_error(error)
 
     return False
 
