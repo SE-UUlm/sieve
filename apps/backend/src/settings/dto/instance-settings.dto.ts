@@ -1,6 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsArray, IsEnum } from "class-validator";
 import { AIProvider } from "../../../prisma/client/enums";
+import { AnalysisCategoryDto } from "./analysis-category.dto";
 import { ProviderSettingsDto } from "./provider-settings.dto";
 
 export class InstanceSettingsDto {
@@ -19,4 +20,12 @@ export class InstanceSettingsDto {
     })
     @IsArray()
     providers!: ProviderSettingsDto[];
+
+    @ApiProperty({
+        description:
+            "Configurable analysis categories used during email categorization and flow execution.",
+        type: [AnalysisCategoryDto],
+    })
+    @IsArray()
+    categories!: AnalysisCategoryDto[];
 }

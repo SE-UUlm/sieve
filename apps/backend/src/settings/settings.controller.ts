@@ -21,6 +21,7 @@ import { ProviderModelAvailabilityDto } from "./dto/provider-model-availability.
 import { UpdateInstanceActiveProviderDto } from "./dto/update-instance-active-provider.dto";
 import { UpdateInstanceApiKeyDto } from "./dto/update-instance-api-key.dto";
 import { UpdateInstanceApiKeyEnabledDto } from "./dto/update-instance-api-key-enabled.dto";
+import { UpdateInstanceCategoriesDto } from "./dto/update-instance-categories.dto";
 import { UpdateInstanceProviderModelsDto } from "./dto/update-instance-provider-models.dto";
 import { ValidateInstanceProviderModelDto } from "./dto/validate-instance-provider-model.dto";
 import { SettingsService } from "./settings.service";
@@ -48,6 +49,7 @@ export class SettingsController {
             activeProvider:
                 await this.settingsService.getResolvedActiveProvider(),
             providers: await this.settingsService.getAdminProviderSettings(),
+            categories: await this.settingsService.getAnalysisCategories(),
         };
     }
 
@@ -83,6 +85,7 @@ export class SettingsController {
             activeProvider:
                 await this.settingsService.getResolvedActiveProvider(),
             providers: await this.settingsService.getAdminProviderSettings(),
+            categories: await this.settingsService.getAnalysisCategories(),
         };
     }
 
@@ -114,6 +117,7 @@ export class SettingsController {
             activeProvider:
                 await this.settingsService.getResolvedActiveProvider(),
             providers: await this.settingsService.getAdminProviderSettings(),
+            categories: await this.settingsService.getAnalysisCategories(),
         };
     }
 
@@ -140,6 +144,7 @@ export class SettingsController {
             activeProvider:
                 await this.settingsService.getResolvedActiveProvider(),
             providers: await this.settingsService.getAdminProviderSettings(),
+            categories: await this.settingsService.getAnalysisCategories(),
         };
     }
 
@@ -175,6 +180,34 @@ export class SettingsController {
             activeProvider:
                 await this.settingsService.getResolvedActiveProvider(),
             providers: await this.settingsService.getAdminProviderSettings(),
+            categories: await this.settingsService.getAnalysisCategories(),
+        };
+    }
+
+    @Patch("instance/categories")
+    @Roles([UserRole.ADMIN])
+    @ApiCookieAuth("apiKeyCookie")
+    @ApiOperation({
+        summary: "Update instance analysis categories (admin only)",
+    })
+    @ApiResponse({
+        status: 200,
+        description: "Instance categories successfully updated",
+        type: InstanceSettingsDto,
+    })
+    @ApiResponse({ status: 400, description: "Bad Request" })
+    @ApiResponse({ status: 401, description: "Unauthorized" })
+    @ApiResponse({ status: 403, description: "Forbidden" })
+    async updateInstanceCategories(
+        @Body() dto: UpdateInstanceCategoriesDto,
+    ): Promise<InstanceSettingsDto> {
+        await this.settingsService.setAnalysisCategories(dto.categories);
+
+        return {
+            activeProvider:
+                await this.settingsService.getResolvedActiveProvider(),
+            providers: await this.settingsService.getAdminProviderSettings(),
+            categories: await this.settingsService.getAnalysisCategories(),
         };
     }
 
@@ -233,6 +266,7 @@ export class SettingsController {
             activeProvider:
                 await this.settingsService.getResolvedActiveProvider(),
             providers: await this.settingsService.getAdminProviderSettings(),
+            categories: await this.settingsService.getAnalysisCategories(),
         };
     }
 }

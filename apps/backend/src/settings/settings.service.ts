@@ -8,6 +8,12 @@ import { ConfigService } from "@nestjs/config";
 import { AIProvider } from "../../prisma/client/enums";
 import { PrismaService } from "../prisma/prisma.service";
 import {
+    type AnalysisCategories,
+    assertValidAnalysisCategoriesPayload,
+    DEFAULT_ANALYSIS_CATEGORIES,
+    toPrismaCategoriesJson,
+} from "./categories";
+import {
     DEFAULT_AI_PROVIDER,
     getProviderDisplayName,
     SUPPORTED_AI_PROVIDERS,
@@ -185,6 +191,46 @@ export class SettingsService {
             },
             update: {
                 activeProvider: provider,
+            },
+        });
+    }
+
+    /**
+     * Gets configured analysis categories, falling back to built-in defaults when unset.
+     *
+     * @returns A list of category configuration objects consumed by ai-backend.
+     */
+    async getAnalysisCategories(): Promise<AnalysisCategories> {
+        const settings = await this.prismaService.instanceSettings.findUnique({
+            where: { id: INSTANCE_SETTINGS_ID },
+            select: { categories: true },
+        });
+        const categories = settings?.categories;
+
+        if (!categories) {
+            return DEFAULT_ANALYSIS_CATEGORIES;
+        }
+
+        assertValidAnalysisCategoriesPayload(categories);
+        return categories;
+    }
+
+    /**
+     * Stores admin-configured analysis categories for this instance.
+     *
+     * @param categories Category configuration payload.
+     */
+    async setAnalysisCategories(categories: AnalysisCategories): Promise<void> {
+        assertValidAnalysisCategoriesPayload(categories);
+
+        await this.prismaService.instanceSettings.upsert({
+            where: { id: INSTANCE_SETTINGS_ID },
+            create: {
+                id: INSTANCE_SETTINGS_ID,
+                categories: toPrismaCategoriesJson(categories),
+            },
+            update: {
+                categories: toPrismaCategoriesJson(categories),
             },
         });
     }
