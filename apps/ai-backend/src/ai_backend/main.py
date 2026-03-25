@@ -48,7 +48,7 @@ class AnalyzeResult(BaseModel):
 class ValidateModelRequest(BaseModel):
     provider: Literal["OPENAI", "GOOGLE_VERTEX_AI", "ANTHROPIC"]
     api_key: str = Field(..., min_length=1, max_length=500)
-    model: str = Field(..., min_length=1, max_length=100)
+    model: str = Field(..., min_length=1, max_length=200)
 
 
 class ValidateModelResult(BaseModel):
