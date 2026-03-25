@@ -56,9 +56,13 @@ export class SettingsService {
 
         const configuredAiBackendUrl =
             configService.get<string>("AI_BACKEND_URL") ?? "";
-        this.aiBackendUrl = configuredAiBackendUrl.endsWith("/")
-            ? configuredAiBackendUrl
-            : `${configuredAiBackendUrl}/`;
+        if (configuredAiBackendUrl === "") {
+            this.aiBackendUrl = "";
+        } else {
+            this.aiBackendUrl = configuredAiBackendUrl.endsWith("/")
+                ? configuredAiBackendUrl
+                : `${configuredAiBackendUrl}/`;
+        }
     }
 
     getSupportedProviders(): readonly AIProvider[] {
