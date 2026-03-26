@@ -1,12 +1,12 @@
-from pydantic import TypeAdapter
-from ai_backend.utils import format_email
+from ai_backend.utils import format_email, dict_to_json
 from langchain.messages import SystemMessage, HumanMessage
 from langgraph.runtime import Runtime
-from ai_backend.schemas import FlowGraphState, Context
+from ai_backend.schemas import FlowGraphState, Context, EmailResponsePartSchema
 
 
 async def summary(state: FlowGraphState, runtime: Runtime[Context]) -> dict:
     messages = [
+        HumanMessage(format_email(runtime.context.email)),
         SystemMessage(
             f"""Your job is to summarize the part of the customer's email that relates to the category '{state.category_config.name}: {state.category_config.description}' and ignore other parts."""
         ),
@@ -15,8 +15,6 @@ async def summary(state: FlowGraphState, runtime: Runtime[Context]) -> dict:
     summary_prompt = state.category_config.flow.summary_prompt
     if summary_prompt:
         messages.append(SystemMessage(summary_prompt))
-
-    messages.append(HumanMessage(format_email(runtime.context.email)))
 
     result = await runtime.context.simple_model.ainvoke(messages)
 
@@ -36,12 +34,10 @@ async def structured_response(state: FlowGraphState, runtime: Runtime[Context]) 
 
     structured = runtime.context.simple_model.with_structured_output(schema)
 
-    # Convert steps to json, this can contain pydantic objects or python dicts
-    adapter = TypeAdapter(dict)
-    json_bytes = adapter.dump_json(state.steps)
-    json_string = json_bytes.decode()
+    json_string = dict_to_json(state.steps)
 
     messages = [
+        HumanMessage(format_email(runtime.context.email)),
         SystemMessage(
             f"""Your job is to convert a customer's email into a structured form. Only use the parts of the email that relates to the category '{state.category_config.name}: {state.category_config.description}' and ignore other parts."""
         ),
@@ -53,7 +49,31 @@ async def structured_response(state: FlowGraphState, runtime: Runtime[Context]) 
             SystemMessage(state.category_config.flow.structured_response_prompt)
         )
 
-    messages.append(HumanMessage(format_email(runtime.context.email)))
-
     result = await structured.ainvoke(messages)
     return {"structured_output": result}
+
+
+async def email_response(state: FlowGraphState, runtime: Runtime[Context]) -> dict:
+    category = state.category_config
+
+    structured = runtime.context.complex_model.with_structured_output(
+        EmailResponsePartSchema
+    )
+
+    conversation = [
+        HumanMessage(format_email(runtime.context.email)),
+        SystemMessage(f"""Your job is to draft an email response to the customer. This can only contain things that you are explicitly told to include.
+        Only respond to the parts of the email that relates to the category '{category.name}: {category.description}' and ignore other parts.
+        Do not draft a complete email, only a section."""),
+        SystemMessage(f"Related information: : {dict_to_json(state.steps)}"),
+    ]
+
+    if category.flow.email_response_prompt:
+        conversation.append(SystemMessage(category.flow.email_response_prompt))
+
+    result = await structured.ainvoke(conversation)
+    assert isinstance(
+        result, EmailResponsePartSchema
+    )  # Tell ty that this an EmailResponseSchema
+
+    return {"steps": {"email_response": result.result}}

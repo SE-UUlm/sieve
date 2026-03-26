@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import Literal
-from ai_backend.schemas import AnalyzeEmailRequest, FlowResult
+from ai_backend.schemas import AnalyzeEmailRequest, GraphOutput
 import os
 import asyncpg
 from ai_backend.agent import run_analyze_email_agent
@@ -8,7 +8,7 @@ from fastapi import FastAPI
 
 
 def create_pool():
-    pool = asyncpg.create_pool(
+    pool = asyncpg.create_pool(  # TODO when no configured, skip
         user=os.environ.get("PRODUCT_DB_USERNAME"),
         password=os.environ.get("PRODUCT_DB_PASSWORD"),
         database=os.environ.get("PRODUCT_DB_NAME"),
@@ -27,7 +27,7 @@ app = FastAPI()
 
 class AnalyzeResult(BaseModel):
     status: Literal["success"]
-    data: list[FlowResult]
+    data: GraphOutput
 
 
 @app.post("/analyze-email")

@@ -10,7 +10,7 @@ from ai_backend.utils import (
 from ai_backend.product_flow import product_flow
 from langchain_core.callbacks import UsageMetadataCallbackHandler
 import asyncpg
-from langchain.messages import HumanMessage, SystemMessage
+from langchain.messages import HumanMessage, SystemMessage, AIMessage
 from langgraph.types import Send
 from langchain.chat_models import init_chat_model
 from dotenv import load_dotenv
@@ -21,7 +21,7 @@ from ai_backend.schemas import (
     AnalyzeEmailRequest,
     ModelConfig,
     GraphOutput,
-    FlowResult,
+    EmailResponseSchema,
 )
 from langgraph.graph import StateGraph, START, END
 
@@ -103,6 +103,7 @@ async def categorize(state: GraphState, runtime: Runtime[Context]) -> dict:
 
     result = await structured.ainvoke(
         [
+            HumanMessage(format_email(context.email)),
             SystemMessage(
                 """Your job is to categorize an email from a customer into the possible categories. 
                 If the customer has multiple requests that fit different categories, list multiple different categories. 
@@ -117,7 +118,6 @@ async def categorize(state: GraphState, runtime: Runtime[Context]) -> dict:
                     ]
                 )
             ),
-            HumanMessage(format_email(context.email)),
         ]
     )
 
@@ -129,13 +129,52 @@ async def categorize(state: GraphState, runtime: Runtime[Context]) -> dict:
     return {"categories": result["categories"]}
 
 
+async def overall_email_response(state: GraphState, runtime: Runtime[Context]) -> dict:
+    parts = [
+        flow.steps.email_response
+        for flow in state.category_results
+        if flow.steps.email_response
+    ]
+
+    if len(parts) == 0:
+        return {"email_response": None}
+
+    formatted_parts = {"\n\n".join([part.response_body_part for part in parts])}
+
+    structured = runtime.context.simple_model.with_structured_output(
+        EmailResponseSchema
+    )
+
+    conversation = [
+        HumanMessage(format_email(runtime.context.email)),
+        SystemMessage(
+            """Your job is create a comprehensive email to the customer using the parts provided below. 
+            Reformulate parts if necessary. 
+            Include email saluation and closing greeting. 
+            Do not include the subject in the email body."""
+        ),
+        AIMessage(f"Drafted email parts: {formatted_parts}"),
+    ]
+
+    custom_prompt = runtime.context.global_config.overall_email_response_prompt
+
+    if custom_prompt:
+        conversation.append(SystemMessage(custom_prompt))
+
+    result = await structured.ainvoke(conversation)
+    assert isinstance(
+        result, EmailResponseSchema
+    )  # Tell ty that this an EmailResponseSchema
+
+    return {"email_response": result.result}
+
+
 def init_simple_model(model_config: ModelConfig):
     return init_chat_model(
         model_provider=get_provider_name(model_config.provider),
         model=model_config.simple_model,
         temperature=0.1,
         timeout=10,
-        max_tokens=10000,
         api_key=model_config.api_key,
     )
 
@@ -146,20 +185,21 @@ def init_complex_model(model_config: ModelConfig):
         model=model_config.complex_model,
         temperature=0.1,
         timeout=10,
-        max_tokens=10000,
         api_key=model_config.api_key,
     )
 
 
 workflow = (
     StateGraph(GraphState, output_schema=GraphOutput, context_schema=Context)
-    .add_node("categorize", categorize)
+    .add_node(categorize)
     .add_node("simple", simple_flow)
     .add_node("product", product_flow)
+    .add_node(overall_email_response, defer=True)
     .add_edge(START, "categorize")
     .add_conditional_edges("categorize", route_to_flows, ["simple", "product"])
-    .add_edge("simple", END)
-    .add_edge("product", END)
+    .add_edge("simple", "overall_email_response")
+    .add_edge("product", "overall_email_response")
+    .add_edge("overall_email_response", END)
     .compile()
 )
 
@@ -167,7 +207,7 @@ workflow = (
 async def run_analyze_email_agent(
     analyseRequest: AnalyzeEmailRequest,
     db_pool: asyncpg.Pool,
-) -> list[FlowResult]:
+) -> GraphOutput:
     cb = UsageMetadataCallbackHandler()
 
     simple_model = init_simple_model(analyseRequest.model)
@@ -183,11 +223,12 @@ async def run_analyze_email_agent(
         complex_model=complex_model,
         email=analyseRequest.email,
         categories=analyseRequest.categories,
+        global_config=analyseRequest.config,
     )
     config = RunnableConfig(callbacks=[cb])
 
     # Result is not a pydantic object but a normal python dict
-    result = await workflow.ainvoke(
+    raw_result = await workflow.ainvoke(
         GraphState(),
         config=config,
         context=context,
@@ -197,4 +238,6 @@ async def run_analyze_email_agent(
 
     print(f"💸 Usage metadata: {cb.usage_metadata}")
 
-    return result["results"]
+    result = GraphOutput(**raw_result)
+
+    return result

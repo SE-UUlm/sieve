@@ -1,5 +1,5 @@
 from typing import Annotated
-from ai_backend.shared_flow import summary, structured_response
+from ai_backend.shared_flow import summary, structured_response, email_response
 from ai_backend.utils import format_email
 from langchain.messages import SystemMessage, HumanMessage
 from langchain.agents import create_agent, AgentState
@@ -36,7 +36,7 @@ async def search_product(
         raise ToolException("Max tries (10) for this tool reached.")
 
     if tool_calls >= 5:
-        return "search_product Tool call limit exceeded. Now return the result with the potentialProducts and your confidence score."
+        return "search_product Tool call limit exceeded. Now return the result with the related_products and your confidence score."
 
     db_schema = runtime.context.db_schema
     if table_name not in db_schema:
@@ -81,6 +81,7 @@ async def db_step(
         context_schema=Context,
     )
     conversation = [
+        HumanMessage(format_email(runtime.context.email)),
         SystemMessage(f"""Your job is to find the product(s) the customer wants to buy or is talking about in their email. 
         Only use the parts of the email that relates to the category '{category.name}: {category.description}' and ignore other parts.
         Use the search_product tool to find the products the customer might want, use the provided database schema (tables and their columns). 
@@ -92,8 +93,6 @@ async def db_step(
     if category.flow.db_step_prompt:
         conversation.append(SystemMessage(category.flow.db_step_prompt))
 
-    conversation.append(HumanMessage(format_email(runtime.context.email)))
-
     result = await agent.ainvoke(
         {"messages": conversation},
         context=runtime.context,
@@ -104,7 +103,7 @@ async def db_step(
     for msg in result["messages"]:
         msg.pretty_print()
 
-    return {"steps": {"db_step": result["structured_response"].potentialProducts}}
+    return {"steps": {"db_step": result["structured_response"]}}
 
 
 product_subgraph = (
@@ -113,13 +112,15 @@ product_subgraph = (
         output_schema=FlowResult[ProductFlowSteps],
         context_schema=Context,
     )
-    .add_node("db_step", db_step, retry_policy=RetryPolicy(max_attempts=3))
-    .add_node("structured_response", structured_response)
-    .add_node("summary", summary)
+    .add_node(db_step, retry_policy=RetryPolicy(max_attempts=3))
+    .add_node(structured_response)
+    .add_node(summary)
+    .add_node(email_response)
     .add_edge(START, "db_step")
     .add_edge(START, "summary")
     .add_edge("db_step", "structured_response")
-    .add_edge(["structured_response", "summary"], END)
+    .add_edge("structured_response", "email_response")
+    .add_edge(["structured_response", "summary", "email_response"], END)
     .compile()
 )
 
@@ -127,7 +128,7 @@ product_subgraph = (
 async def product_flow(state: FlowGraphState, runtime: Runtime[Context]) -> dict:
     """Flow that additionally tries to find products in the database. Plus summary and structured response"""
 
-    print(f"▶️ START product flow Category {state.category_config}")
+    print(f"▶️ START product flow Category {state.category_config.name}")
 
     raw_response = await product_subgraph.ainvoke(state, context=runtime.context)
 
@@ -136,4 +137,4 @@ async def product_flow(state: FlowGraphState, runtime: Runtime[Context]) -> dict
 
     print(f"✔️ END Category {state.category}")
 
-    return {"results": [response]}
+    return {"category_results": [response]}

@@ -1,4 +1,4 @@
-from ai_backend.shared_flow import summary, structured_response
+from ai_backend.shared_flow import summary, structured_response, email_response
 from langgraph.runtime import Runtime
 from ai_backend.schemas import (
     FlowGraphState,
@@ -16,11 +16,13 @@ simple_subgraph = (
         output_schema=FlowResult[SimpleFlowSteps],
         context_schema=Context,
     )
-    .add_node("structured_response", structured_response)
-    .add_node("summary", summary)
+    .add_node(structured_response)
+    .add_node(summary)
+    .add_node(email_response)
     .add_edge(START, "summary")
     .add_edge(START, "structured_response")
-    .add_edge(["summary", "structured_response"], END)
+    .add_edge(START, "email_response")
+    .add_edge(["summary", "structured_response", "email_response"], END)
     .compile()
 )
 
@@ -37,4 +39,4 @@ async def simple_flow(state: FlowGraphState, runtime: Runtime[Context]) -> dict:
 
     print(f"✔️ END Category {state.category}")
 
-    return {"results": [response]}
+    return {"category_results": [response]}

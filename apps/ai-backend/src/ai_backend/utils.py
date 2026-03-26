@@ -1,3 +1,4 @@
+from pydantic import TypeAdapter
 from ai_backend.schemas import (
     Email,
     Categories,
@@ -7,8 +8,8 @@ from ai_backend.schemas import (
 
 def format_email(email: Email) -> str:
     if email.subject is None:
-        return f"Email body:\n{email.body}"
-    return f"Email subject:\n{email.subject}\n\nEmail body:\n{email.body}"
+        return f"Customer email:\nBody:\n{email.body}"
+    return f"Customer email:\nSubject: {email.subject}\nBody:\n{email.body}"
 
 
 def get_categories(categories: Categories) -> list[str]:
@@ -32,3 +33,10 @@ def get_provider_name(provider: str) -> str:
         return "google_vertexai"
     else:
         raise ValueError(f"Unknown provider: {provider}")
+
+
+def dict_to_json(data: dict) -> str:
+    """Convert a dict to json, this can contain pydantic objects or python dicts"""
+    adapter = TypeAdapter(dict)
+    json_bytes = adapter.dump_json(data)
+    return json_bytes.decode()
