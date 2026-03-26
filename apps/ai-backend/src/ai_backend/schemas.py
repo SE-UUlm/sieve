@@ -1,6 +1,6 @@
 from langchain.chat_models import BaseChatModel
 import operator
-import asyncpg
+from asyncpg import Pool
 from dataclasses import dataclass
 from typing import Literal, Union, Any, Annotated, TypeVar, Generic
 
@@ -29,6 +29,7 @@ class SimpleFlowConfig(BaseModel):
     structured_response_schema: dict[str, Any]
     structured_response_prompt: str | None = Field(None, max_length=1000)
     summary_prompt: str | None = Field(None, max_length=1000)
+    email_response_prompt: str | None = Field(None, max_length=1000)
 
 
 class ProductFlowConfig(BaseModel):
@@ -37,6 +38,7 @@ class ProductFlowConfig(BaseModel):
     structured_response_prompt: str | None = Field(None, max_length=1000)
     summary_prompt: str | None = Field(None, max_length=1000)
     db_step_prompt: str | None = Field(None, max_length=1000)
+    email_response_prompt: str | None = Field(None, max_length=1000)
 
 
 FlowConfig = Union[SimpleFlowConfig, ProductFlowConfig]
@@ -53,10 +55,15 @@ class CategoryConfig(BaseModel, Generic[FlowConfigType]):
 Categories = list[CategoryConfig]
 
 
+class GlobalConfig(BaseModel):
+    overall_email_response_prompt: str | None = Field(None, max_length=1000)
+
+
 class AnalyzeEmailRequest(BaseModel):
     email: Email
     model: ModelConfig
     categories: Categories
+    config: GlobalConfig
 
 
 ## LangGraph Schemas ##
@@ -79,22 +86,34 @@ class Product(BaseModel):
 
 
 class SearchResult(BaseModel):
-    potentialProducts: list[Product] = Field(
+    related_products: list[Product] = Field(
         description="Products from the search you think are the ones the customer was talking about"
     )
     confidence: float = Field(
-        description="How confident you are that the products are the ones the customer meant"
+        description="How confident you are that the products you found are the ones the customer meant"
     )
+
+
+class EmailResponsePart(BaseModel):
+    response_body_part: str = Field(
+        description="Part of the drafted email response to the customer"
+    )
+
+
+class EmailResponsePartSchema(BaseModel):
+    result: EmailResponsePart | None
 
 
 ## Flow Graph:
 class SimpleFlowSteps(BaseModel):
     summary: str
+    email_response: EmailResponsePart | None = Field(default=None)
 
 
 class ProductFlowSteps(BaseModel):
     summary: str
-    db_step: list[Product]
+    db_step: SearchResult
+    email_response: EmailResponsePart | None = Field(default=None)
 
 
 FlowSteps = Union[SimpleFlowSteps, ProductFlowSteps]
@@ -117,16 +136,29 @@ class FlowGraphState(BaseModel, Generic[FlowConfigType]):
 ## Top Level Graph:
 @dataclass
 class Context:
-    db_pool: asyncpg.Pool
+    db_pool: Pool
     db_schema: dict[str, list[str]]
     simple_model: BaseChatModel
     complex_model: BaseChatModel
     email: Email
     categories: Categories
+    global_config: GlobalConfig
+
+
+class EmailResponse(BaseModel):
+    response_body: str = Field(description="Email body of the response to the customer")
+    response_subject: str = Field(
+        description="Email subject of the response to the customer"
+    )
+
+
+class EmailResponseSchema(BaseModel):
+    result: EmailResponse | None
 
 
 class GraphOutput(BaseModel):
-    results: Annotated[list[FlowResult], operator.add] = []
+    category_results: Annotated[list[FlowResult], operator.add] = []
+    email_response: EmailResponse | None = Field(default=None)
 
 
 class GraphState(GraphOutput):

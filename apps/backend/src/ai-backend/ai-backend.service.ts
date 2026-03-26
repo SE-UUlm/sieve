@@ -78,6 +78,10 @@ export class AiBackendService implements OnModuleInit {
                         simple_model: "gpt-4o-mini",
                         complex_model: "gpt-5.2",
                     },
+                    config: {
+                        overall_email_response_prompt:
+                            "Verwende Emojis, antworte in der Du-Form. Name für Gruß unten: Simon Eve, Sieve Enterprises Corp. Ganz am Ende soll noch ein zufälliger, sinnloser Werbespruch stehen.",
+                    },
                     categories: [
                         {
                             name: "Complaint",
@@ -104,9 +108,11 @@ export class AiBackendService implements OnModuleInit {
                                     type: "object",
                                 },
                                 structured_response_prompt:
-                                    "Be extremely concise. List every complaint twice. Once in English, once in French",
+                                    "Be extremely concise.",
                                 summary_prompt:
                                     "Include every little detail of the complaint. Answer in French.",
+                                email_response_prompt:
+                                    "In the response tell the customner that its their fault and be rude.",
                             },
                         },
                         {
@@ -182,27 +188,9 @@ export class AiBackendService implements OnModuleInit {
                                             title: "Products",
                                             type: "array",
                                         },
-                                        question: {
-                                            anyOf: [
-                                                { type: "string" },
-                                                { type: "null" },
-                                            ],
-                                            default: null,
-                                            title: "Question",
-                                        },
-                                        answer: {
-                                            anyOf: [
-                                                { type: "string" },
-                                                { type: "null" },
-                                            ],
-                                            default: null,
-                                            description:
-                                                "If the customer asked a question and you can answer the question based on the provided product details, then answer here",
-                                            title: "Answer",
-                                        },
                                         urgency: {
                                             description:
-                                                "How urgent is the complaint from 0 (not urgent) to 100 (very urgent)",
+                                                "How urgent is the inquiry from 0 (not urgent) to 100 (very urgent)",
                                             title: "Urgency",
                                             type: "integer",
                                         },
@@ -213,6 +201,11 @@ export class AiBackendService implements OnModuleInit {
                                 },
                                 db_step_prompt:
                                     "Database hints: The database only contains lego sets. The metadata column contains the part count. The products in the database are named in german",
+                                email_response_prompt: `If no matching product is found, please tell the customer that you could not find it and ask which product exactly they were referring to. 
+If there are multiple ask to clarify which one the customers want.
+If the customer has questions that can be answered based on the related information, answer it.
+If the customer has no questions and wants to immediately place the order: The following information is needed: Name, Address. If those are not provided, ask the customer. Else tell the customer that the order is placed.
+If nothing of the above matches, do not respond.`,
                             },
                         },
                         {
@@ -325,6 +318,8 @@ export class AiBackendService implements OnModuleInit {
                                     "Database hints: The database only contains lego sets. The metadata column contains the part count. The products in the database are named in german",
                                 summary_prompt:
                                     "Answer in German. In sehr kurzen Stichworten antworten",
+                                email_response_prompt:
+                                    "If the complaint is reasonable, answer that you are sorry and that we will fix it as soon as possible.",
                             },
                         },
                         {
@@ -345,6 +340,7 @@ export class AiBackendService implements OnModuleInit {
                                 },
                                 summary_prompt:
                                     "Be extremely concise. Answer in English",
+                                email_response_prompt: "Do not respond.",
                             },
                         },
                     ],
