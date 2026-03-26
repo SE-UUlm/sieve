@@ -1,6 +1,6 @@
 from langchain.chat_models import BaseChatModel
 import operator
-import asyncpg
+from asyncpg import Pool
 from dataclasses import dataclass
 from typing import Literal, Union, Any, Annotated, TypeVar, Generic
 
@@ -136,7 +136,7 @@ class FlowGraphState(BaseModel, Generic[FlowConfigType]):
 ## Top Level Graph:
 @dataclass
 class Context:
-    db_pool: asyncpg.Pool
+    db_pool: Pool
     db_schema: dict[str, list[str]]
     simple_model: BaseChatModel
     complex_model: BaseChatModel

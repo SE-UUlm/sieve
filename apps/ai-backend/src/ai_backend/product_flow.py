@@ -128,7 +128,7 @@ product_subgraph = (
 async def product_flow(state: FlowGraphState, runtime: Runtime[Context]) -> dict:
     """Flow that additionally tries to find products in the database. Plus summary and structured response"""
 
-    print(f"▶️ START product flow Category {state.category_config.name}")
+    print(f"▶️ START product flow Category {state.category_config}")
 
     raw_response = await product_subgraph.ainvoke(state, context=runtime.context)
 

@@ -9,11 +9,10 @@ from ai_backend.utils import (
 )
 from ai_backend.product_flow import product_flow
 from langchain_core.callbacks import UsageMetadataCallbackHandler
-import asyncpg
+from asyncpg import Pool
 from langchain.messages import HumanMessage, SystemMessage, AIMessage
 from langgraph.types import Send
 from langchain.chat_models import init_chat_model
-from dotenv import load_dotenv
 from ai_backend.schemas import (
     Context,
     GraphState,
@@ -26,10 +25,10 @@ from ai_backend.schemas import (
 from langgraph.graph import StateGraph, START, END
 
 
-load_dotenv()
+async def get_database_schema(pool: Pool) -> dict[str, list[str]]:
+    if not pool:
+        return {}
 
-
-async def get_database_schema(pool: asyncpg.Pool) -> dict[str, list[str]]:
     async with pool.acquire() as conn:
         tables = await conn.fetch(
             """
@@ -194,7 +193,9 @@ workflow = (
     .add_node(categorize)
     .add_node("simple", simple_flow)
     .add_node("product", product_flow)
-    .add_node(overall_email_response, defer=True)
+    .add_node(
+        overall_email_response, defer=True
+    )  # defer because this should only run after all simple and product nodes are executed
     .add_edge(START, "categorize")
     .add_conditional_edges("categorize", route_to_flows, ["simple", "product"])
     .add_edge("simple", "overall_email_response")
@@ -206,7 +207,7 @@ workflow = (
 
 async def run_analyze_email_agent(
     analyseRequest: AnalyzeEmailRequest,
-    db_pool: asyncpg.Pool,
+    db_pool: Pool,
 ) -> GraphOutput:
     cb = UsageMetadataCallbackHandler()
 
