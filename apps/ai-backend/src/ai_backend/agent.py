@@ -138,7 +138,7 @@ async def overall_email_response(state: GraphState, runtime: Runtime[Context]) -
     if len(parts) == 0:
         return {"email_response": None}
 
-    formatted_parts = {"\n\n".join([part.response_body_part for part in parts])}
+    formatted_parts = "\n\n".join(part.response_body_part for part in parts)
 
     structured = runtime.context.simple_model.with_structured_output(
         EmailResponseSchema
@@ -149,7 +149,7 @@ async def overall_email_response(state: GraphState, runtime: Runtime[Context]) -
         SystemMessage(
             """Your job is create a comprehensive email to the customer using the parts provided below. 
             Reformulate parts if necessary. 
-            Include email saluation and closing greeting. 
+            Include email salutation and closing greeting. 
             Do not include the subject in the email body."""
         ),
         AIMessage(f"Drafted email parts: {formatted_parts}"),

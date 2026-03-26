@@ -12,7 +12,7 @@ load_dotenv()
 
 async def create_pool():
     if not os.environ.get("PRODUCT_DB_NAME"):
-        print("No prodct database configured. Product Flow will not work")
+        print("No product database configured. Product Flow will not work")
         return None
 
     pool = await asyncpg.create_pool(

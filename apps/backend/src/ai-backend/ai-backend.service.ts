@@ -201,10 +201,10 @@ export class AiBackendService implements OnModuleInit {
                                 },
                                 db_step_prompt:
                                     "Database hints: The database only contains lego sets. The metadata column contains the part count. The products in the database are named in german",
-                                email_response_prompt: `If no matching product is found, please tell the customer that you could not find it and ask which product exactly they were referring too. 
+                                email_response_prompt: `If no matching product is found, please tell the customer that you could not find it and ask which product exactly they were referring to. 
 If there are multiple ask to clarify which one the customers want.
 If the customer has questions that can be answered based on the related information, answer it.
-If the customer has no questions and wants to immediatly place the order: The following information is needed: Name, Address. If those are not provided, ask the customer. Else tell the customer that the order is placed.
+If the customer has no questions and wants to immediately place the order: The following information is needed: Name, Address. If those are not provided, ask the customer. Else tell the customer that the order is placed.
 If nothing of the above matches, do not respond.`,
                             },
                         },
