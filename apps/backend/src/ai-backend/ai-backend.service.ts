@@ -169,7 +169,10 @@ Nicht auf zusätzlichen Anliegen in der Kunden-E-Mail eingehen, die nicht in Dra
                     ? candidate.issues.filter(
                           (
                               value,
-                          ): value is { product_name: string; issue: string } => {
+                          ): value is {
+                          product_name: string;
+                          issue: string;
+                      } => {
                               if (!value || typeof value !== "object") {
                                   return false;
                               }

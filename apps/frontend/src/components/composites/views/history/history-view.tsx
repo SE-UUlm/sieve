@@ -92,8 +92,7 @@ export function HistoryView({ history = [] }: HistoryViewProps) {
         if (historyQuery.isError && !hasProvidedHistory) {
             showPersistentErrorToast({
                 title: "Failed to Load History",
-                description:
-                    "Could not load history. Please try again later.",
+                description: "Could not load history. Please try again later.",
             });
         }
     }, [historyQuery.isError, hasProvidedHistory]);
@@ -176,7 +175,11 @@ export function HistoryView({ history = [] }: HistoryViewProps) {
                             </h3>
                             {selectedItem.result ? (
                                 <pre className="mt-3 overflow-x-auto rounded-xl bg-slate-950 p-4 text-xs leading-relaxed text-slate-100">
-                                    {JSON.stringify(selectedItem.result, null, 2)}
+                                    {JSON.stringify(
+                                        selectedItem.result,
+                                        null,
+                                        2,
+                                    )}
                                 </pre>
                             ) : (
                                 <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
