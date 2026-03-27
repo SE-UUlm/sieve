@@ -88,7 +88,10 @@ export class JobService {
      */
     async getHistory(session: UserSession): Promise<JobHistoryEntryDto[]> {
         const jobs = await this.prismaService.job.findMany({
-            where: { ...this.getScopedJobWhere(session), status: JobStatus.COMPLETED },
+            where: {
+                ...this.getScopedJobWhere(session),
+                status: JobStatus.COMPLETED,
+            },
             include: { email: true, result: true },
             orderBy: { createdAt: "desc" },
             take: 100,
