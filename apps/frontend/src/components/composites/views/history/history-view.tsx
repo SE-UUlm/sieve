@@ -8,7 +8,6 @@ import { StyledInput } from "@/components/ui/styled-input";
 import {
     getJobControllerGetHistoryQueryKey,
     type JobHistoryEntryDto,
-    type JobHistoryEntryDtoResult,
     useJobControllerGetHistory,
 } from "@/lib/client";
 import { showPersistentErrorToast } from "@/lib/toast";
@@ -18,7 +17,7 @@ type HistoryEntry = {
     id: string;
     subject: string;
     body: string;
-    result: JobHistoryEntryDtoResult | null;
+    result: JobHistoryEntryDto["result"];
 };
 
 type HistoryViewProps = {

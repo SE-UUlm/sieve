@@ -170,9 +170,9 @@ Nicht auf zusätzlichen Anliegen in der Kunden-E-Mail eingehen, die nicht in Dra
                           (
                               value,
                           ): value is {
-                          product_name: string;
-                          issue: string;
-                      } => {
+                              product_name: string;
+                              issue: string;
+                          } => {
                               if (!value || typeof value !== "object") {
                                   return false;
                               }
