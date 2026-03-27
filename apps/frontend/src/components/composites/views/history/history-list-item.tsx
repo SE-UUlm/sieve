@@ -19,8 +19,8 @@ export function HistoryListItem({
 }: HistoryListItemProps) {
     return (
         <button
-            key={entry.id}
             type="button"
+            aria-pressed={isSelected}
             onClick={() => onSelectAction(entry.id)}
             className={`w-full rounded-2xl border p-4 text-left shadow-sm transition-colors ${
                 isSelected

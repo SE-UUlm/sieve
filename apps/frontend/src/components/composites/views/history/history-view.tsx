@@ -123,6 +123,7 @@ export function HistoryView({ history = [] }: HistoryViewProps) {
                             onChange={(event) => setQuery(event.target.value)}
                             placeholder="Search by subject or content"
                             className="pl-9"
+                            aria-label="Search history"
                         />
                     </div>
 
@@ -153,7 +154,7 @@ export function HistoryView({ history = [] }: HistoryViewProps) {
                 </div>
             </SplitViewPane>
 
-            <SplitViewPane variant="secondary">
+            <SplitViewPane variant="secondary" isScrollable>
                 {selectedItem ? (
                     <div className="mx-auto flex h-full w-full max-w-3xl flex-col gap-4">
                         <section className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900/60">

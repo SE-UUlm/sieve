@@ -28,6 +28,7 @@ export class EmailService {
         try {
             const analysisResult = await this.aiBackendService.runFlow(
                 dto.body,
+                dto.subject,
             );
             const now = new Date();
 

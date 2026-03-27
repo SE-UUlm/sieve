@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from "@nestjs/common";
+import { Controller, Get, Param, ParseEnumPipe, Query } from "@nestjs/common";
 import {
     ApiCookieAuth,
     ApiOperation,
@@ -45,7 +45,8 @@ export class JobController {
         @Session() session: UserSession,
         @Query("page") page?: number,
         @Query("limit") limit?: number,
-        @Query("status") status?: JobStatus,
+        @Query("status", new ParseEnumPipe(JobStatus, { optional: true }))
+        status?: JobStatus,
     ): Promise<JobDto[]> {
         return this.jobService.getJobs(session, page, limit, status);
     }

@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { type UserSession } from "@thallesp/nestjs-better-auth";
 import { type Prisma } from "../../prisma/client/client";
-import { type JobStatus, UserRole } from "../../prisma/client/enums";
+import { JobStatus, UserRole } from "../../prisma/client/enums";
 import type { EmailAnalysisResultDto } from "../email/dto/email-analysis-result.dto";
 import type { JobResultDto } from "../job-result/dto/job-result.dto";
 import { PrismaService } from "../prisma/prisma.service";
@@ -88,7 +88,7 @@ export class JobService {
      */
     async getHistory(session: UserSession): Promise<JobHistoryEntryDto[]> {
         const jobs = await this.prismaService.job.findMany({
-            where: this.getScopedJobWhere(session),
+            where: { ...this.getScopedJobWhere(session), status: JobStatus.COMPLETED },
             include: { email: true, result: true },
             orderBy: { createdAt: "desc" },
             take: 100,
