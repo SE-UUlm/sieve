@@ -39,6 +39,8 @@ cd ../..
 
 After the first admin login, configure provider credentials and model settings in `Settings -> Provider`
 (active provider, provider API keys, and simple/complex model identifiers).
+You can also configure analysis categories in `Settings -> Category` by editing the categories JSON
+(`name`, `description`, and `flow` with `flow.name` + `flow.structured_response_schema`).
 
 The application will be available at:
 

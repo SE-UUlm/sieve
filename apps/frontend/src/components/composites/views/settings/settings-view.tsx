@@ -8,6 +8,7 @@ import {
     SplitViewSkeleton,
     TextBlockSkeleton,
 } from "@/components/composites/skeletons";
+import { CategorySection } from "@/components/composites/views/settings/sections/category-section";
 import { ProviderSection } from "@/components/composites/views/settings/sections/provider/provider-section";
 import { UserProfileSection } from "@/components/composites/views/settings/sections/user-profile-section";
 import { UserSecuritySection } from "@/components/composites/views/settings/sections/user-security-section";
@@ -16,7 +17,7 @@ import { SplitViewPane } from "@/components/composites/views/split-view/split-vi
 import { StyledSkeleton } from "@/components/ui/styled-skeleton";
 import { authClient } from "@/lib/auth-client";
 
-type SettingsSectionKey = "profile" | "security" | "provider";
+type SettingsSectionKey = "profile" | "security" | "provider" | "category";
 
 export function SettingsView() {
     const { data: session, isPending: isSessionPending } =
@@ -49,6 +50,12 @@ export function SettingsView() {
                               title: "Provider",
                               description:
                                   "Configure AI provider settings for this workspace.",
+                          },
+                          {
+                              key: "category" as const,
+                              title: "Category",
+                              description:
+                                  "Manage categories for your workspace.",
                           },
                       ]
                     : []),
@@ -145,6 +152,9 @@ export function SettingsView() {
                     {selectedSection === "security" && <UserSecuritySection />}
                     {selectedSection === "provider" && isAdmin && (
                         <ProviderSection />
+                    )}
+                    {selectedSection === "category" && isAdmin && (
+                        <CategorySection />
                     )}
                 </div>
             </SplitViewPane>

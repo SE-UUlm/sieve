@@ -116,6 +116,7 @@ model JobResult {
 model InstanceSettings {
     id             String     @id @default("singleton")
     activeProvider AIProvider @default(OPENAI)
+    categories     Json?
     createdAt      DateTime   @default(now())
     updatedAt      DateTime   @updatedAt
 
