@@ -123,11 +123,13 @@ model InstanceSettings {
 }
 
 model ProviderSettings {
-    provider  AIProvider @id
-    apiKey    String?
-    enabled   Boolean    @default(false)
-    createdAt DateTime   @default(now())
-    updatedAt DateTime   @updatedAt
+    provider     AIProvider @id
+    apiKey       String?
+    enabled      Boolean    @default(false)
+    simpleModel  String?
+    complexModel String?
+    createdAt    DateTime   @default(now())
+    updatedAt    DateTime   @updatedAt
 
     @@map("provider_settings")
 }

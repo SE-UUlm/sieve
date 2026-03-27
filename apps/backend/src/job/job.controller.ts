@@ -9,8 +9,6 @@ import { JobStatus } from "../../prisma/client/enums";
 import { JobResultDto } from "../job-result/dto/job-result.dto";
 import { JobDto } from "./dto/job.dto";
 
-// TODO: Remove eslint-disable when implementing methods
-/* eslint-disable @typescript-eslint/no-unused-vars */
 @ApiTags("Jobs")
 @Controller("jobs")
 export class JobController {

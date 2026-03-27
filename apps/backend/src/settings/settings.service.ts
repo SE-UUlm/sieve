@@ -1,5 +1,9 @@
 import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
-import { Injectable } from "@nestjs/common";
+import {
+    BadGatewayException,
+    Injectable,
+    ServiceUnavailableException,
+} from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { AIProvider } from "../../prisma/client/enums";
 import { PrismaService } from "../prisma/prisma.service";
@@ -14,12 +18,19 @@ const GCM_IV_LENGTH = 12;
 
 type ProviderState = {
     isConfigured: boolean;
+    isModelConfigured: boolean;
     isEnabled: boolean;
+};
+
+type ProviderModels = {
+    simpleModel: string | null;
+    complexModel: string | null;
 };
 
 @Injectable()
 export class SettingsService {
     private readonly encryptionKey: Buffer;
+    private readonly aiBackendUrl: string = "";
 
     constructor(
         private readonly prismaService: PrismaService,
@@ -43,6 +54,16 @@ export class SettingsService {
                 "SETTINGS_ENCRYPTION_KEY must decode to 32 bytes (base64).",
             );
         }
+
+        const configuredAiBackendUrl =
+            configService.get<string>("AI_BACKEND_URL") ?? "";
+        if (configuredAiBackendUrl === "") {
+            this.aiBackendUrl = "";
+        } else {
+            this.aiBackendUrl = configuredAiBackendUrl.endsWith("/")
+                ? configuredAiBackendUrl
+                : `${configuredAiBackendUrl}/`;
+        }
     }
 
     getSupportedProviders(): readonly AIProvider[] {
@@ -59,17 +80,26 @@ export class SettingsService {
             provider: AIProvider;
             displayName: string;
             isConfigured: boolean;
+            isModelConfigured: boolean;
             isEnabled: boolean;
+            simpleModel: string | null;
+            complexModel: string | null;
         }>
     > {
         return await Promise.all(
             this.getSupportedProviders().map(async (provider) => {
-                const state = await this.getProviderState(provider);
+                const [state, models] = await Promise.all([
+                    this.getProviderState(provider),
+                    this.getProviderModels(provider),
+                ]);
                 return {
                     provider,
                     displayName: getProviderDisplayName(provider),
                     isConfigured: state.isConfigured,
+                    isModelConfigured: state.isModelConfigured,
                     isEnabled: state.isEnabled,
+                    simpleModel: models.simpleModel,
+                    complexModel: models.complexModel,
                 };
             }),
         );
@@ -276,16 +306,130 @@ export class SettingsService {
         });
     }
 
+    /**
+     * Gets configured simple and complex models for a provider.
+     *
+     * @param provider The provider to get model settings for.
+     * @returns Configured simple and complex model identifiers, or null values when unset.
+     */
+    async getProviderModels(provider: AIProvider): Promise<ProviderModels> {
+        const settings = await this.prismaService.providerSettings.findUnique({
+            where: { provider },
+            select: {
+                simpleModel: true,
+                complexModel: true,
+            },
+        });
+
+        return {
+            simpleModel: settings?.simpleModel ?? null,
+            complexModel: settings?.complexModel ?? null,
+        };
+    }
+
+    /**
+     * Sets simple and complex model identifiers for a provider.
+     *
+     * @param provider The provider to update.
+     * @param simpleModel Model identifier used for simple analysis steps.
+     * @param complexModel Model identifier used for complex analysis steps.
+     */
+    async setProviderModels(
+        provider: AIProvider,
+        simpleModel: string,
+        complexModel: string,
+    ): Promise<void> {
+        await this.prismaService.providerSettings.upsert({
+            where: { provider },
+            create: {
+                provider,
+                simpleModel: simpleModel.trim(),
+                complexModel: complexModel.trim(),
+            },
+            update: {
+                simpleModel: simpleModel.trim(),
+                complexModel: complexModel.trim(),
+            },
+        });
+    }
+
+    /**
+     * Validates whether a model is available for a provider via AI backend.
+     *
+     * @param provider The provider for which model availability is checked.
+     * @param model The model identifier to validate.
+     * @returns True if AI backend confirms model availability, false otherwise.
+     */
+    async validateProviderModelAvailability(
+        provider: AIProvider,
+        model: string,
+    ): Promise<boolean> {
+        const apiKey = await this.getProviderApiKey(provider);
+        if (!apiKey || !apiKey.trim()) {
+            throw new ServiceUnavailableException(
+                `${provider} API key is not configured for this instance.`,
+            );
+        }
+
+        if (!this.aiBackendUrl) {
+            throw new ServiceUnavailableException(
+                "AI backend URL is not configured.",
+            );
+        }
+
+        try {
+            const response = await fetch(`${this.aiBackendUrl}validate-model`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    provider,
+                    api_key: apiKey,
+                    model: model.trim(),
+                }),
+                signal: AbortSignal.timeout(30000),
+            });
+
+            if (!response.ok) {
+                throw new BadGatewayException(
+                    `AiBackend model validation failed with status ${response.status}`,
+                );
+            }
+
+            const data = (await response.json()) as {
+                is_available: boolean;
+            };
+            return data.is_available;
+        } catch (error: unknown) {
+            if (error instanceof BadGatewayException) {
+                throw error;
+            }
+            const message =
+                error instanceof Error && error.message
+                    ? error.message
+                    : "Unknown error";
+            throw new ServiceUnavailableException(
+                `Unable to reach AI backend for model validation: ${message}`,
+            );
+        }
+    }
+
     private async getProviderState(
         provider: AIProvider,
     ): Promise<ProviderState> {
-        const [isConfigured, isEnabled] = await Promise.all([
+        const [isConfigured, isEnabled, models] = await Promise.all([
             this.hasProviderApiKey(provider),
             this.isProviderEnabled(provider),
+            this.getProviderModels(provider),
         ]);
+        const isModelConfigured =
+            Boolean(models.simpleModel?.trim()) &&
+            Boolean(models.complexModel?.trim());
 
         return {
             isConfigured,
+            isModelConfigured,
             isEnabled,
         };
     }

@@ -17,6 +17,23 @@ import {
 } from "@/lib/client";
 import type { UpdateInstanceActiveProviderDtoProvider } from "@/lib/client/models";
 
+type ProviderModelValues = {
+    simpleModel: string;
+    complexModel: string;
+};
+
+type ProviderModelValidationState = {
+    simple: "unknown" | "valid" | "invalid";
+    complex: "unknown" | "valid" | "invalid";
+};
+
+function getUnknownModelValidationState(): ProviderModelValidationState {
+    return {
+        simple: "unknown",
+        complex: "unknown",
+    };
+}
+
 function validateApiKey(apiKey: string): string | null {
     const normalizedKey = apiKey.trim();
 
@@ -27,13 +44,44 @@ function validateApiKey(apiKey: string): string | null {
     return null;
 }
 
+/**
+ * Validates simple/complex provider model inputs.
+ */
+function validateProviderModels(
+    simpleModel: string,
+    complexModel: string,
+): string | null {
+    if (!simpleModel.trim()) {
+        return "Simple model cannot be empty.";
+    }
+
+    if (!complexModel.trim()) {
+        return "Complex model cannot be empty.";
+    }
+
+    return null;
+}
+
 export function ProviderSection() {
     const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
     const [apiKeyErrors, setApiKeyErrors] = useState<Record<string, string>>(
         {},
     );
+    const [providerModels, setProviderModels] = useState<
+        Record<string, ProviderModelValues>
+    >({});
+    const [providerModelErrors, setProviderModelErrors] = useState<
+        Record<string, string>
+    >({});
+    const [
+        providerModelAvailabilityFeedback,
+        setProviderModelAvailabilityFeedback,
+    ] = useState<Record<string, ProviderModelValidationState>>({});
     const [selectedProvider, setSelectedProvider] =
         useState<UpdateInstanceActiveProviderDtoProvider>("OPENAI");
+    const [dirtyProviderModels, setDirtyProviderModels] = useState<
+        Record<string, boolean>
+    >({});
 
     const settingsQuery = useSettingsControllerGetInstanceSettings({
         query: {
@@ -51,12 +99,46 @@ export function ProviderSection() {
     }, [settingsQuery.data]);
 
     useEffect(() => {
-        if (settingsQuery.data?.status !== 200) {
+        const settingsData = settingsQuery.data;
+        if (!settingsData || settingsData.status !== 200) {
             return;
         }
 
-        setSelectedProvider(settingsQuery.data.data.activeProvider);
-    }, [settingsQuery.data]);
+        const providerSettings = settingsData.data.providers;
+        setSelectedProvider(settingsData.data.activeProvider);
+        setProviderModels((previousState) =>
+            Object.fromEntries(
+                providerSettings.map((provider) => {
+                    const providerId = provider.provider;
+                    const hasUnsavedEdits =
+                        dirtyProviderModels[providerId] === true;
+                    if (hasUnsavedEdits && previousState[providerId]) {
+                        return [providerId, previousState[providerId]];
+                    }
+                    return [
+                        providerId,
+                        {
+                            simpleModel: provider.simpleModel ?? "",
+                            complexModel: provider.complexModel ?? "",
+                        },
+                    ];
+                }),
+            ),
+        );
+        setProviderModelAvailabilityFeedback((previousState) =>
+            Object.fromEntries(
+                providerSettings.map((provider) => {
+                    const providerId = provider.provider;
+                    const hasUnsavedEdits =
+                        dirtyProviderModels[providerId] === true;
+                    if (hasUnsavedEdits && previousState[providerId]) {
+                        return [providerId, previousState[providerId]];
+                    }
+                    return [providerId, getUnknownModelValidationState()];
+                }),
+            ),
+        );
+    }, [settingsQuery.data, dirtyProviderModels]);
 
     const selectableProviders = useMemo(
         () =>
@@ -70,11 +152,15 @@ export function ProviderSection() {
         isDeletingProvider,
         isProviderMutationBusy,
         isSavingActiveProvider,
+        isCheckingProviderModelAvailability,
         isTogglingProvider,
         isUpdatingProvider,
+        isUpdatingProviderModels,
         toggleProviderEnabled,
         updateActiveProvider,
         updateProviderApiKey,
+        updateProviderModels,
+        validateProviderModelAvailability,
     } = useProviderMutations();
 
     if (settingsQuery.isPending && !settingsQuery.data) {
@@ -135,6 +221,105 @@ export function ProviderSection() {
         });
     };
 
+    const onUpdateProviderModels = (
+        provider: UpdateInstanceActiveProviderDtoProvider,
+    ) => {
+        const currentProviderModels = providerModels[provider] ?? {
+            simpleModel: "",
+            complexModel: "",
+        };
+        const validationError = validateProviderModels(
+            currentProviderModels.simpleModel,
+            currentProviderModels.complexModel,
+        );
+
+        if (validationError) {
+            setProviderModelErrors((previousState) => ({
+                ...previousState,
+                [provider]: validationError,
+            }));
+            return;
+        }
+
+        setProviderModelErrors((previousState) => ({
+            ...previousState,
+            [provider]: "",
+        }));
+
+        updateProviderModels(
+            provider,
+            currentProviderModels.simpleModel,
+            currentProviderModels.complexModel,
+            {
+                onSuccess: () => {
+                    setProviderModelErrors((previousState) => ({
+                        ...previousState,
+                        [provider]: "",
+                    }));
+                    setDirtyProviderModels((previousState) => ({
+                        ...previousState,
+                        [provider]: false,
+                    }));
+                },
+            },
+        );
+    };
+
+    const onValidateProviderModels = async (
+        provider: UpdateInstanceActiveProviderDtoProvider,
+    ) => {
+        const currentProviderModels = providerModels[provider] ?? {
+            simpleModel: "",
+            complexModel: "",
+        };
+        const validationError = validateProviderModels(
+            currentProviderModels.simpleModel,
+            currentProviderModels.complexModel,
+        );
+
+        if (validationError) {
+            setProviderModelErrors((previousState) => ({
+                ...previousState,
+                [provider]: validationError,
+            }));
+            return;
+        }
+
+        setProviderModelErrors((previousState) => ({
+            ...previousState,
+            [provider]: "",
+        }));
+        setProviderModelAvailabilityFeedback((previousState) => ({
+            ...previousState,
+            [provider]: getUnknownModelValidationState(),
+        }));
+
+        const simpleModelAvailability = await validateProviderModelAvailability(
+            provider,
+            currentProviderModels.simpleModel.trim(),
+        );
+        const complexModelAvailability =
+            await validateProviderModelAvailability(
+                provider,
+                currentProviderModels.complexModel.trim(),
+            );
+
+        if (
+            simpleModelAvailability === null ||
+            complexModelAvailability === null
+        ) {
+            return;
+        }
+
+        setProviderModelAvailabilityFeedback((previousState) => ({
+            ...previousState,
+            [provider]: {
+                simple: simpleModelAvailability ? "valid" : "invalid",
+                complex: complexModelAvailability ? "valid" : "invalid",
+            },
+        }));
+    };
+
     return (
         <SettingsSection
             title="Provider"
@@ -157,11 +342,33 @@ export function ProviderSection() {
                         provider={provider}
                         openByDefault={index === 0}
                         apiKeyValue={apiKeys[provider.provider] ?? ""}
+                        simpleModelValue={
+                            providerModels[provider.provider]?.simpleModel ?? ""
+                        }
+                        complexModelValue={
+                            providerModels[provider.provider]?.complexModel ??
+                            ""
+                        }
                         apiKeyError={apiKeyErrors[provider.provider]}
+                        modelError={providerModelErrors[provider.provider]}
+                        simpleModelValidationState={
+                            providerModelAvailabilityFeedback[provider.provider]
+                                ?.simple
+                        }
+                        complexModelValidationState={
+                            providerModelAvailabilityFeedback[provider.provider]
+                                ?.complex
+                        }
                         isBusy={isProviderMutationBusy}
                         isUpdating={isUpdatingProvider(provider.provider)}
+                        isUpdatingModels={isUpdatingProviderModels(
+                            provider.provider,
+                        )}
                         isToggling={isTogglingProvider(provider.provider)}
                         isDeleting={isDeletingProvider(provider.provider)}
+                        isCheckingModelAvailability={isCheckingProviderModelAvailability(
+                            provider.provider,
+                        )}
                         onApiKeyChangeAction={(value) => {
                             setApiKeys((previousState) => ({
                                 ...previousState,
@@ -172,8 +379,66 @@ export function ProviderSection() {
                                 [provider.provider]: "",
                             }));
                         }}
+                        onSimpleModelChangeAction={(value) => {
+                            setProviderModels((previousState) => ({
+                                ...previousState,
+                                [provider.provider]: {
+                                    simpleModel: value,
+                                    complexModel:
+                                        previousState[provider.provider]
+                                            ?.complexModel ?? "",
+                                },
+                            }));
+                            setDirtyProviderModels((previousState) => ({
+                                ...previousState,
+                                [provider.provider]: true,
+                            }));
+                            setProviderModelErrors((previousState) => ({
+                                ...previousState,
+                                [provider.provider]: "",
+                            }));
+                            setProviderModelAvailabilityFeedback(
+                                (previousState) => ({
+                                    ...previousState,
+                                    [provider.provider]:
+                                        getUnknownModelValidationState(),
+                                }),
+                            );
+                        }}
+                        onComplexModelChangeAction={(value) => {
+                            setProviderModels((previousState) => ({
+                                ...previousState,
+                                [provider.provider]: {
+                                    simpleModel:
+                                        previousState[provider.provider]
+                                            ?.simpleModel ?? "",
+                                    complexModel: value,
+                                },
+                            }));
+                            setDirtyProviderModels((previousState) => ({
+                                ...previousState,
+                                [provider.provider]: true,
+                            }));
+                            setProviderModelErrors((previousState) => ({
+                                ...previousState,
+                                [provider.provider]: "",
+                            }));
+                            setProviderModelAvailabilityFeedback(
+                                (previousState) => ({
+                                    ...previousState,
+                                    [provider.provider]:
+                                        getUnknownModelValidationState(),
+                                }),
+                            );
+                        }}
                         onUpdateApiKeyAction={() => {
                             onUpdateProvider(provider.provider);
+                        }}
+                        onUpdateModelsAction={() => {
+                            onUpdateProviderModels(provider.provider);
+                        }}
+                        onValidateModelsAction={() => {
+                            void onValidateProviderModels(provider.provider);
                         }}
                         onToggleEnabledAction={() => {
                             toggleProviderEnabled(

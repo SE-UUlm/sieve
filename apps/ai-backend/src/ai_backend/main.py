@@ -1,11 +1,19 @@
 from dotenv import load_dotenv
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Literal
-from ai_backend.schemas import AnalyzeEmailRequest, GraphOutput
+from ai_backend.schemas import AnalyzeEmailRequest, GraphOutput, ModelConfig
 import os
 import asyncpg
-from ai_backend.agent import run_analyze_email_agent
+import httpx
+import anthropic
+import openai
+from ai_backend.agent import (
+    run_analyze_email_agent,
+    init_simple_model,
+    init_complex_model,
+)
 from fastapi import FastAPI
+from google.api_core.exceptions import ClientError as GoogleClientError
 
 load_dotenv()
 
@@ -37,6 +45,64 @@ class AnalyzeResult(BaseModel):
     data: GraphOutput
 
 
+class ValidateModelRequest(BaseModel):
+    provider: Literal["OPENAI", "GOOGLE_VERTEX_AI", "ANTHROPIC"]
+    api_key: str = Field(..., min_length=1, max_length=500)
+    model: str = Field(..., min_length=1, max_length=200)
+
+
+class ValidateModelResult(BaseModel):
+    is_available: bool
+
+
+def _is_invalid_google_model_error(error: GoogleClientError) -> bool:
+    code = getattr(error, "code", None)
+    code_value = getattr(code, "value", code)
+    try:
+        status_code = int(code_value) if code_value is not None else None
+    except (TypeError, ValueError):
+        status_code = None
+
+    if status_code in (400, 404):
+        message = str(error).lower()
+        return "model" in message and (
+            "not found" in message
+            or "unknown" in message
+            or "invalid argument" in message
+        )
+
+    return False
+
+
+def _is_invalid_httpx_model_error(error: httpx.HTTPStatusError) -> bool:
+    response = getattr(error, "response", None)
+    status_code = getattr(response, "status_code", None) if response else None
+
+    if status_code in (400, 404, 422):
+        body_text = ""
+        if response is not None:
+            body_text = response.text or ""
+        message = (body_text or str(error)).lower()
+        return "model" in message and (
+            "not found" in message or "unknown" in message or "invalid" in message
+        )
+
+    return False
+
+
+def is_invalid_model_error(error: Exception) -> bool:
+    if isinstance(error, (openai.BadRequestError, openai.NotFoundError)):
+        return True
+    if isinstance(error, (anthropic.BadRequestError, anthropic.NotFoundError)):
+        return True
+    if isinstance(error, GoogleClientError):
+        return _is_invalid_google_model_error(error)
+    if isinstance(error, httpx.HTTPStatusError):
+        return _is_invalid_httpx_model_error(error)
+
+    return False
+
+
 @app.post("/analyze-email")
 async def analyze_email(request: AnalyzeEmailRequest) -> AnalyzeResult:
     # Use a separate pool for each request to allow dynamic credentials from backend in the future
@@ -50,3 +116,26 @@ async def analyze_email(request: AnalyzeEmailRequest) -> AnalyzeResult:
     finally:
         if pool:
             await pool.close()
+
+
+@app.post("/validate-model")
+async def validate_model(request: ValidateModelRequest) -> ValidateModelResult:
+    model_config = ModelConfig(
+        provider=request.provider,
+        api_key=request.api_key,
+        simple_model=request.model,
+        complex_model=request.model,
+    )
+
+    simple_model = init_simple_model(model_config)
+    complex_model = init_complex_model(model_config)
+
+    try:
+        await simple_model.ainvoke("Ping")
+        await complex_model.ainvoke("Ping")
+    except Exception as error:
+        if is_invalid_model_error(error):
+            return ValidateModelResult(is_available=False)
+        raise
+
+    return ValidateModelResult(is_available=True)
