@@ -16,7 +16,7 @@ type SummarySectionProps = {
 export function SummarySection({ result }: SummarySectionProps) {
     return (
         <ResultSection title="Summary">
-            <ResultCard className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+            <ResultCard className="text-sm leading-relaxed text-slate-700 dark:text-slate-300 whitespace-break-spaces">
                 <CopyActionButton
                     title="Copy Summary"
                     copyText={getAnalysisSummary(result)}

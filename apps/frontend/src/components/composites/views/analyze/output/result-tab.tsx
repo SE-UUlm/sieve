@@ -29,9 +29,9 @@ export function ResultTab({ result, isLoading }: ResultTabProps) {
 
     return (
         <div className="animate-in fade-in zoom-in-95 w-full space-y-6 duration-300">
+            <CategorySection result={result} />
             <SummarySection result={result} />
             <DataSection result={result} />
-            <CategorySection result={result} />
         </div>
     );
 }
