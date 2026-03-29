@@ -4,6 +4,7 @@ import type { AnalysisResult } from "../model/analysis-result";
 import { CategorySection } from "./result/category-section";
 import { DataSection } from "./result/data-section";
 import { SummarySection } from "./result/summary-section";
+import { EmailResponseSection } from "./result/email-response-section";
 
 type ResultTabProps = {
     result: AnalysisResult | null;
@@ -31,6 +32,7 @@ export function ResultTab({ result, isLoading }: ResultTabProps) {
         <div className="animate-in fade-in zoom-in-95 w-full space-y-6 duration-300">
             <CategorySection result={result} />
             <SummarySection result={result} />
+            <EmailResponseSection result={result} />
             <DataSection result={result} />
         </div>
     );
