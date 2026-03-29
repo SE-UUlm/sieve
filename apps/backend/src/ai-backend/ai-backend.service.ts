@@ -90,8 +90,10 @@ export class AiBackendService implements OnModuleInit {
                         complex_model: complexModel,
                     },
                     config: {
-                        overall_email_response_prompt:
-                            "Verwende Emojis, antworte in der Du-Form. Name für Gruß unten: Simon Eve, Sieve Enterprises Corp. Ganz am Ende soll noch ein zufälliger, sinnloser Werbespruch stehen.",
+                        overall_email_response_prompt: `Verwende Emojis, antworte in der Du-Form. 
+                            Name für Gruß unten: Simon Eve, Sieve Enterprises Corp. 
+                            Ganz am Ende soll noch ein zufälliger, sinnloser Werbespruch stehen. 
+                            Nicht auf zusätzlichen Anliegen in der Kunden-E-Mail eingehen, die nicht in Drafted email parts enthalten sind.`,
                     },
                     categories,
                 }),
