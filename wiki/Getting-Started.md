@@ -248,8 +248,7 @@ If you prefer more control over the development environment, you can build and r
 4. Configure environment variables
 
    Copy `.env.example` to `.env` if needed.
-   In the standard flow, no default variable is required because the backend provides
-   the OpenAI API key per request from instance settings.
+   Optional if Product Flow is not used and therefore no Product Database is needed.
 
 5. Start AI-Backend in dev mode with auto-reload:
 
@@ -258,3 +257,18 @@ If you prefer more control over the development environment, you can build and r
    ```
 
    Dependencies are automatically installed
+
+#### Setup Product DB
+
+The AI-Backend can retrieve data from any Postgres-DB.
+To import a sample dataset to the database, follow these instructions:
+
+- Configure `PRODUCT_DB*` environment variables in ai-backend .env (or root .env if using docker compose), use .env.example as reference
+- Start postgres db
+- In `prepare_db.sql` line 10 replace `xxxxxx` by your configured `PRODUCT_DB_PASSWORD`. And if changed:
+  - Replace `ai-backend` with Value of `PRODUCT_DB_USERNAME` in `CREATE ROLE "ai-backend" WITH`, `OWNER = "ai-backend"` and `OWNER to "ai-backend";`
+  - Replace `ai-backend` with Value of `PRODUCT_DB_NAME` in `CREATE DATABASE "ai-backend"` and `\c ai-backend;`
+- Run sql file:
+  - Replace `<postgres-username>` by your configured `DB_USERNAME` from backend/root .env. Not `PRODUCT_DB_USERNAME`. Same thing for prompted password.
+  - psql installed on host: `psql -h localhost -U <postgres-username> -f prepare_db.sql`
+  - Not installed, run in container: `cat prepare_db.sql | docker compose exec -T db psql -U <postgres-username>`
