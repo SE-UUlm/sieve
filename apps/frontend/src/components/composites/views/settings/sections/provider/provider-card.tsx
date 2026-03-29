@@ -198,7 +198,7 @@ export function ProviderCard({
                                         event.target.value,
                                     );
                                 }}
-                                placeholder="e.g. gpt-5.2-mini"
+                                placeholder="e.g. gpt-4o-mini"
                                 aria-invalid={Boolean(modelError)}
                                 aria-describedby={modelErrorDescribedBy}
                             />
