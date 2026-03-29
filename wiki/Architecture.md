@@ -36,5 +36,32 @@ The frontend is a Next.js TypeScript application. It uses the following technolo
 The AI-Backend is a Python API application. It uses the following technologies:
 
 - FastAPI for the http server
-- Langchain for the LLM calls and agent orchestration
+- Langchain/Langgraph for the LLM calls and agent orchestration
 - Pydantic for data validation
+
+### LangGraph Graphs/Workflows
+
+The AI-Backend Email Analysis works by running the Top Level Graph beginning at the start.
+
+#### Top Level Graph
+
+![Top Level Graph](./assets/ai_backend_top_level_graph.svg)
+
+First the email is categorized. For each category the email fits in, the corresponding flow (simple or product) is run. See other graphs below.
+Then an overall email response is generated that contains the email response parts generated inside the inidivual flows.
+
+#### Simple Flow Graph
+
+![Simple Flow Graph](./assets/ai_backend_simple_graph.svg)
+
+This flow generates:
+
+- an email response part to the customer, if the model decides to do so
+- a structured response defined using json schema
+- a human readable summary
+
+#### Product Flow Graph
+
+![Product Flow Graph](./assets/ai_backend_product_graph.svg)
+
+First related products to the customers request are fetched from the database (db_step), then the nodes are similar to the simple flow.
