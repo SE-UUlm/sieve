@@ -1,7 +1,7 @@
 import os
+import subprocess
 from ai_backend.product_flow import product_subgraph
 from ai_backend.simple_flow import simple_subgraph
-import subprocess
 from ai_backend.agent import workflow
 
 
@@ -21,7 +21,8 @@ def build_graph(filename, graph):
             f"{filename}.mmd",
             "-o",
             f"../../wiki/assets/{filename}.svg",
-        ]
+        ],
+        check=True,
     )
 
     os.remove(filename + ".mmd")

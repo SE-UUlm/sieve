@@ -48,7 +48,7 @@ The AI-Backend Email Analysis works by running the Top Level Graph beginning at 
 ![Top Level Graph](./assets/ai_backend_top_level_graph.svg)
 
 First the email is categorized. For each category the email fits in, the corresponding flow (simple or product) is run. See other graphs below.
-Then an overall email response is generated that contains the email response parts generated inside the inidivual flows.
+Then an overall email response is generated that contains the email response parts generated inside the individual flows.
 
 #### Simple Flow Graph
 
