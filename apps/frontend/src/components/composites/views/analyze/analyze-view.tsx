@@ -90,7 +90,7 @@ export function AnalyzeView() {
     };
 
     return (
-        <SplitView>
+        <SplitView resizable>
             <SplitViewPane variant="primary" className="flex flex-col">
                 <div className="mx-auto flex h-full w-full flex-col">
                     <div className="mb-8">

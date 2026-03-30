@@ -13,7 +13,7 @@ export function SplitViewPane({
     ...props
 }: SplitViewPaneProps) {
     const baseClasses =
-        "flex-1 min-w-0 p-8 md:p-12 transition-colors duration-300";
+        "flex-1 min-w-0 p-8 lg:p-12 transition-colors duration-300";
 
     const variantClasses =
         variant === "primary"
