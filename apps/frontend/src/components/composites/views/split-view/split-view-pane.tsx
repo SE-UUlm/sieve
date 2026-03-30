@@ -13,13 +13,13 @@ export function SplitViewPane({
     ...props
 }: SplitViewPaneProps) {
     const baseClasses =
-        "flex-1 min-w-0 p-8 md:p-12 transition-colors duration-300";
+        "flex-1 min-w-0 p-8 lg:p-12 transition-colors duration-300";
 
     const variantClasses =
         variant === "primary"
             ? "bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-900"
             : "bg-slate-50 dark:bg-[#0a0f1e]";
-    const layoutClasses = isScrollable ? "overflow-y-auto" : "flex flex-col";
+    const layoutClasses = isScrollable ? "overflow-auto" : "flex flex-col";
 
     return (
         <div

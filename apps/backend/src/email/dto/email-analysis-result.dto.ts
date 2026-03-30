@@ -1,63 +1,62 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
-export class ProductDto {
+export class FlowSteps {
     @ApiProperty({
-        description: "Name of the referenced product.",
-        example: "Hydraulic Pump HP-200",
+        description: "Summary text for this category",
+        example: "The customer is inquiring about ordering 23 beach villas.",
     })
-    product_name!: string;
+    summary!: string;
 
-    @ApiProperty({
-        description: "Requested quantity.",
-        example: 3,
+    @ApiPropertyOptional({
+        description: "Email response part for this category.",
+        example:
+            "Thank you for your inquiry about the 23 beach villas! I recommend the “Creator Beach Villa 3-in-1” set, which includes 1,021 pieces and is available for €94.99.",
     })
-    quantity!: number;
+    email_response?: { response_body_part: string };
 }
 
-export class IssueDto {
+export class CategoryResultDto {
     @ApiProperty({
-        description: "Name of the referenced product.",
-        example: "Hydraulic Pump HP-200",
+        description: "The name of the category.",
+        example: "Product Inquiry",
     })
-    product_name!: string;
+    category!: string;
 
     @ApiProperty({
-        description: "Short summary of the issue.",
-        example: "The pump leaks after 20 minutes of operation.",
+        description:
+            "Structured output in the format specified by the json schema of the category.",
     })
-    issue!: string;
+    structured_output!: unknown;
+
+    @ApiProperty({
+        description: "Steps the flow has executed for this category.",
+    })
+    steps!: FlowSteps;
+}
+
+export class EmailResponseDto {
+    @ApiProperty({
+        description: "Email body of the response to the customer",
+    })
+    response_body!: string;
+
+    @ApiProperty({
+        description: "Email subject of the response to the customer",
+    })
+    response_subject!: string;
 }
 
 export class EmailAnalysisResultDto {
+    @ApiPropertyOptional({
+        description: "Overall email response to the customer",
+    })
+    email_response?: EmailResponseDto;
+
     @ApiProperty({
-        description: "Detected email category.",
-        enum: ["Other", "Complaint", "Product_Inquiry", "Product_Support"],
+        description: "Results for each matching category.",
+        type: [CategoryResultDto],
     })
-    category!: "Other" | "Complaint" | "Product_Inquiry" | "Product_Support";
-
-    @ApiPropertyOptional({
-        description: "Summary text for generic results.",
-        example: "The customer asks for delivery details.",
-    })
-    summary?: string;
-
-    @ApiPropertyOptional({
-        description: "One complaint per item.",
-        type: [String],
-    })
-    complaints?: string[];
-
-    @ApiPropertyOptional({
-        description: "Products requested by the customer.",
-        type: [ProductDto],
-    })
-    products?: ProductDto[];
-
-    @ApiPropertyOptional({
-        description: "Issues reported by the customer.",
-        type: [IssueDto],
-    })
-    issues?: IssueDto[];
+    category_results!: CategoryResultDto[];
 }
 
 export class SubmitEmailResponseDto {

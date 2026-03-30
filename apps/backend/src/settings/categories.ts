@@ -9,6 +9,7 @@ export type AnalysisFlowConfig = {
     structured_response_prompt?: string | null;
     summary_prompt?: string | null;
     db_step_prompt?: string | null;
+    email_response_prompt?: string | null;
 };
 
 export type AnalysisCategory = {
@@ -43,10 +44,11 @@ export const DEFAULT_ANALYSIS_CATEGORIES: AnalysisCategories = [
                 required: ["complaints", "urgency"],
                 type: "object",
             },
-            structured_response_prompt:
-                "Be extremely concise. List every complaint twice. Once in English, once in French",
+            structured_response_prompt: "Be extremely concise.",
             summary_prompt:
                 "Include every little detail of the complaint. Answer in French.",
+            email_response_prompt:
+                "In the response tell the customer that it's their fault and be rude.",
         },
     },
     {
@@ -113,21 +115,9 @@ export const DEFAULT_ANALYSIS_CATEGORIES: AnalysisCategories = [
                         title: "Products",
                         type: "array",
                     },
-                    question: {
-                        anyOf: [{ type: "string" }, { type: "null" }],
-                        default: null,
-                        title: "Question",
-                    },
-                    answer: {
-                        anyOf: [{ type: "string" }, { type: "null" }],
-                        default: null,
-                        description:
-                            "If the customer asked a question and you can answer the question based on the provided product details, then answer here",
-                        title: "Answer",
-                    },
                     urgency: {
                         description:
-                            "How urgent is the complaint from 0 (not urgent) to 100 (very urgent)",
+                            "How urgent is the inquiry from 0 (not urgent) to 100 (very urgent)",
                         title: "Urgency",
                         type: "integer",
                     },
@@ -138,6 +128,8 @@ export const DEFAULT_ANALYSIS_CATEGORIES: AnalysisCategories = [
             },
             db_step_prompt:
                 "Database hints: The database only contains lego sets. The metadata column contains the part count. The products in the database are named in german",
+            email_response_prompt:
+                "If no matching product is found, please tell the customer that you could not find it and ask which product exactly they were referring to. \nIf there are multiple ask to clarify which one the customers want.\nIf the customer has questions that can be answered based on the related information, answer it.\nIf the customer has no questions and wants to immediately place the order: The following information is needed: Name, Address. If those are not provided, ask the customer. Else tell the customer that the order is placed.\nIf nothing of the above matches, do not respond.",
         },
     },
     {
@@ -150,9 +142,7 @@ export const DEFAULT_ANALYSIS_CATEGORIES: AnalysisCategories = [
                 $defs: {
                     Issue: {
                         properties: {
-                            product: {
-                                $ref: "#/$defs/Product",
-                            },
+                            product: { $ref: "#/$defs/Product" },
                             issue: {
                                 description: "A short summary of the issue",
                                 title: "Issue",
@@ -225,7 +215,9 @@ export const DEFAULT_ANALYSIS_CATEGORIES: AnalysisCategories = [
             db_step_prompt:
                 "Database hints: The database only contains lego sets. The metadata column contains the part count. The products in the database are named in german",
             summary_prompt:
-                "Answer in German. In sehr kurzen Stichworten antworten",
+                "Answer in German. In sehr kurzen Stichworten antworten, mit Komma getrennt.",
+            email_response_prompt:
+                "If the complaint is reasonable, answer that you are sorry and that we will fix it as soon as possible.",
         },
     },
     {
@@ -235,16 +227,13 @@ export const DEFAULT_ANALYSIS_CATEGORIES: AnalysisCategories = [
         flow: {
             name: "simple",
             structured_response_schema: {
-                properties: {
-                    summary: {
-                        type: "string",
-                    },
-                },
+                properties: { summary: { type: "string" } },
                 required: ["summary"],
                 type: "object",
                 title: "Other",
             },
             summary_prompt: "Be extremely concise. Answer in English",
+            email_response_prompt: "Do not respond.",
         },
     },
 ];

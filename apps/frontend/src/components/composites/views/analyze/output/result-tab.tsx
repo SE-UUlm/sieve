@@ -3,6 +3,7 @@ import { SectionedResultSkeleton } from "@/components/composites/skeletons";
 import type { AnalysisResult } from "../model/analysis-result";
 import { CategorySection } from "./result/category-section";
 import { DataSection } from "./result/data-section";
+import { EmailResponseSection } from "./result/email-response-section";
 import { SummarySection } from "./result/summary-section";
 
 type ResultTabProps = {
@@ -29,9 +30,10 @@ export function ResultTab({ result, isLoading }: ResultTabProps) {
 
     return (
         <div className="animate-in fade-in zoom-in-95 w-full space-y-6 duration-300">
-            <SummarySection result={result} />
-            <DataSection result={result} />
             <CategorySection result={result} />
+            <SummarySection result={result} />
+            <EmailResponseSection result={result} />
+            <DataSection result={result} />
         </div>
     );
 }

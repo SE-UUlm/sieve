@@ -1,27 +1,28 @@
-import {
-    type AnalysisResult,
-    getAnalysisSummary,
-} from "@/components/composites/views/analyze/model/analysis-result";
+import type { AnalysisResult } from "@/components/composites/views/analyze/model/analysis-result";
 import { CopyActionButton } from "@/components/composites/views/analyze/output/common/copy-action-button";
 import { ResultCard } from "@/components/composites/views/analyze/output/result/result-card";
 import { ResultSection } from "@/components/composites/views/analyze/output/result/result-section";
 
-type SummarySectionProps = {
+type EmailResponseSectionProps = {
     result: AnalysisResult;
 };
 
 /**
- * Displays the extracted summary text.
+ * Displays the generated email response
  */
-export function SummarySection({ result }: SummarySectionProps) {
+export function EmailResponseSection({ result }: EmailResponseSectionProps) {
+    const response = result.email_response;
+
+    if (!response) return null;
+
     return (
-        <ResultSection title="Summary">
+        <ResultSection title="Email Response">
             <ResultCard className="text-sm leading-relaxed text-slate-700 dark:text-slate-300 whitespace-break-spaces">
                 <CopyActionButton
-                    title="Copy Summary"
-                    copyText={getAnalysisSummary(result)}
+                    title="Copy Email body"
+                    copyText={response.response_body}
                 />
-                {getAnalysisSummary(result)}
+                {response.response_body}
             </ResultCard>
         </ResultSection>
     );
