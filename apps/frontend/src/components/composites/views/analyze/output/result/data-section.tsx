@@ -1,5 +1,6 @@
 import type { AnalysisResult } from "@/components/composites/views/analyze/model/analysis-result";
 import { CopyActionButton } from "@/components/composites/views/analyze/output/common/copy-action-button";
+import { JsonSyntaxHighlighter } from "@/components/composites/views/analyze/output/common/json-syntax-highlighter";
 import { ScrollArea, ScrollBar } from "@/components/primitives/scroll-area";
 import { ResultCard } from "./result-card";
 import { ResultSection } from "./result-section";
@@ -23,7 +24,7 @@ export function DataSection({ result }: DataSectionProps) {
                             {category.category}
                         </h4>
                     )}
-                    <ResultCard className="font-mono text-sm text-blue-600 dark:text-blue-300">
+                    <ResultCard className="font-mono text-sm">
                         <CopyActionButton
                             title="Copy JSON"
                             copyText={JSON.stringify(
@@ -31,13 +32,9 @@ export function DataSection({ result }: DataSectionProps) {
                             )}
                         />
                         <ScrollArea className="w-full pr-6">
-                            <pre className="min-w-full whitespace-break-spaces">
-                                {JSON.stringify(
-                                    category.structured_output,
-                                    null,
-                                    2,
-                                )}
-                            </pre>
+                            <JsonSyntaxHighlighter
+                                data={category.structured_output}
+                            />
                             <ScrollBar orientation="horizontal" />
                         </ScrollArea>
                     </ResultCard>
@@ -46,3 +43,4 @@ export function DataSection({ result }: DataSectionProps) {
         </ResultSection>
     );
 }
+

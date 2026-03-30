@@ -1,5 +1,6 @@
 import { ScrollArea, ScrollBar } from "@/components/primitives/scroll-area";
 import { StyledSkeleton } from "@/components/ui/styled-skeleton";
+import { JsonSyntaxHighlighter } from "../common/json-syntax-highlighter";
 
 type WorkflowJsonViewerProps = {
     data: Record<string, unknown> | undefined;
@@ -7,7 +8,7 @@ type WorkflowJsonViewerProps = {
 };
 
 /**
- * Renders a compact JSON preview for workflow output data.
+ * Renders a syntax-highlighted JSON preview for workflow output data.
  */
 export function WorkflowJsonViewer({
     data,
@@ -25,13 +26,9 @@ export function WorkflowJsonViewer({
         );
     }
 
-    const prettyJson = JSON.stringify(data, null, 2);
-
     return (
-        <ScrollArea className=" w-full">
-            <pre className="max-h-72 min-w-full whitespace-pre-wrap font-mono text-xs text-slate-700 dark:text-slate-300">
-                {prettyJson}
-            </pre>
+        <ScrollArea className="w-full">
+            <JsonSyntaxHighlighter data={data} className="max-h-72" />
             <ScrollBar orientation="horizontal" />
         </ScrollArea>
     );
