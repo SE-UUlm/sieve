@@ -34,19 +34,35 @@ export function WorkflowTab({
     const hasResult = !!result;
     const categories = result ? getAnalysisCategories(result) : [];
 
+    const delayStep = 50;
+    
+    // Calculate max delay in branches to sequence the final elements cleanly
+    const maxBranchSteps =
+        result?.category_results.reduce(
+            (max, cr) => Math.max(max, Object.keys(cr.steps).length),
+            0
+        ) || 0;
+        
+    // Base 0..4 steps * delayStep
+    const branchBaseDelay = 4 * delayStep;
+    // Each branch step has an arrow (delayStep) and a card (delayStep) -> 2 * delayStep
+    // Plus the final branch structural arrow + card -> 2 * delayStep
+    const branchMaxDelay = branchBaseDelay + (maxBranchSteps * 2 * delayStep) + (2 * delayStep);
+
     return (
-        <div className="mx-auto flex w-full flex-col items-center space-y-4 py-8">
+        <div className="animate-in fade-in zoom-in-95 mx-auto flex w-full flex-col items-center space-y-4 py-8">
             {/* --- STEP 1: Categorization --- */}
             <WorkflowStep
                 label="Categorizing"
                 isActive={staticCompleted || isAnalyzing || hasResult}
                 isCompleted={staticCompleted || hasResult}
+                delay={0 * delayStep}
             />
 
-            <WorkflowArrow isActive={currentStep > 0} />
+            <WorkflowArrow isActive={currentStep > 0} delay={1 * delayStep} />
 
             {/* --- STEP 2: Category labels --- */}
-            <WorkflowCard isVisible={currentStep >= 1}>
+            <WorkflowCard isVisible={currentStep >= 1} delay={2 * delayStep}>
                 {hasResult && (
                     <CopyActionButton
                         title="Copy categories"
@@ -68,7 +84,7 @@ export function WorkflowTab({
                 )}
             </WorkflowCard>
 
-            <WorkflowArrow isActive={currentStep > 1} />
+            <WorkflowArrow isActive={currentStep > 1} delay={3 * delayStep} />
 
             {/* ── STEP 3: Branching per category ── */}
             {hasResult && result.category_results.length > 0 && (
@@ -78,18 +94,20 @@ export function WorkflowTab({
                             <WorkflowBranch
                                 key={cr.category}
                                 categoryResult={cr}
+                                baseDelay={branchBaseDelay}
+                                delayStep={delayStep}
                             />
                         ))}
                     </div>
 
                     {/* ── Merge arrow ── */}
-                    <WorkflowArrow isActive={true} />
+                    <WorkflowArrow isActive={true} delay={branchMaxDelay + delayStep} />
                 </>
             )}
 
             {/* ── STEP 4: Overall Email Response ── */}
             {hasResult && result.email_response && (
-                <WorkflowCard isVisible={true}>
+                <WorkflowCard isVisible={true} delay={branchMaxDelay + 2 * delayStep}>
                     <CopyActionButton
                         title="Copy email response"
                         copyText={result.email_response.response_body}

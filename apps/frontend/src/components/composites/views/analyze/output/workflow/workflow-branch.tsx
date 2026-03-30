@@ -7,13 +7,15 @@ import { WorkflowArrow, WorkflowStep } from "./workflow-primitives";
 
 type WorkflowBranchProps = {
     categoryResult: CategoryResultDto;
+    baseDelay?: number;
+    delayStep?: number;
 };
 
 /**
  * Renders a single category branch within the workflow visualization.
  * Shows: category name → each step entry → structured_output JSON.
  */
-export function WorkflowBranch({ categoryResult }: WorkflowBranchProps) {
+export function WorkflowBranch({ categoryResult, baseDelay = 0, delayStep = 25 }: WorkflowBranchProps) {
     const { category, steps, structured_output } = categoryResult;
 
     // Collect step entries (e.g. summary, db_step, email_response)
@@ -26,16 +28,23 @@ export function WorkflowBranch({ categoryResult }: WorkflowBranchProps) {
                 label={category}
                 isActive={true}
                 isCompleted={true}
+                delay={baseDelay}
             />
 
             {/* Steps */}
-            {stepEntries.map(([key, value]) => (
-                <WorkflowBranchStep key={key} stepKey={key} value={value} />
+            {stepEntries.map(([key, value], index) => (
+                <WorkflowBranchStep 
+                    key={key} 
+                    stepKey={key} 
+                    value={value} 
+                    delay={baseDelay + (index * 2 * delayStep) + delayStep}
+                    delayStep={delayStep}
+                />
             ))}
 
             {/* Structured Output */}
-            <WorkflowArrow isActive={true} />
-            <WorkflowCard isVisible={true} className="relative">
+            <WorkflowArrow isActive={true} delay={baseDelay + (stepEntries.length * 2 * delayStep) + delayStep} />
+            <WorkflowCard isVisible={true} className="relative" delay={baseDelay + (stepEntries.length * 2 * delayStep) + 2 * delayStep}>
                 <CopyActionButton
                     title="Copy JSON"
                     copyText={JSON.stringify(structured_output)}

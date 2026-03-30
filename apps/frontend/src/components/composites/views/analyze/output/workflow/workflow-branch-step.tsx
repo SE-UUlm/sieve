@@ -6,6 +6,8 @@ import { WorkflowArrow } from "./workflow-primitives";
 type WorkflowBranchStepProps = {
     stepKey: string;
     value: unknown;
+    delay?: number;
+    delayStep?: number;
 };
 
 /**
@@ -13,7 +15,7 @@ type WorkflowBranchStepProps = {
  * Special-cases `email_response` to display only `response_body_part`.
  * Shows strings as plain text, objects via WorkflowJsonViewer.
  */
-export function WorkflowBranchStep({ stepKey, value }: WorkflowBranchStepProps) {
+export function WorkflowBranchStep({ stepKey, value, delay = 0, delayStep = 25 }: WorkflowBranchStepProps) {
     if (stepKey === "email_response" && value === null) { // Do not show email response if there is no email response
         return null;
     }
@@ -23,8 +25,8 @@ export function WorkflowBranchStep({ stepKey, value }: WorkflowBranchStepProps) 
 
     return (
         <div className="flex w-full flex-col items-center">
-            <WorkflowArrow isActive={true} />
-            <WorkflowCard isVisible={true}>
+            <WorkflowArrow isActive={true} delay={delay} />
+            <WorkflowCard isVisible={true} delay={delay + delayStep}>
                 <CopyActionButton title="Copy" copyText={copyText} />
                 <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                     {formatStepKey(stepKey)}
