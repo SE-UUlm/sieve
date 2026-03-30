@@ -1,3 +1,4 @@
+import { CopyActionButton } from "@/components/composites/views/analyze/output/common/copy-action-button";
 import { WorkflowCard } from "./workflow-card";
 import { WorkflowJsonViewer } from "./workflow-json-viewer";
 import { WorkflowArrow } from "./workflow-primitives";
@@ -17,10 +18,14 @@ export function WorkflowBranchStep({ stepKey, value }: WorkflowBranchStepProps) 
         return null;
     }
 
+    const copyText =
+        typeof value === "string" ? value : JSON.stringify(value);
+
     return (
         <div className="flex w-full flex-col items-center">
             <WorkflowArrow isActive={true} />
             <WorkflowCard isVisible={true}>
+                <CopyActionButton title="Copy" copyText={copyText} />
                 <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                     {formatStepKey(stepKey)}
                 </p>

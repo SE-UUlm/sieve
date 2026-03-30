@@ -4,6 +4,7 @@ import {
     WorkflowArrow,
     WorkflowStep,
 } from "@/components/composites/views/analyze/output/workflow/workflow-primitives";
+import { CopyActionButton } from "./common/copy-action-button";
 import { StyledSkeleton } from "@/components/ui/styled-skeleton";
 import {
     type AnalysisResult,
@@ -46,6 +47,12 @@ export function WorkflowTab({
 
             {/* --- STEP 2: Category labels --- */}
             <WorkflowCard isVisible={currentStep >= 1}>
+                {hasResult && (
+                    <CopyActionButton
+                        title="Copy categories"
+                        copyText={categories.join(", ")}
+                    />
+                )}
                 {hasResult ? (
                     <div className="text-sm text-slate-700 dark:text-slate-300">
                         {categories.length > 0
@@ -83,6 +90,10 @@ export function WorkflowTab({
             {/* ── STEP 4: Overall Email Response ── */}
             {hasResult && result.email_response && (
                 <WorkflowCard isVisible={true}>
+                    <CopyActionButton
+                        title="Copy email response"
+                        copyText={result.email_response.response_body}
+                    />
                     <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                         Overall Email Response
                     </p>
@@ -96,3 +107,4 @@ export function WorkflowTab({
         </div>
     );
 }
+

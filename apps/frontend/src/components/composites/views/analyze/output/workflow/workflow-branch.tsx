@@ -1,4 +1,5 @@
 import type { CategoryResultDto } from "@/lib/client/models/categoryResultDto";
+import { CopyActionButton } from "@/components/composites/views/analyze/output/common/copy-action-button";
 import { WorkflowBranchStep } from "./workflow-branch-step";
 import { WorkflowCard } from "./workflow-card";
 import { WorkflowJsonViewer } from "./workflow-json-viewer";
@@ -35,6 +36,10 @@ export function WorkflowBranch({ categoryResult }: WorkflowBranchProps) {
             {/* Structured Output */}
             <WorkflowArrow isActive={true} />
             <WorkflowCard isVisible={true} className="relative">
+                <CopyActionButton
+                    title="Copy JSON"
+                    copyText={JSON.stringify(structured_output)}
+                />
                 <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                     Structured Output
                 </p>
