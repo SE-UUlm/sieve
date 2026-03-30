@@ -1,5 +1,5 @@
+import { WorkflowBranch } from "@/components/composites/views/analyze/output/workflow/workflow-branch";
 import { WorkflowCard } from "@/components/composites/views/analyze/output/workflow/workflow-card";
-import { WorkflowJsonViewer } from "@/components/composites/views/analyze/output/workflow/workflow-json-viewer";
 import {
     WorkflowArrow,
     WorkflowStep,
@@ -7,7 +7,7 @@ import {
 import { StyledSkeleton } from "@/components/ui/styled-skeleton";
 import {
     type AnalysisResult,
-    getAnalysisSummary,
+    getAnalysisCategories,
 } from "../model/analysis-result";
 
 type WorkflowTabProps = {
@@ -18,7 +18,10 @@ type WorkflowTabProps = {
 };
 
 /**
- * Visualizes the analysis workflow state and intermediate placeholders.
+ * Visualizes the analysis workflow with branching per category.
+ *
+ * Layout:
+ *   Categorizing  →  branches (one per category_result)  →  merge  →  email_response
  */
 export function WorkflowTab({
     result,
@@ -28,9 +31,10 @@ export function WorkflowTab({
 }: WorkflowTabProps) {
     const currentStep = staticCompleted ? 4 : step;
     const hasResult = !!result;
+    const categories = result ? getAnalysisCategories(result) : [];
 
     return (
-        <div className="mx-auto flex w-full max-w-sm flex-col items-center space-y-4 py-8">
+        <div className="mx-auto flex w-full flex-col items-center space-y-4 py-8">
             {/* --- STEP 1: Categorization --- */}
             <WorkflowStep
                 label="Categorizing"
@@ -40,11 +44,13 @@ export function WorkflowTab({
 
             <WorkflowArrow isActive={currentStep > 0} />
 
-            {/* --- STEP 2: Summary Card --- */}
+            {/* --- STEP 2: Category labels --- */}
             <WorkflowCard isVisible={currentStep >= 1}>
                 {hasResult ? (
                     <div className="text-sm text-slate-700 dark:text-slate-300">
-                        {result ? getAnalysisSummary(result) : null}
+                        {categories.length > 0
+                            ? categories.join(", ")
+                            : "No matching categories found."}
                     </div>
                 ) : (
                     // Simple text skeleton
@@ -57,31 +63,36 @@ export function WorkflowTab({
 
             <WorkflowArrow isActive={currentStep > 1} />
 
-            {/* --- STEP 3: Generation Label --- */}
-            <WorkflowStep
-                label="Generating product request json"
-                isActive={currentStep >= 2}
-                isCompleted={currentStep > 2}
-            />
+            {/* ── STEP 3: Branching per category ── */}
+            {hasResult && result.category_results.length > 0 && (
+                <>
+                    <div className="flex w-full items-start justify-center gap-6">
+                        {result.category_results.map((cr) => (
+                            <WorkflowBranch
+                                key={cr.category}
+                                categoryResult={cr}
+                            />
+                        ))}
+                    </div>
 
-            <WorkflowArrow isActive={currentStep > 2} />
+                    {/* ── Merge arrow ── */}
+                    <WorkflowArrow isActive={true} />
+                </>
+            )}
 
-            {/* --- STEP 4: JSON Output Card --- */}
-            <WorkflowCard isVisible={currentStep >= 3} className="relative">
-                <WorkflowJsonViewer
-                    data={result ?? undefined}
-                    isLoading={!hasResult}
-                />
-            </WorkflowCard>
-
-            <WorkflowArrow isActive={currentStep >= 3} />
-
-            {/* --- STEP 5: DB Lookup Label --- */}
-            <WorkflowStep
-                label="Looking in DB for Product"
-                isActive={currentStep >= 4}
-                isCompleted={currentStep >= 4}
-            />
+            {/* ── STEP 4: Overall Email Response ── */}
+            {hasResult && result.email_response && (
+                <WorkflowCard isVisible={true}>
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                        Overall Email Response
+                    </p>
+                    <div className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
+                        <p className="whitespace-pre-wrap">
+                            {result.email_response.response_body}
+                        </p>
+                    </div>
+                </WorkflowCard>
+            )}
         </div>
     );
 }
