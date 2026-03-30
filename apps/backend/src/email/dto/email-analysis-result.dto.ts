@@ -7,7 +7,7 @@ export class FlowSteps {
     })
     summary!: string;
 
-    @ApiProperty({
+    @ApiPropertyOptional({
         description: "Email response part for this category.",
         example:
             "Thank you for your inquiry about the 23 beach villas! I recommend the “Creator Beach Villa 3-in-1” set, which includes 1,021 pieces and is available for €94.99.",
@@ -29,7 +29,7 @@ export class CategoryResultDto {
     structured_output!: unknown;
 
     @ApiProperty({
-        description: "",
+        description: "Steps the flow has executed for this category.",
     })
     steps!: FlowSteps;
 }

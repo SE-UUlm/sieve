@@ -48,7 +48,7 @@ export const DEFAULT_ANALYSIS_CATEGORIES: AnalysisCategories = [
             summary_prompt:
                 "Include every little detail of the complaint. Answer in French.",
             email_response_prompt:
-                "In the response tell the customner that its their fault and be rude.",
+                "In the response tell the customer that it's their fault and be rude.",
         },
     },
     {

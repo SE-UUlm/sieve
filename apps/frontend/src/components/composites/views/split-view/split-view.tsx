@@ -9,7 +9,7 @@ type SplitViewProps = {
     className?: string;
     /** Initial split ratio for the left pane (0–1). Default: 0.5 */
     defaultSplit?: number;
-    /** Whether the split can be dragged to resize. Default: true */
+    /** Whether the split can be dragged to resize. Default: false */
     resizable?: boolean;
 };
 

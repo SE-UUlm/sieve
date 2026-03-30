@@ -16,7 +16,7 @@ export function ResultSection({
 }: ResultSectionProps) {
     return (
         <div className={className}>
-            <h3 className="mb-3 text-s font-semibold tracking-wider text-slate-500 uppercase">
+            <h3 className="mb-3 text-sm font-semibold tracking-wider text-slate-500 uppercase">
                 {title}
             </h3>
             {children}
