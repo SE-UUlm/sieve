@@ -19,7 +19,7 @@ export function SplitViewPane({
         variant === "primary"
             ? "bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-900"
             : "bg-slate-50 dark:bg-[#0a0f1e]";
-    const layoutClasses = isScrollable ? "overflow-y-auto" : "flex flex-col";
+    const layoutClasses = isScrollable ? "overflow-auto" : "flex flex-col";
 
     return (
         <div

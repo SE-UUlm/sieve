@@ -50,7 +50,7 @@ export function WorkflowTab({
     const branchMaxDelay = branchBaseDelay + (maxBranchSteps * 2 * delayStep) + (2 * delayStep);
 
     return (
-        <div className="animate-in fade-in zoom-in-95 mx-auto flex w-full flex-col items-center space-y-4 py-8">
+        <div className="animate-in fade-in zoom-in-95 mx-auto flex w-fit min-w-full flex-col items-center space-y-4 py-8">
             {/* --- STEP 1: Categorization --- */}
             <WorkflowStep
                 label="Categorizing"
@@ -89,7 +89,7 @@ export function WorkflowTab({
             {/* ── STEP 3: Branching per category ── */}
             {hasResult && result.category_results.length > 0 && (
                 <>
-                    <div className="flex w-full items-start justify-center gap-6">
+                    <div className="flex items-start gap-6">
                         {result.category_results.map((cr) => (
                             <WorkflowBranch
                                 key={cr.category}
