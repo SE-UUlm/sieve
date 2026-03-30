@@ -28,7 +28,7 @@ export function WorkflowJsonViewer({
 
     return (
         <ScrollArea className="w-full">
-            <JsonSyntaxHighlighter data={data} className="max-h-72" />
+            <JsonSyntaxHighlighter data={data} className="max-h-110" />
             <ScrollBar orientation="horizontal" />
         </ScrollArea>
     );
