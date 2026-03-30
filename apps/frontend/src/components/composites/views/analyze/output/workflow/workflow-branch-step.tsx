@@ -15,13 +15,18 @@ type WorkflowBranchStepProps = {
  * Special-cases `email_response` to display only `response_body_part`.
  * Shows strings as plain text, objects via WorkflowJsonViewer.
  */
-export function WorkflowBranchStep({ stepKey, value, delay = 0, delayStep = 25 }: WorkflowBranchStepProps) {
-    if (stepKey === "email_response" && value === null) { // Do not show email response if there is no email response
+export function WorkflowBranchStep({
+    stepKey,
+    value,
+    delay = 0,
+    delayStep = 25,
+}: WorkflowBranchStepProps) {
+    if (stepKey === "email_response" && value === null) {
+        // Do not show email response if there is no email response
         return null;
     }
 
-    const copyText =
-        typeof value === "string" ? value : JSON.stringify(value);
+    const copyText = typeof value === "string" ? value : JSON.stringify(value);
 
     return (
         <div className="flex w-full flex-col items-center">
@@ -58,9 +63,7 @@ function StepContent({ stepKey, value }: { stepKey: string; value: unknown }) {
     }
 
     if (value != null && typeof value === "object") {
-        return (
-            <WorkflowJsonViewer data={value as Record<string, unknown>} />
-        );
+        return <WorkflowJsonViewer data={value as Record<string, unknown>} />;
     }
 
     return <span>—</span>;

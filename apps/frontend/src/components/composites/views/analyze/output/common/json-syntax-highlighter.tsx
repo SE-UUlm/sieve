@@ -70,6 +70,7 @@ function highlightJson(value: unknown, indent = 0): ReactNode {
                 <span className="text-slate-500">{"["}</span>
                 {"\n"}
                 {value.map((item, i) => (
+                    // biome-ignore lint/suspicious/noArrayIndexKey: There is nothing more stable in this case than the index
                     <span key={i}>
                         {padInner}
                         {highlightJson(item, indent + 1)}

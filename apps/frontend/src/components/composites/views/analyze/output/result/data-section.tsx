@@ -43,4 +43,3 @@ export function DataSection({ result }: DataSectionProps) {
         </ResultSection>
     );
 }
-

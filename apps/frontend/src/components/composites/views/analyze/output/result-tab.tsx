@@ -3,8 +3,8 @@ import { SectionedResultSkeleton } from "@/components/composites/skeletons";
 import type { AnalysisResult } from "../model/analysis-result";
 import { CategorySection } from "./result/category-section";
 import { DataSection } from "./result/data-section";
-import { SummarySection } from "./result/summary-section";
 import { EmailResponseSection } from "./result/email-response-section";
+import { SummarySection } from "./result/summary-section";
 
 type ResultTabProps = {
     result: AnalysisResult | null;

@@ -4,12 +4,12 @@ import {
     WorkflowArrow,
     WorkflowStep,
 } from "@/components/composites/views/analyze/output/workflow/workflow-primitives";
-import { CopyActionButton } from "./common/copy-action-button";
 import { StyledSkeleton } from "@/components/ui/styled-skeleton";
 import {
     type AnalysisResult,
     getAnalysisCategories,
 } from "../model/analysis-result";
+import { CopyActionButton } from "./common/copy-action-button";
 
 type WorkflowTabProps = {
     result: AnalysisResult | null;
@@ -35,19 +35,20 @@ export function WorkflowTab({
     const categories = result ? getAnalysisCategories(result) : [];
 
     const delayStep = 50;
-    
+
     // Calculate max delay in branches to sequence the final elements cleanly
     const maxBranchSteps =
         result?.category_results.reduce(
             (max, cr) => Math.max(max, Object.keys(cr.steps).length),
-            0
+            0,
         ) || 0;
-        
+
     // Base 0..4 steps * delayStep
     const branchBaseDelay = 4 * delayStep;
     // Each branch step has an arrow (delayStep) and a card (delayStep) -> 2 * delayStep
     // Plus the final branch structural arrow + card -> 2 * delayStep
-    const branchMaxDelay = branchBaseDelay + (maxBranchSteps * 2 * delayStep) + (2 * delayStep);
+    const branchMaxDelay =
+        branchBaseDelay + maxBranchSteps * 2 * delayStep + 2 * delayStep;
 
     return (
         <div className="animate-in fade-in zoom-in-95 mx-auto flex w-fit min-w-full flex-col items-center space-y-4 py-8">
@@ -101,13 +102,19 @@ export function WorkflowTab({
                     </div>
 
                     {/* ── Merge arrow ── */}
-                    <WorkflowArrow isActive={true} delay={branchMaxDelay + delayStep} />
+                    <WorkflowArrow
+                        isActive={true}
+                        delay={branchMaxDelay + delayStep}
+                    />
                 </>
             )}
 
             {/* ── STEP 4: Overall Email Response ── */}
             {hasResult && result.email_response && (
-                <WorkflowCard isVisible={true} delay={branchMaxDelay + 2 * delayStep}>
+                <WorkflowCard
+                    isVisible={true}
+                    delay={branchMaxDelay + 2 * delayStep}
+                >
                     <CopyActionButton
                         title="Copy email response"
                         copyText={result.email_response.response_body}
@@ -125,4 +132,3 @@ export function WorkflowTab({
         </div>
     );
 }
-

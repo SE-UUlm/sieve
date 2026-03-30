@@ -86,12 +86,16 @@ export function SplitView({
 
             {/* Drag handle — only shown when resizable */}
             {resizable && (
+                // biome-ignore lint/a11y/useSemanticElements: cannot be a hr element because it cant contain children
                 <div
                     className="hidden lg:flex lg:items-center lg:justify-center"
                     style={{ width: 6, cursor: "col-resize", flexShrink: 0 }}
                     onMouseDown={startDrag}
                     onTouchStart={startDrag}
                     role="separator"
+                    aria-valuenow={split}
+                    aria-valuemin={0}
+                    aria-valuemax={1}
                     aria-orientation="vertical"
                     tabIndex={0}
                 >
