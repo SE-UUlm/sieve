@@ -46,6 +46,22 @@ export class EmailResponseDto {
     response_subject!: string;
 }
 
+export class ConfidenceAssessmentDto {
+    @ApiPropertyOptional({
+        description:
+            "Conservative confidence score (0-100) for how accurately the overall drafted response matches the original customer email.",
+        minimum: 0,
+        maximum: 100,
+    })
+    score!: number | null;
+
+    @ApiProperty({
+        description:
+            "One short English sentence explaining the confidence score, or why confidence is not applicable.",
+    })
+    rationale!: string;
+}
+
 export class EmailAnalysisResultDto {
     @ApiPropertyOptional({
         description: "Overall email response to the customer",
@@ -57,6 +73,13 @@ export class EmailAnalysisResultDto {
         type: [CategoryResultDto],
     })
     category_results!: CategoryResultDto[];
+
+    @ApiProperty({
+        description:
+            "Confidence assessment for the overall drafted customer response.",
+        type: ConfidenceAssessmentDto,
+    })
+    confidence_assessment!: ConfidenceAssessmentDto;
 }
 
 export class SubmitEmailResponseDto {
