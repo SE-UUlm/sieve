@@ -2,6 +2,7 @@ import { FileJson } from "lucide-react";
 import { SectionedResultSkeleton } from "@/components/composites/skeletons";
 import type { AnalysisResult } from "../model/analysis-result";
 import { CategorySection } from "./result/category-section";
+import { ConfidenceSection } from "./result/confidence-section";
 import { DataSection } from "./result/data-section";
 import { EmailResponseSection } from "./result/email-response-section";
 import { SummarySection } from "./result/summary-section";
@@ -33,6 +34,7 @@ export function ResultTab({ result, isLoading }: ResultTabProps) {
             <CategorySection result={result} />
             <SummarySection result={result} />
             <EmailResponseSection result={result} />
+            <ConfidenceSection result={result} />
             <DataSection result={result} />
         </div>
     );
