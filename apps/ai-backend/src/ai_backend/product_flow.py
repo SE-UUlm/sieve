@@ -119,7 +119,7 @@ product_subgraph = (
     .add_edge(START, "db_step")
     .add_edge(START, "summary")
     .add_edge("db_step", "structured_response")
-    .add_edge("structured_response", "email_response")
+    .add_edge("db_step", "email_response")
     .add_edge(["structured_response", "summary", "email_response"], END)
     .compile()
 )
