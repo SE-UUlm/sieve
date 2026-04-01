@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils/shadcn-helper";
 type StyledButtonProps = React.ComponentPropsWithoutRef<typeof Button> & {
     isLoading?: boolean;
     label: string;
-    loadingLabel: string;
+    loadingLabel?: string;
     sizeVariant: "small" | "medium" | "large";
 };
 

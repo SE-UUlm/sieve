@@ -6,10 +6,10 @@ export type AnalysisFlowName = "simple" | "product";
 export type AnalysisFlowConfig = {
     name: AnalysisFlowName;
     structured_response_schema: Record<string, unknown>;
-    structured_response_prompt?: string | null;
-    summary_prompt?: string | null;
-    db_step_prompt?: string | null;
-    email_response_prompt?: string | null;
+    structured_response_prompt?: string;
+    summary_prompt?: string;
+    db_step_prompt?: string;
+    email_response_prompt?: string;
 };
 
 export type AnalysisCategory = {
