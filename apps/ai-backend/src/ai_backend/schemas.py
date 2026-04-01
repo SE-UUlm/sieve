@@ -156,9 +156,29 @@ class EmailResponseSchema(BaseModel):
     result: EmailResponse | None
 
 
+class ConfidenceAssessment(BaseModel):
+    score: int | None = Field(
+        default=None,
+        ge=0,
+        le=100,
+        description="Conservative confidence score for the overall drafted response (0-100)",
+    )
+    rationale: str = Field(
+        min_length=1,
+        max_length=240,
+        description="One short English sentence explaining the score",
+    )
+
+
 class GraphOutput(BaseModel):
     category_results: Annotated[list[FlowResult], operator.add] = []
     email_response: EmailResponse | None = Field(default=None)
+    confidence_assessment: ConfidenceAssessment = Field(
+        default_factory=lambda: ConfidenceAssessment(
+            score=None,
+            rationale="Confidence assessment is not applicable because no overall email response was generated.",
+        )
+    )
 
 
 class GraphState(GraphOutput):

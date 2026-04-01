@@ -21,6 +21,7 @@ from ai_backend.schemas import (
     ModelConfig,
     GraphOutput,
     EmailResponseSchema,
+    ConfidenceAssessment,
 )
 from langgraph.graph import StateGraph, START, END
 
@@ -168,6 +169,41 @@ async def overall_email_response(state: GraphState, runtime: Runtime[Context]) -
     return {"email_response": result.result}
 
 
+async def confidence_assessment(state: GraphState, runtime: Runtime[Context]) -> dict:
+    response = state.email_response
+    if not response:
+        return {
+            "confidence_assessment": ConfidenceAssessment(
+                score=None,
+                rationale="Confidence assessment is not applicable because no overall email response was generated.",
+            )
+        }
+
+    structured = runtime.context.simple_model.with_structured_output(
+        ConfidenceAssessment
+    )
+
+    messages = [
+        HumanMessage(format_email(runtime.context.email)),
+        SystemMessage(
+            """Your job is to assess how accurately the drafted response answers the customer's original email.
+            Score conservatively: uncertainty, ambiguity, or partial mismatches must lower the score.
+            Return:
+            - score: integer 0-100
+            - rationale: exactly one short sentence in English."""
+        ),
+        AIMessage(
+            "Drafted overall email response:\n\n"
+            f"{response.response_subject}\n\n{response.response_body}"
+        ),
+    ]
+
+    result = await structured.ainvoke(messages)
+    assert isinstance(result, ConfidenceAssessment)
+
+    return {"confidence_assessment": result}
+
+
 def init_simple_model(model_config: ModelConfig):
     return init_chat_model(
         model_provider=get_provider_name(model_config.provider),
@@ -196,11 +232,13 @@ workflow = (
     .add_node(
         overall_email_response, defer=True
     )  # defer because this should only run after all simple and product nodes are executed
+    .add_node(confidence_assessment, defer=True)
     .add_edge(START, "categorize")
     .add_conditional_edges("categorize", route_to_flows, ["simple", "product"])
     .add_edge("simple", "overall_email_response")
     .add_edge("product", "overall_email_response")
-    .add_edge("overall_email_response", END)
+    .add_edge("overall_email_response", "confidence_assessment")
+    .add_edge("confidence_assessment", END)
     .compile()
 )
 
