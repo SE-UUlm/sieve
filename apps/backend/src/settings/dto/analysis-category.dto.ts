@@ -33,7 +33,7 @@ export class AnalysisFlowConfigDto {
     @IsOptional()
     @IsString()
     @MaxLength(1000)
-    structured_response_prompt?: string | null;
+    structured_response_prompt?: string;
 
     @ApiPropertyOptional({
         description: "Optional prompt for free-text summary generation.",
@@ -42,7 +42,7 @@ export class AnalysisFlowConfigDto {
     @IsOptional()
     @IsString()
     @MaxLength(1000)
-    summary_prompt?: string | null;
+    summary_prompt?: string;
 
     @ApiPropertyOptional({
         description:
@@ -53,7 +53,16 @@ export class AnalysisFlowConfigDto {
     @IsOptional()
     @IsString()
     @MaxLength(1000)
-    db_step_prompt?: string | null;
+    db_step_prompt?: string;
+
+    @ApiPropertyOptional({
+        description:
+            "Optional prompt used email response generation in flow category.",
+        example:
+            "If the complaint is reasonable, answer that you are sorry and that we will fix it as soon as possible. Otherwise do not answer.",
+    })
+    @MaxLength(1000)
+    email_response_prompt?: string;
 }
 
 export class AnalysisCategoryDto {
