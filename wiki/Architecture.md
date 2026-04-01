@@ -1,67 +1,85 @@
-## Overall Architecture
+# Architecture
 
-The overall architecture of the SIEVE project is depicted in the following diagram:
+## System overview
+
+SIEVE is split into three main services:
+
+- Frontend (`apps/frontend`): Next.js UI
+- Backend (`apps/backend`): NestJS API, auth, persistence, orchestration
+- AI-backend (`apps/ai-backend`): FastAPI service running LLM flows
+
+The frontend talks only to the backend. The backend calls the AI-backend for analysis jobs.
 
 ![Overall Architecture](./assets/architecture.svg)
 
-The AI-Backend handles LLM calls and all AI related tasks.
-The backend is responsible for handling all database interactions and orchestrating the LLM calls.
-The frontend is only directly talking to the backend and not to the AI-Backend.
+## Backend data model
 
-## Database Schema
+Core backend entities:
 
-The following illustration shows a detailed ER diagram of the database schema used in the SIEVE project.
+- `User`
+- `Email`
+- `Job`
+- `JobResult`
+- `InstanceSettings`
+- `ProviderSettings`
+
+Auth entities (`Session`, `Account`, `Verification`) are also persisted.
 
 ![Database Schema](./assets/database_schema.svg)
 
-The diagram includes the following entities:
+The diagram asset is generated from `wiki/assets/database_schema.d2`.
 
-- `User`: Represents the users of the system.
-- `Email`: Represents the emails processed by the system.
-- `Job`: Represents the jobs created for processing emails.
-- `JobResult`: Represents the results of the email processing jobs.
+## Analysis history flow
 
-## Frontend
+Email analysis and history are now part of one end-to-end backend/frontend flow:
 
-The frontend is a Next.js TypeScript application. It uses the following technologies:
+1. `POST /api/emails` runs AI analysis and persists `Email`, `Job` (`COMPLETED`), and `JobResult` in one transaction.
+2. `GET /api/jobs/history` returns completed history entries (newest first, up to 100 items), optionally filtered by `source=MANUAL|IMAP`.
+3. Visibility is source-aware:
+   - IMAP entries are instance-wide and visible to all users.
+   - Manual entries remain user-scoped in the default combined view.
+   - `source=MANUAL` applies role-based access (admins can inspect all manual entries).
+4. Frontend `History` view provides source tabs (`All`, `Manual`, `IMAP`), subject/body search, and detailed result inspection.
+5. Each history card is labeled by source (`Manual Entry` / `IMAP Import`) so users can distinguish ingestion origin.
 
-- Next.js, React
-- TailwindCSS
-- React Query
-- BetterAuth
-- ShadCN UI
+## IMAP integration flow
 
-## AI-Backend
+IMAP ingestion is handled end-to-end by backend orchestration with frontend admin controls:
 
-The AI-Backend is a Python API application. It uses the following technologies:
+1. Admin configures mailbox connection in `Settings -> Mail` (`host`, `port`, credentials, security, inbox folder, auto-process toggle).
+2. Backend stores IMAP settings in `InstanceSettings` and encrypts the IMAP password at rest.
+3. Frontend `IMAP` view lists current inbox emails and allows selecting messages for analysis (`POST /api/imap/analyze-selected`).
+4. Backend IMAP processing writes results into the same `Email`/`Job`/`JobResult` pipeline with `Email.source = IMAP`.
+5. Processed messages are moved to `ai_analyzed` to avoid repeated analysis.
+6. When auto-process is enabled, backend polls IMAP every minute and processes newly arriving emails.
+7. Backend also emits notification events over the `notifications` WebSocket namespace for newly processed IMAP emails.
 
-- FastAPI for the http server
-- Langchain/Langgraph for the LLM calls and agent orchestration
-- Pydantic for data validation
+## AI-backend flow architecture
 
-### LangGraph Graphs/Workflows
+The AI-backend runs a top-level LangGraph workflow that:
 
-The AI-Backend Email Analysis works by running the Top Level Graph beginning at the start.
+1. categorizes an email into configured categories
+2. executes the configured flow per category (`simple` or `product`)
+3. composes one overall response
+4. computes a confidence assessment
 
-#### Top Level Graph
+### Top-level flow
 
 ![Top Level Graph](./assets/ai_backend_top_level_graph.svg)
 
-First the email is categorized. For each category the email fits in, the corresponding flow (simple or product) is run. See other graphs below.
-Then an overall email response is generated that contains the email response parts generated inside the individual flows.
+### Simple flow
 
-#### Simple Flow Graph
+Produces:
+
+- structured response (`flow.structured_response_schema`)
+- optional customer response part
+- summary
 
 ![Simple Flow Graph](./assets/ai_backend_simple_graph.svg)
 
-This flow generates:
+### Product flow
 
-- an email response part to the customer, if the model decides to do so
-- a structured response defined using json schema
-- a human readable summary
-
-#### Product Flow Graph
+Extends the simple flow with a database search step (`db_step`) to retrieve related products.
+If product DB is not configured, product flow cannot resolve related products.
 
 ![Product Flow Graph](./assets/ai_backend_product_graph.svg)
-
-First related products to the customers request are fetched from the database (db_step), then the nodes are similar to the simple flow.
