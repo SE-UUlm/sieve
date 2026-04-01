@@ -57,10 +57,12 @@ export class AnalysisFlowConfigDto {
 
     @ApiPropertyOptional({
         description:
-            "Optional prompt used email response generation in flow category.",
+            "Optional prompt used for email response generation in this flow category.",
         example:
             "If the complaint is reasonable, answer that you are sorry and that we will fix it as soon as possible. Otherwise do not answer.",
     })
+    @IsOptional()
+    @IsString()
     @MaxLength(1000)
     email_response_prompt?: string;
 }
