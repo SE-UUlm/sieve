@@ -12,10 +12,10 @@ import {
     ApiResponse,
     ApiTags,
 } from "@nestjs/swagger";
+import { SmtpService } from "src/smtp/smtp.service";
 import { AiBackendService } from "../ai-backend/ai-backend.service";
 import { CreateEmailDto } from "./dto/create-email.dto";
 import { SubmitEmailResponseDto } from "./dto/email-analysis-result.dto";
-import { SmtpService } from "src/smtp/smtp.service";
 
 @ApiTags("Emails")
 @Controller("emails")
@@ -74,9 +74,10 @@ export class EmailController {
                 emailResponse &&
                 dto.sender &&
                 result.confidence_assessment.score != null &&
-                result.confidence_assessment.score > 0.8
+                result.confidence_assessment.score > 80
             ) {
-                await this.smtpService.sendMail(
+                this.smtpService.sendMail(
+                    // Do not wait for email sending to speed um display of result
                     dto.sender,
                     dto.subject
                         ? `Re: ${dto.subject}`
