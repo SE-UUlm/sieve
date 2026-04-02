@@ -9,7 +9,6 @@ import {
     ServiceUnavailableException,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { SmtpService } from "src/smtp/smtp.service";
 import type { EmailAnalysisResultDto } from "../email/dto/email-analysis-result.dto";
 import { SettingsService } from "../settings/settings.service";
 
@@ -20,7 +19,6 @@ export class AiBackendService implements OnModuleInit {
     constructor(
         private configService: ConfigService,
         private settingsService: SettingsService,
-        private smtpService: SmtpService,
     ) {}
 
     /**
@@ -120,19 +118,6 @@ Nicht auf zusätzlichen Anliegen in der Kunden-E-Mail eingehen, die nicht in Dra
             const data = (await response.json()) as {
                 data: EmailAnalysisResultDto;
             };
-
-            const emailResponse = data.data.email_response;
-            if (emailResponse) {
-                await this.smtpService.sendMail(
-                    // TODO add threshold
-                    "sieve-test@xxxx", // TODO
-                    subject
-                        ? `Re: ${subject}`
-                        : emailResponse.response_subject || "Support Response",
-                    emailResponse.response_body,
-                );
-            }
-
             return data.data;
         } catch (error) {
             if (error instanceof HttpException) {

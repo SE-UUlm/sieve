@@ -6,9 +6,10 @@ import { ConfidenceSection } from "./result/confidence-section";
 import { DataSection } from "./result/data-section";
 import { EmailResponseSection } from "./result/email-response-section";
 import { SummarySection } from "./result/summary-section";
+import { SubmitEmailResponseDto } from "@/lib/client";
 
 type ResultTabProps = {
-    result: AnalysisResult | null;
+    result: SubmitEmailResponseDto | null;
     isLoading: boolean;
 };
 
@@ -31,11 +32,11 @@ export function ResultTab({ result, isLoading }: ResultTabProps) {
 
     return (
         <div className="animate-in fade-in zoom-in-95 w-full space-y-6 duration-300">
-            <CategorySection result={result} />
-            <SummarySection result={result} />
+            <CategorySection result={result.data} />
+            <SummarySection result={result.data} />
             <EmailResponseSection result={result} />
-            <ConfidenceSection result={result} />
-            <DataSection result={result} />
+            <ConfidenceSection result={result.data} />
+            <DataSection result={result.data} />
         </div>
     );
 }

@@ -15,11 +15,15 @@ import {
 import { AiBackendService } from "../ai-backend/ai-backend.service";
 import { CreateEmailDto } from "./dto/create-email.dto";
 import { SubmitEmailResponseDto } from "./dto/email-analysis-result.dto";
+import { SmtpService } from "src/smtp/smtp.service";
 
 @ApiTags("Emails")
 @Controller("emails")
 export class EmailController {
-    constructor(private readonly aiBackendService: AiBackendService) {}
+    constructor(
+        private readonly aiBackendService: AiBackendService,
+        private smtpService: SmtpService,
+    ) {}
 
     @Post()
     @ApiCookieAuth("apiKeyCookie")
@@ -62,7 +66,31 @@ export class EmailController {
                 dto.body,
                 dto.subject,
             );
-            return { data: result };
+
+            let emailResponseSent = false;
+
+            const emailResponse = result.email_response;
+            if (
+                emailResponse &&
+                dto.sender &&
+                result.confidence_assessment.score != null &&
+                result.confidence_assessment.score > 0.8
+            ) {
+                await this.smtpService.sendMail(
+                    dto.sender,
+                    dto.subject
+                        ? `Re: ${dto.subject}`
+                        : emailResponse.response_subject || "Support Response",
+                    emailResponse.response_body,
+                );
+                emailResponseSent = true;
+            }
+
+            return {
+                data: result,
+                email_reseponse_sent: emailResponseSent,
+                sender: dto.sender ?? undefined,
+            };
         } catch (error) {
             if (error instanceof HttpException) {
                 throw error;

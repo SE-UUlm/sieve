@@ -8,9 +8,10 @@ import {
     StyledTabsTrigger,
 } from "@/components/ui/styled-tabs";
 import type { AnalysisResult } from "../model/analysis-result";
+import { SubmitEmailResponseDto } from "@/lib/client";
 
 type OutputPanelProps = {
-    result: AnalysisResult | null;
+    result: SubmitEmailResponseDto | null;
     isAnalyzing: boolean;
     currentStep: number;
 };
@@ -51,7 +52,7 @@ export function OutputPanel({
                     className="mt-0 w-full flex-1 outline-none"
                 >
                     <WorkflowTab
-                        result={result}
+                        result={result?.data ?? null}
                         isAnalyzing={isAnalyzing}
                         step={currentStep}
                     />
