@@ -115,79 +115,10 @@ Nicht auf zusätzlichen Anliegen in der Kunden-E-Mail eingehen, die nicht in Dra
                 );
             }
 
-            const payload = (await response.json()) as {
-                data?: Partial<EmailAnalysisResultDto>;
+            const data = (await response.json()) as {
+                data: EmailAnalysisResultDto;
             };
-            const candidate = payload.data;
-
-            if (!candidate || typeof candidate !== "object") {
-                throw new Error("AiBackend returned malformed payload");
-            }
-            if (
-                candidate.category !== "Other" &&
-                candidate.category !== "Complaint" &&
-                candidate.category !== "Product_Inquiry" &&
-                candidate.category !== "Product_Support"
-            ) {
-                throw new Error("AiBackend returned invalid category");
-            }
-
-            return {
-                category: candidate.category,
-                summary:
-                    typeof candidate.summary === "string"
-                        ? candidate.summary
-                        : undefined,
-                complaints: Array.isArray(candidate.complaints)
-                    ? candidate.complaints.filter(
-                          (value): value is string => typeof value === "string",
-                      )
-                    : undefined,
-                products: Array.isArray(candidate.products)
-                    ? candidate.products.filter(
-                          (
-                              value,
-                          ): value is {
-                              product_name: string;
-                              quantity: number;
-                          } => {
-                              if (!value || typeof value !== "object") {
-                                  return false;
-                              }
-                              const product = value as {
-                                  product_name?: unknown;
-                                  quantity?: unknown;
-                              };
-                              return (
-                                  typeof product.product_name === "string" &&
-                                  typeof product.quantity === "number"
-                              );
-                          },
-                      )
-                    : undefined,
-                issues: Array.isArray(candidate.issues)
-                    ? candidate.issues.filter(
-                          (
-                              value,
-                          ): value is {
-                              product_name: string;
-                              issue: string;
-                          } => {
-                              if (!value || typeof value !== "object") {
-                                  return false;
-                              }
-                              const issue = value as {
-                                  product_name?: unknown;
-                                  issue?: unknown;
-                              };
-                              return (
-                                  typeof issue.product_name === "string" &&
-                                  typeof issue.issue === "string"
-                              );
-                          },
-                      )
-                    : undefined,
-            };
+            return data.data;
         } catch (error) {
             if (error instanceof HttpException) {
                 throw error;

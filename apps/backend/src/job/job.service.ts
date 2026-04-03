@@ -197,68 +197,11 @@ export class JobService {
             return null;
         }
 
-        const candidate = output as Partial<EmailAnalysisResultDto>;
-        if (
-            candidate.category !== "Other" &&
-            candidate.category !== "Complaint" &&
-            candidate.category !== "Product_Inquiry" &&
-            candidate.category !== "Product_Support"
-        ) {
+        const candidate = output as Record<string, unknown>;
+        if (!Array.isArray(candidate.category_results)) {
             return null;
         }
 
-        return {
-            category: candidate.category,
-            summary:
-                typeof candidate.summary === "string"
-                    ? candidate.summary
-                    : undefined,
-            complaints: Array.isArray(candidate.complaints)
-                ? candidate.complaints.filter(
-                      (value): value is string => typeof value === "string",
-                  )
-                : undefined,
-            products: Array.isArray(candidate.products)
-                ? candidate.products.filter(
-                      (
-                          value,
-                      ): value is {
-                          product_name: string;
-                          quantity: number;
-                      } => {
-                          if (!value || typeof value !== "object") {
-                              return false;
-                          }
-                          const product = value as {
-                              product_name?: unknown;
-                              quantity?: unknown;
-                          };
-                          return (
-                              typeof product.product_name === "string" &&
-                              typeof product.quantity === "number"
-                          );
-                      },
-                  )
-                : undefined,
-            issues: Array.isArray(candidate.issues)
-                ? candidate.issues.filter(
-                      (
-                          value,
-                      ): value is { product_name: string; issue: string } => {
-                          if (!value || typeof value !== "object") {
-                              return false;
-                          }
-                          const issue = value as {
-                              product_name?: unknown;
-                              issue?: unknown;
-                          };
-                          return (
-                              typeof issue.product_name === "string" &&
-                              typeof issue.issue === "string"
-                          );
-                      },
-                  )
-                : undefined,
-        };
+        return output as unknown as EmailAnalysisResultDto;
     }
 }
