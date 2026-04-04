@@ -3,6 +3,7 @@ import {
     InternalServerErrorException,
     Logger,
     OnModuleInit,
+    ServiceUnavailableException,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import type { Transporter } from "nodemailer";
@@ -18,7 +19,7 @@ export class SmtpService implements OnModuleInit {
     /**
      * Initializes the nodemailer transporter with SMTP credentials from config.
      */
-    onModuleInit() {
+    onModuleInit() { // TODO optional machen
         const host = this.configService.get<string>("SMTP_HOST");
         const port = this.configService.get<number>("SMTP_PORT");
         const user = this.configService.get<string>("SMTP_USER");
@@ -49,6 +50,12 @@ export class SmtpService implements OnModuleInit {
     ): Promise<void> {
         try {
             Logger.log(`Sending email to ${recipient}...`);
+
+            if (!true) { // TODO
+                throw new ServiceUnavailableException(
+                    `Email sending is not configured for this instance.`,
+                );
+            }
 
             await this.transporter.sendMail({
                 from: this.from,

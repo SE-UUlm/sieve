@@ -3,17 +3,72 @@ import { ResultCard } from "@/components/composites/views/analyze/output/result/
 import { ResultSection } from "@/components/composites/views/analyze/output/result/result-section";
 import { StyledButton } from "@/components/ui/styled-button";
 import { Check } from "lucide-react";
-import { SubmitEmailResponseDto } from "@/lib/client";
+import {
+    SubmitEmailResponseDto,
+    useEmailControllerSendEmailResponse,
+} from "@/lib/client";
+import { showPersistentErrorToast } from "@/lib/toast";
+import { Dispatch, SetStateAction } from "react";
 
 type EmailResponseSectionProps = {
     result: SubmitEmailResponseDto;
+    setResult: Dispatch<SetStateAction<SubmitEmailResponseDto | null>>;
 };
 
 /**
  * Displays the generated email response
  */
-export function EmailResponseSection({ result }: EmailResponseSectionProps) {
+export function EmailResponseSection({
+    result,
+    setResult,
+}: EmailResponseSectionProps) {
     const response = result.data.email_response;
+
+    const { mutate, isPending } = useEmailControllerSendEmailResponse({
+        mutation: {
+            onSuccess: (response) => {
+                if (response.status === 200) {
+                    setResult(
+                        (prev) =>
+                            prev && {
+                                ...prev,
+                                email_reseponse_sent: true,
+                            },
+                    );
+                    return;
+                }
+
+                showPersistentErrorToast({
+                    title: "Email Response Send Failed",
+                    description:
+                        "There was an issue with the server. Please try again later.",
+                });
+            },
+            onError: (error) => {
+                console.error("[analyze] Email analysis request failed", error);
+                showPersistentErrorToast({
+                    title: "Email Response Send Failed",
+                    description:
+                        "There was an issue with the server. Please try again later.",
+                });
+            },
+        },
+    });
+
+    /**
+     * Submits the email content to the backend for analysis.
+     */
+    const sendResponse = () => {
+        mutate({
+            data: {
+                receiptient: result.sender!,
+                subject: null
+                    ? `Re: ${null}` // TODO
+                    : response?.response_subject || "Support Response",
+                body: response!.response_body,
+            },
+        });
+    };
 
     if (!response) return null;
 
@@ -40,6 +95,9 @@ export function EmailResponseSection({ result }: EmailResponseSectionProps) {
                         result.sender === undefined
                     }
                     className="w-fit mt-4 ml-2"
+                    onClick={sendResponse}
+                    isLoading={isPending}
+                    loadingLabel="Sending Response..."
                 />
             ) : null}
         </ResultSection>

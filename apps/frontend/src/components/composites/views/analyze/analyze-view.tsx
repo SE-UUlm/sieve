@@ -121,6 +121,7 @@ export function AnalyzeView() {
                     result={result}
                     isAnalyzing={isPending}
                     currentStep={currentStep}
+                    setResult={setResult}
                 />
             </SplitViewPane>
         </SplitView>

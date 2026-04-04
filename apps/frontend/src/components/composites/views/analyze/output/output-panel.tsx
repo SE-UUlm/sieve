@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { ResultTab } from "@/components/composites/views/analyze/output/result-tab";
 import { WorkflowTab } from "@/components/composites/views/analyze/output/workflow-tab";
 import {
@@ -14,6 +14,7 @@ type OutputPanelProps = {
     result: SubmitEmailResponseDto | null;
     isAnalyzing: boolean;
     currentStep: number;
+    setResult: Dispatch<SetStateAction<SubmitEmailResponseDto | null>>;
 };
 
 /**
@@ -23,6 +24,7 @@ export function OutputPanel({
     result,
     isAnalyzing,
     currentStep,
+    setResult,
 }: OutputPanelProps) {
     const [activeTab, setActiveTab] = useState<string>("result");
 
@@ -44,7 +46,11 @@ export function OutputPanel({
                     value="result"
                     className="mt-0 w-full flex-1 outline-none"
                 >
-                    <ResultTab result={result} isLoading={isAnalyzing} />
+                    <ResultTab
+                        result={result}
+                        isLoading={isAnalyzing}
+                        setResult={setResult}
+                    />
                 </StyledTabsContent>
 
                 <StyledTabsContent

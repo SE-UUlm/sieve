@@ -1,6 +1,7 @@
 import {
     Body,
     Controller,
+    HttpCode,
     HttpException,
     InternalServerErrorException,
     Logger,
@@ -16,6 +17,7 @@ import { SmtpService } from "src/smtp/smtp.service";
 import { AiBackendService } from "../ai-backend/ai-backend.service";
 import { CreateEmailDto } from "./dto/create-email.dto";
 import { SubmitEmailResponseDto } from "./dto/email-analysis-result.dto";
+import { SendEmailResponseDto } from "./dto/send-email-response.dto";
 
 @ApiTags("Emails")
 @Controller("emails")
@@ -76,15 +78,20 @@ export class EmailController {
                 result.confidence_assessment.score != null &&
                 result.confidence_assessment.score > 80
             ) {
-                this.smtpService.sendMail(
-                    // Do not wait for email sending to speed um display of result
-                    dto.sender,
-                    dto.subject
-                        ? `Re: ${dto.subject}`
-                        : emailResponse.response_subject || "Support Response",
-                    emailResponse.response_body,
-                );
-                emailResponseSent = true;
+                try {
+                    this.smtpService.sendMail(
+                        // Do not wait for email sending to speed up display of result
+                        dto.sender,
+                        dto.subject
+                            ? `Re: ${dto.subject}`
+                            : emailResponse.response_subject || "Support Response",
+                        emailResponse.response_body,
+                    );
+                    emailResponseSent = true;
+
+                } catch (error) {
+                    Logger.error("Error sending email response:", error);
+                }
             }
 
             return {
@@ -100,6 +107,49 @@ export class EmailController {
 
             throw new InternalServerErrorException({
                 message: "Failed to process email",
+                details: error instanceof Error ? error.message : error,
+            });
+        }
+    }
+
+    @Post("send-email-response")
+    @ApiCookieAuth("apiKeyCookie")
+    @ApiOperation({ summary: "Send a email response to a customer" })
+    @HttpCode(200)
+    // TODO: Temporarily use a plain send until job and email persistency is properly implemented 
+    @ApiResponse({
+        status: 200,
+        description: "Successfully submitted",
+    })
+    @ApiResponse({ status: 400, description: "Bad Request" })
+    @ApiResponse({
+        status: 503,
+        description: "Email send is not configured for this instance",
+    })
+    @ApiResponse({ status: 401, description: "Unauthorized" })
+    @ApiResponse({
+        status: 500,
+        description: "Email send has failed",
+    })
+    /**
+     * Submits an email payload for analysis and returns structured output.
+     */
+    async sendEmailResponse(
+        @Body() dto: SendEmailResponseDto,
+    ): Promise<boolean> {
+        try {
+            await this.smtpService.sendMail(
+                dto.receiptient,
+                dto.subject,
+                dto.body,
+            );
+
+            return true;
+        } catch (error) {
+            Logger.error("Error sending email via smtp:", error);
+
+            throw new InternalServerErrorException({
+                message: "Failed to send email",
                 details: error instanceof Error ? error.message : error,
             });
         }
