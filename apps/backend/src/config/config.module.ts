@@ -21,6 +21,18 @@ import Joi from "joi";
 
                           AI_BACKEND_URL: Joi.string().required(),
                           SETTINGS_ENCRYPTION_KEY: Joi.string().required(),
+
+                          SMTP_HOST: Joi.string().allow(""),
+                          SMTP_PORT: Joi.number().port().allow(""),
+                          SMTP_USER: Joi.string().allow(""),
+                          SMTP_PASS: Joi.string().allow(""),
+                          SMTP_FROM: Joi.string().allow(""),
+
+                          AUTO_SEND_RESPOND_THRESHOLD: Joi.number()
+                              .required()
+                              .min(0)
+                              .max(100)
+                              .allow(-1),
                       }),
         }),
     ],

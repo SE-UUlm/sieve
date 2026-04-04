@@ -33,6 +33,19 @@ export function AnalyzeInputForm({
         >
             <div className="space-y-2">
                 <Controller
+                    name="sender"
+                    control={form.control}
+                    render={({ field }) => (
+                        <StyledInput
+                            {...field}
+                            placeholder="Sender"
+                            disabled={isPending}
+                        />
+                    )}
+                />
+            </div>
+            <div className="space-y-2">
+                <Controller
                     name="subject"
                     control={form.control}
                     render={({ field }) => (
@@ -64,7 +77,7 @@ export function AnalyzeInputForm({
                 type="submit"
                 isLoading={isPending}
                 disabled={!form.formState.isValid}
-                label="Analyze Mail"
+                label="Analyze Email"
                 loadingLabel="Analyzing..."
                 sizeVariant="large"
             />

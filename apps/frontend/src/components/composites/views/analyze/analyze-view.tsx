@@ -7,11 +7,13 @@ import {
     analyzeFormSchema,
 } from "@/components/composites/views/analyze/form/analyze-form-schema";
 import { AnalyzeInputForm } from "@/components/composites/views/analyze/form/analyze-input-form";
-import type { AnalysisResult } from "@/components/composites/views/analyze/model/analysis-result";
 import { OutputPanel } from "@/components/composites/views/analyze/output/output-panel";
 import { SplitView } from "@/components/composites/views/split-view/split-view";
 import { SplitViewPane } from "@/components/composites/views/split-view/split-view-pane";
-import { useEmailControllerSubmitEmail } from "@/lib/client";
+import {
+    type SubmitEmailResponseDto,
+    useEmailControllerSubmitEmail,
+} from "@/lib/client";
 import { showPersistentErrorToast } from "@/lib/toast";
 
 /**
@@ -19,18 +21,19 @@ import { showPersistentErrorToast } from "@/lib/toast";
  */
 export function AnalyzeView() {
     // Local UI State
-    const [result, setResult] = useState<AnalysisResult | null>(null);
+    const [result, setResult] = useState<SubmitEmailResponseDto | null>(null);
     const [currentStep, setCurrentStep] = useState(0);
 
     const form = useForm<AnalyzeFormValues>({
         resolver: zodResolver(analyzeFormSchema),
         defaultValues: {
+            sender: "",
             subject: "",
             emailContent: "",
         },
     });
 
-    const { mutate, isPending } = useEmailControllerSubmitEmail({
+    const { mutate, isPending, variables } = useEmailControllerSubmitEmail({
         mutation: {
             onMutate: () => {
                 setResult(null);
@@ -38,7 +41,7 @@ export function AnalyzeView() {
             },
             onSuccess: (response) => {
                 if (response.status === 201) {
-                    setResult(response.data.data);
+                    setResult(response.data);
                     setCurrentStep(4);
                     return;
                 }
@@ -66,6 +69,7 @@ export function AnalyzeView() {
 
         mutate({
             data: {
+                sender: values.sender || undefined,
                 subject:
                     normalizedSubject.length > 0
                         ? normalizedSubject
@@ -95,7 +99,7 @@ export function AnalyzeView() {
                 <div className="mx-auto flex h-full w-full flex-col">
                     <div className="mb-8">
                         <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-                            Analyze Single Mail
+                            Analyze Single Email
                         </h2>
                         <p className="mt-2 text-slate-500 dark:text-slate-400">
                             Add a subject and paste an email below to extract
@@ -116,6 +120,8 @@ export function AnalyzeView() {
                     result={result}
                     isAnalyzing={isPending}
                     currentStep={currentStep}
+                    setResult={setResult}
+                    request={variables?.data}
                 />
             </SplitViewPane>
         </SplitView>

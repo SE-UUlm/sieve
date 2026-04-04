@@ -88,4 +88,11 @@ export class SubmitEmailResponseDto {
         type: EmailAnalysisResultDto,
     })
     data!: EmailAnalysisResultDto;
+
+    @ApiProperty({
+        description:
+            "Whether a email response to the customer was already sent because it met the confidence threshold.",
+        type: "boolean",
+    })
+    email_response_sent: boolean = false;
 }
