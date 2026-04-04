@@ -48,7 +48,7 @@ export function EmailResponseSection({
                 });
             },
             onError: (error) => {
-                console.error("[analyze] Email analysis request failed", error);
+                console.error("[analyze] Email Response Send failed", error);
                 showPersistentErrorToast({
                     title: "Email Response Send Failed",
                     description:

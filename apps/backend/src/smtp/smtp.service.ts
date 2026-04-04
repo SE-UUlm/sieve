@@ -11,20 +11,25 @@ import * as nodemailer from "nodemailer";
 
 @Injectable()
 export class SmtpService implements OnModuleInit {
-    private transporter!: Transporter;
-    private from!: string;
+    private transporter?: Transporter;
+    private from?: string;
 
-    constructor(private configService: ConfigService<null, true>) {}
+    constructor(private configService: ConfigService) {}
 
     /**
      * Initializes the nodemailer transporter with SMTP credentials from config.
      */
-    onModuleInit() { // TODO optional machen
+    onModuleInit() {
         const host = this.configService.get<string>("SMTP_HOST");
         const port = this.configService.get<number>("SMTP_PORT");
         const user = this.configService.get<string>("SMTP_USER");
         const pass = this.configService.get<string>("SMTP_PASS");
-        this.from = this.configService.get<string>("SMTP_FROM");
+        const from = this.configService.get<string>("SMTP_FROM");
+        if (!host || !port || !user || !pass || !from) {
+            Logger.log("SMTP module disabled");
+            return;
+        }
+        this.from = from;
 
         this.transporter = nodemailer.createTransport({
             host,
@@ -34,6 +39,10 @@ export class SmtpService implements OnModuleInit {
         });
 
         Logger.log("SMTP module initialized");
+    }
+
+    isConfigured(): boolean {
+        return this.transporter !== undefined && this.from !== undefined;
     }
 
     /**
@@ -51,7 +60,7 @@ export class SmtpService implements OnModuleInit {
         try {
             Logger.log(`Sending email to ${recipient}...`);
 
-            if (!true) { // TODO
+            if (!this.transporter || !this.from) {
                 throw new ServiceUnavailableException(
                     `Email sending is not configured for this instance.`,
                 );

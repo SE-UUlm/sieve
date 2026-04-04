@@ -76,7 +76,8 @@ export class EmailController {
                 emailResponse &&
                 dto.sender &&
                 result.confidence_assessment.score != null &&
-                result.confidence_assessment.score > 80
+                result.confidence_assessment.score > 80 && // TODO make configurable
+                this.smtpService.isConfigured()
             ) {
                 try {
                     this.smtpService.sendMail(
