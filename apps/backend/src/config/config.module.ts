@@ -27,6 +27,7 @@ import Joi from "joi";
                           SMTP_USER: Joi.string(),
                           SMTP_PASS: Joi.string(),
                           SMTP_FROM: Joi.string(),
+                          AUTO_SEND_RESPOND_THRESHOLD: Joi.number().required(),
                       }),
         }),
     ],

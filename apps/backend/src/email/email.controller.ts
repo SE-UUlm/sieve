@@ -18,14 +18,22 @@ import { AiBackendService } from "../ai-backend/ai-backend.service";
 import { CreateEmailDto } from "./dto/create-email.dto";
 import { SubmitEmailResponseDto } from "./dto/email-analysis-result.dto";
 import { SendEmailResponseDto } from "./dto/send-email-response.dto";
+import { ConfigService } from "@nestjs/config";
 
 @ApiTags("Emails")
 @Controller("emails")
 export class EmailController {
+    private autoSendResponseThreshold!: number;
+
     constructor(
         private readonly aiBackendService: AiBackendService,
         private smtpService: SmtpService,
+        private configService: ConfigService<null, true>
     ) {}
+
+    onModuleInit() {
+        this.autoSendResponseThreshold = this.configService.get<number>("AUTO_SEND_RESPOND_THRESHOLD");
+    }
 
     @Post()
     @ApiCookieAuth("apiKeyCookie")
@@ -76,7 +84,8 @@ export class EmailController {
                 emailResponse &&
                 dto.sender &&
                 result.confidence_assessment.score != null &&
-                result.confidence_assessment.score > 80 && // TODO make configurable
+                this.autoSendResponseThreshold != -1 &&
+                result.confidence_assessment.score > this.autoSendResponseThreshold &&
                 this.smtpService.isConfigured()
             ) {
                 try {
