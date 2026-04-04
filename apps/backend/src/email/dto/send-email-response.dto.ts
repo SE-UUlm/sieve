@@ -3,12 +3,12 @@ import { IsEmail, IsNotEmpty, IsString } from "class-validator";
 
 export class SendEmailResponseDto {
     @ApiProperty({
-        description: "Recieptient of the email (customer email address)",
+        description: "Recipient of the email (customer email address)",
         type: String,
         example: "alice.smith@example.com",
     })
     @IsEmail()
-    receiptient!: string;
+    recipient!: string;
 
     @ApiProperty({
         description: "Subject of the email",

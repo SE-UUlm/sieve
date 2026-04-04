@@ -35,7 +35,7 @@ export function EmailResponseSection({
                         (prev) =>
                             prev && {
                                 ...prev,
-                                email_reseponse_sent: true,
+                                email_response_sent: true,
                             },
                     );
                     return;
@@ -58,14 +58,11 @@ export function EmailResponseSection({
         },
     });
 
-    /**
-     * Submits the email content to the backend for analysis.
-     */
     const sendResponse = () => {
         if (!response || !request?.sender) return;
         mutate({
             data: {
-                receiptient: request.sender,
+                recipient: request.sender,
                 subject: request?.subject
                     ? `Re: ${request.subject}`
                     : response?.response_subject || "Support Response",
@@ -85,7 +82,7 @@ export function EmailResponseSection({
                 />
                 {response.response_body}
             </ResultCard>
-            {result.email_reseponse_sent ? (
+            {result.email_response_sent ? (
                 <div className="text-slate-700 dark:text-slate-300 ml-4 mt-2 flex items-center">
                     <Check className="h-5 w-5 mr-1" />
                     Email Response was sent
@@ -95,7 +92,7 @@ export function EmailResponseSection({
                     label={"Send Email Response"}
                     sizeVariant="small"
                     disabled={
-                        result.email_reseponse_sent ||
+                        result.email_response_sent ||
                         request?.sender === undefined
                     }
                     className="w-fit mt-4 ml-2"

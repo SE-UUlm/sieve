@@ -94,5 +94,5 @@ export class SubmitEmailResponseDto {
             "Whether a email response to the customer was already sent because it met the confidence threshold.",
         type: "boolean",
     })
-    email_reseponse_sent: boolean = false;
+    email_response_sent: boolean = false;
 }

@@ -57,15 +57,14 @@ export class SmtpService implements OnModuleInit {
         subject: string,
         body: string,
     ): Promise<void> {
+        Logger.log(`Sending email to ${recipient}...`);
+
+        if (!this.transporter || !this.from) {
+            throw new ServiceUnavailableException(
+                `Email sending is not configured for this instance.`,
+            );
+        }
         try {
-            Logger.log(`Sending email to ${recipient}...`);
-
-            if (!this.transporter || !this.from) {
-                throw new ServiceUnavailableException(
-                    `Email sending is not configured for this instance.`,
-                );
-            }
-
             await this.transporter.sendMail({
                 from: this.from,
                 to: recipient,

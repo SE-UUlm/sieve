@@ -109,7 +109,7 @@ export class EmailController {
 
             return {
                 data: result,
-                email_reseponse_sent: emailResponseSent,
+                email_response_sent: emailResponseSent,
             };
         } catch (error) {
             if (error instanceof HttpException) {
@@ -151,7 +151,7 @@ export class EmailController {
     ): Promise<boolean> {
         try {
             await this.smtpService.sendMail(
-                dto.receiptient,
+                dto.recipient,
                 dto.subject,
                 dto.body,
             );
@@ -159,6 +159,10 @@ export class EmailController {
             return true;
         } catch (error) {
             Logger.error("Error sending email via smtp:", error);
+
+            if (error instanceof HttpException) {
+                throw error;
+            }
 
             throw new InternalServerErrorException({
                 message: "Failed to send email",

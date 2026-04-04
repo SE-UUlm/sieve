@@ -22,7 +22,11 @@ import Joi from "joi";
                           AI_BACKEND_URL: Joi.string().required(),
                           SETTINGS_ENCRYPTION_KEY: Joi.string().required(),
 
-                          AUTO_SEND_RESPOND_THRESHOLD: Joi.number().required().min(0).max(100).allow(-1),
+                          AUTO_SEND_RESPOND_THRESHOLD: Joi.number()
+                              .required()
+                              .min(0)
+                              .max(100)
+                              .allow(-1),
                       }),
         }),
     ],
