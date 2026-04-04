@@ -1,15 +1,15 @@
+import { Check } from "lucide-react";
+import type { Dispatch, SetStateAction } from "react";
 import { CopyActionButton } from "@/components/composites/views/analyze/output/common/copy-action-button";
 import { ResultCard } from "@/components/composites/views/analyze/output/result/result-card";
 import { ResultSection } from "@/components/composites/views/analyze/output/result/result-section";
 import { StyledButton } from "@/components/ui/styled-button";
-import { Check } from "lucide-react";
 import {
-    CreateEmailDto,
-    SubmitEmailResponseDto,
+    type CreateEmailDto,
+    type SubmitEmailResponseDto,
     useEmailControllerSendEmailResponse,
 } from "@/lib/client";
 import { showPersistentErrorToast } from "@/lib/toast";
-import { Dispatch, SetStateAction } from "react";
 
 type EmailResponseSectionProps = {
     result: SubmitEmailResponseDto;
@@ -62,13 +62,14 @@ export function EmailResponseSection({
      * Submits the email content to the backend for analysis.
      */
     const sendResponse = () => {
+        if (!response || !request?.sender) return;
         mutate({
             data: {
-                receiptient: request!.sender!,
+                receiptient: request.sender,
                 subject: request?.subject
                     ? `Re: ${request.subject}`
                     : response?.response_subject || "Support Response",
-                body: response!.response_body,
+                body: response.response_body,
             },
         });
     };

@@ -7,6 +7,7 @@ import {
     Logger,
     Post,
 } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import {
     ApiCookieAuth,
     ApiOperation,
@@ -18,7 +19,6 @@ import { AiBackendService } from "../ai-backend/ai-backend.service";
 import { CreateEmailDto } from "./dto/create-email.dto";
 import { SubmitEmailResponseDto } from "./dto/email-analysis-result.dto";
 import { SendEmailResponseDto } from "./dto/send-email-response.dto";
-import { ConfigService } from "@nestjs/config";
 
 @ApiTags("Emails")
 @Controller("emails")
@@ -28,11 +28,13 @@ export class EmailController {
     constructor(
         private readonly aiBackendService: AiBackendService,
         private smtpService: SmtpService,
-        private configService: ConfigService<null, true>
+        private configService: ConfigService<null, true>,
     ) {}
 
     onModuleInit() {
-        this.autoSendResponseThreshold = this.configService.get<number>("AUTO_SEND_RESPOND_THRESHOLD");
+        this.autoSendResponseThreshold = this.configService.get<number>(
+            "AUTO_SEND_RESPOND_THRESHOLD",
+        );
     }
 
     @Post()
@@ -84,8 +86,9 @@ export class EmailController {
                 emailResponse &&
                 dto.sender &&
                 result.confidence_assessment.score != null &&
-                this.autoSendResponseThreshold != -1 &&
-                result.confidence_assessment.score > this.autoSendResponseThreshold &&
+                this.autoSendResponseThreshold !== -1 &&
+                result.confidence_assessment.score >
+                    this.autoSendResponseThreshold &&
                 this.smtpService.isConfigured()
             ) {
                 try {
@@ -94,11 +97,11 @@ export class EmailController {
                         dto.sender,
                         dto.subject
                             ? `Re: ${dto.subject}`
-                            : emailResponse.response_subject || "Support Response",
+                            : emailResponse.response_subject ||
+                                  "Support Response",
                         emailResponse.response_body,
                     );
                     emailResponseSent = true;
-
                 } catch (error) {
                     Logger.error("Error sending email response:", error);
                 }
@@ -125,7 +128,7 @@ export class EmailController {
     @ApiCookieAuth("apiKeyCookie")
     @ApiOperation({ summary: "Send a email response to a customer" })
     @HttpCode(200)
-    // TODO: Temporarily use a plain send until job and email persistency is properly implemented 
+    // TODO: Temporarily use a plain send until job and email persistency is properly implemented
     @ApiResponse({
         status: 200,
         description: "Successfully submitted",

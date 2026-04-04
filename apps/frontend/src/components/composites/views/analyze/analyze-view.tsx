@@ -7,12 +7,11 @@ import {
     analyzeFormSchema,
 } from "@/components/composites/views/analyze/form/analyze-form-schema";
 import { AnalyzeInputForm } from "@/components/composites/views/analyze/form/analyze-input-form";
-import type { AnalysisResult } from "@/components/composites/views/analyze/model/analysis-result";
 import { OutputPanel } from "@/components/composites/views/analyze/output/output-panel";
 import { SplitView } from "@/components/composites/views/split-view/split-view";
 import { SplitViewPane } from "@/components/composites/views/split-view/split-view-pane";
 import {
-    SubmitEmailResponseDto,
+    type SubmitEmailResponseDto,
     useEmailControllerSubmitEmail,
 } from "@/lib/client";
 import { showPersistentErrorToast } from "@/lib/toast";

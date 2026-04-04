@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useState } from "react";
+import { type Dispatch, type SetStateAction, useState } from "react";
 import { ResultTab } from "@/components/composites/views/analyze/output/result-tab";
 import { WorkflowTab } from "@/components/composites/views/analyze/output/workflow-tab";
 import {
@@ -7,9 +7,7 @@ import {
     StyledTabsList,
     StyledTabsTrigger,
 } from "@/components/ui/styled-tabs";
-import type { AnalysisResult } from "../model/analysis-result";
-import { CreateEmailDto, SubmitEmailResponseDto } from "@/lib/client";
-import { request } from "http";
+import type { CreateEmailDto, SubmitEmailResponseDto } from "@/lib/client";
 
 type OutputPanelProps = {
     result: SubmitEmailResponseDto | null;

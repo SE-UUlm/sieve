@@ -1,13 +1,12 @@
 import { FileJson } from "lucide-react";
+import type { Dispatch, SetStateAction } from "react";
 import { SectionedResultSkeleton } from "@/components/composites/skeletons";
-import type { AnalysisResult } from "../model/analysis-result";
+import type { CreateEmailDto, SubmitEmailResponseDto } from "@/lib/client";
 import { CategorySection } from "./result/category-section";
 import { ConfidenceSection } from "./result/confidence-section";
 import { DataSection } from "./result/data-section";
 import { EmailResponseSection } from "./result/email-response-section";
 import { SummarySection } from "./result/summary-section";
-import { CreateEmailDto, SubmitEmailResponseDto } from "@/lib/client";
-import { Dispatch, SetStateAction } from "react";
 
 type ResultTabProps = {
     result: SubmitEmailResponseDto | null;
