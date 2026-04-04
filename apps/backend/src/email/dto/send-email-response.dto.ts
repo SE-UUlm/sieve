@@ -24,7 +24,7 @@ export class SendEmailResponseDto {
         type: String,
         example:
             "Dear Customer,\n\n" +
-            "Thank your for your inquiry about the 23 beach villas! I recommend the “Creator Beach Villa 3-in-1” set, which includes 1,021 pieces and is available for €94.99.\n\n" +
+            "Thank you for your inquiry about the 23 beach villas! I recommend the “Creator Beach Villa 3-in-1” set, which includes 1,021 pieces and is available for €94.99.\n\n" +
             "Best regards,\n" +
             "Sieve Support Agent",
     })
