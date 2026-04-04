@@ -97,7 +97,6 @@ export class EmailController {
             return {
                 data: result,
                 email_reseponse_sent: emailResponseSent,
-                sender: dto.sender ?? undefined,
             };
         } catch (error) {
             if (error instanceof HttpException) {

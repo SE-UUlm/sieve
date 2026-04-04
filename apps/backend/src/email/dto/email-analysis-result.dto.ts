@@ -95,9 +95,4 @@ export class SubmitEmailResponseDto {
         type: "boolean",
     })
     email_reseponse_sent: boolean = false;
-
-    @ApiPropertyOptional({
-        description: "The email address of the customer",
-    })
-    sender?: string;
 }

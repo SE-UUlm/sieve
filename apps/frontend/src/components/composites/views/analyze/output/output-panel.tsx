@@ -8,13 +8,15 @@ import {
     StyledTabsTrigger,
 } from "@/components/ui/styled-tabs";
 import type { AnalysisResult } from "../model/analysis-result";
-import { SubmitEmailResponseDto } from "@/lib/client";
+import { CreateEmailDto, SubmitEmailResponseDto } from "@/lib/client";
+import { request } from "http";
 
 type OutputPanelProps = {
     result: SubmitEmailResponseDto | null;
     isAnalyzing: boolean;
     currentStep: number;
     setResult: Dispatch<SetStateAction<SubmitEmailResponseDto | null>>;
+    request: CreateEmailDto | undefined;
 };
 
 /**
@@ -25,6 +27,7 @@ export function OutputPanel({
     isAnalyzing,
     currentStep,
     setResult,
+    request,
 }: OutputPanelProps) {
     const [activeTab, setActiveTab] = useState<string>("result");
 
@@ -50,6 +53,7 @@ export function OutputPanel({
                         result={result}
                         isLoading={isAnalyzing}
                         setResult={setResult}
+                        request={request}
                     />
                 </StyledTabsContent>
 

@@ -34,7 +34,7 @@ export function AnalyzeView() {
         },
     });
 
-    const { mutate, isPending } = useEmailControllerSubmitEmail({
+    const { mutate, isPending, variables } = useEmailControllerSubmitEmail({
         mutation: {
             onMutate: () => {
                 setResult(null);
@@ -122,6 +122,7 @@ export function AnalyzeView() {
                     isAnalyzing={isPending}
                     currentStep={currentStep}
                     setResult={setResult}
+                    request={variables?.data}
                 />
             </SplitViewPane>
         </SplitView>

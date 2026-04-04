@@ -6,19 +6,25 @@ import { ConfidenceSection } from "./result/confidence-section";
 import { DataSection } from "./result/data-section";
 import { EmailResponseSection } from "./result/email-response-section";
 import { SummarySection } from "./result/summary-section";
-import { SubmitEmailResponseDto } from "@/lib/client";
+import { CreateEmailDto, SubmitEmailResponseDto } from "@/lib/client";
 import { Dispatch, SetStateAction } from "react";
 
 type ResultTabProps = {
     result: SubmitEmailResponseDto | null;
     isLoading: boolean;
     setResult: Dispatch<SetStateAction<SubmitEmailResponseDto | null>>;
+    request: CreateEmailDto | undefined;
 };
 
 /**
  * Displays extracted analysis details and raw structured payload.
  */
-export function ResultTab({ result, isLoading, setResult }: ResultTabProps) {
+export function ResultTab({
+    result,
+    isLoading,
+    setResult,
+    request,
+}: ResultTabProps) {
     if (isLoading) {
         return <SectionedResultSkeleton />;
     }
@@ -36,7 +42,11 @@ export function ResultTab({ result, isLoading, setResult }: ResultTabProps) {
         <div className="animate-in fade-in zoom-in-95 w-full space-y-6 duration-300">
             <CategorySection result={result.data} />
             <SummarySection result={result.data} />
-            <EmailResponseSection result={result} setResult={setResult} />
+            <EmailResponseSection
+                result={result}
+                setResult={setResult}
+                request={request}
+            />
             <ConfidenceSection result={result.data} />
             <DataSection result={result.data} />
         </div>

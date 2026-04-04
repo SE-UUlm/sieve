@@ -4,6 +4,7 @@ import { ResultSection } from "@/components/composites/views/analyze/output/resu
 import { StyledButton } from "@/components/ui/styled-button";
 import { Check } from "lucide-react";
 import {
+    CreateEmailDto,
     SubmitEmailResponseDto,
     useEmailControllerSendEmailResponse,
 } from "@/lib/client";
@@ -13,6 +14,7 @@ import { Dispatch, SetStateAction } from "react";
 type EmailResponseSectionProps = {
     result: SubmitEmailResponseDto;
     setResult: Dispatch<SetStateAction<SubmitEmailResponseDto | null>>;
+    request: CreateEmailDto | undefined;
 };
 
 /**
@@ -21,6 +23,7 @@ type EmailResponseSectionProps = {
 export function EmailResponseSection({
     result,
     setResult,
+    request,
 }: EmailResponseSectionProps) {
     const response = result.data.email_response;
 
@@ -61,9 +64,9 @@ export function EmailResponseSection({
     const sendResponse = () => {
         mutate({
             data: {
-                receiptient: result.sender!,
-                subject: null
-                    ? `Re: ${null}` // TODO
+                receiptient: request!.sender!,
+                subject: request?.subject
+                    ? `Re: ${request.subject}`
                     : response?.response_subject || "Support Response",
                 body: response!.response_body,
             },
@@ -86,13 +89,13 @@ export function EmailResponseSection({
                     <Check className="h-5 w-5 mr-1" />
                     Email Response was sent
                 </div>
-            ) : result.sender !== undefined ? (
+            ) : request?.sender !== undefined ? (
                 <StyledButton
                     label={"Send Email Response"}
                     sizeVariant="small"
                     disabled={
                         result.email_reseponse_sent ||
-                        result.sender === undefined
+                        request?.sender === undefined
                     }
                     className="w-fit mt-4 ml-2"
                     onClick={sendResponse}
