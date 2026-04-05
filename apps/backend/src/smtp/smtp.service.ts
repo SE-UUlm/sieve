@@ -35,10 +35,7 @@ export class SmtpService implements OnModuleInit {
             host,
             port,
             secure: port === 465,
-            auth:
-                user !== undefined && pass !== undefined
-                    ? { user, pass }
-                    : undefined, // Only authenticate if username and password are provided
+            auth: user && pass ? { user, pass } : undefined, // Only authenticate if username and password are provided
         });
 
         Logger.log("SMTP module initialized");
