@@ -44,11 +44,12 @@ export const DEFAULT_ANALYSIS_CATEGORIES: AnalysisCategories = [
                 required: ["complaints", "urgency"],
                 type: "object",
             },
-            structured_response_prompt: "Be extremely concise.",
+            structured_response_prompt:
+                "Extract only explicit complaints. Keep each complaint short, factual, and non-duplicative.",
             summary_prompt:
-                "Include every little detail of the complaint. Answer in French.",
+                "Summarize only complaint-relevant details in concise plain text. Include concrete facts, customer impact, and requested resolution. Do not invent details.",
             email_response_prompt:
-                "In the response tell the customer that it's their fault and be rude.",
+                "Acknowledge the issue empathetically and professionally. Apologize when appropriate. Provide the next concrete step; if key details are missing, ask only for those details. Never blame the customer.",
         },
     },
     {
@@ -127,9 +128,9 @@ export const DEFAULT_ANALYSIS_CATEGORIES: AnalysisCategories = [
                 type: "object",
             },
             db_step_prompt:
-                "Database hints: The database only contains lego sets. The metadata column contains the part count. The products in the database are named in german",
+                "Database hints: Records contain LEGO sets; product names are primarily German; metadata includes part count.",
             email_response_prompt:
-                "If no matching product is found, please tell the customer that you could not find it and ask which product exactly they were referring to. \nIf there are multiple ask to clarify which one the customers want.\nIf the customer has questions that can be answered based on the related information, answer it.\nIf the customer has no questions and wants to immediately place the order: The following information is needed: Name, Address. If those are not provided, ask the customer. Else tell the customer that the order is placed.\nIf nothing of the above matches, do not respond.",
+                "Use related product matches and customer intent to draft a helpful reply. Ask for clarification only when product identity is still ambiguous after related information. If one product is clearly identified, do not ask which product they meant. Answer explicit product questions when related information supports it. For order placement requests, collect only missing required order details (for example name and address). Confirm placement only when the request and required details are present. If this category has nothing actionable, return null.",
         },
     },
     {
@@ -213,11 +214,11 @@ export const DEFAULT_ANALYSIS_CATEGORIES: AnalysisCategories = [
                 type: "object",
             },
             db_step_prompt:
-                "Database hints: The database only contains lego sets. The metadata column contains the part count. The products in the database are named in german",
+                "Database hints: Records contain LEGO sets; product names are primarily German; metadata includes part count.",
             summary_prompt:
-                "Answer in German. In sehr kurzen Stichworten antworten, mit Komma getrennt.",
+                "Summarize support-relevant facts concisely: product, issue, symptoms, steps already tried, and urgency signals. Do not invent details.",
             email_response_prompt:
-                "If the complaint is reasonable, answer that you are sorry and that we will fix it as soon as possible.",
+                "Respond with empathetic troubleshooting or support guidance grounded in available information. If a fix or next step is clear, state it. If required diagnostic details are missing, ask focused follow-up questions. Do not promise actions that are not supported by available information.",
         },
     },
     {
@@ -232,8 +233,10 @@ export const DEFAULT_ANALYSIS_CATEGORIES: AnalysisCategories = [
                 type: "object",
                 title: "Other",
             },
-            summary_prompt: "Be extremely concise. Answer in English",
-            email_response_prompt: "Do not respond.",
+            summary_prompt:
+                "Provide a concise plain-text summary of concerns that did not match other categories.",
+            email_response_prompt:
+                "Return null unless there is a clear, actionable reply for this category.",
         },
     },
 ];

@@ -90,12 +90,14 @@ export class AiBackendService implements OnModuleInit {
                         complex_model: complexModel,
                     },
                     config: {
-                        overall_email_response_prompt: `Kein Markdown verwenden. 
-Antworte in der Sprache, die der Kunde auch verwendet hat.
-Sei möglichst höflich.
-Name für Gruß unten: Simon Eve, Sieve Enterprises Corp. 
-Ganz am Ende soll noch ein zufälliger, sinnloser Werbespruch stehen. 
-Nicht auf zusätzlichen Anliegen in der Kunden-E-Mail eingehen, die nicht in Drafted email parts enthalten sind.`,
+                        overall_email_response_prompt: `Use plain text only (no Markdown).
+Reply in the customer's language.
+Be polite, professional, and concise.
+Keep the final email strictly grounded in the drafted email parts.
+Do not address concerns that are not covered by drafted email parts.
+Do not invent new facts, promises, or policy statements.
+Use this closing signature:
+SIEVE`,
                     },
                     categories,
                 }),
