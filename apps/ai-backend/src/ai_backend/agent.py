@@ -105,9 +105,12 @@ async def categorize(state: GraphState, runtime: Runtime[Context]) -> dict:
         [
             HumanMessage(format_email(context.email)),
             SystemMessage(
-                """Your job is to categorize an email from a customer into the possible categories. 
-                If the customer has multiple requests that fit different categories, list multiple different categories. 
-                Do not list duplicate categories."""
+                """Categorize the customer's email into the provided categories.
+                Use category names and descriptions as the source of truth for classification.
+                If the email contains multiple distinct concerns, include each matching category once.
+                Do not include categories without clear supporting evidence.
+                Use "Other" only for concerns that do not fit any more specific category.
+                Do not return duplicate categories."""
             ),
             SystemMessage(
                 "Available categories: "
@@ -148,10 +151,11 @@ async def overall_email_response(state: GraphState, runtime: Runtime[Context]) -
     conversation = [
         HumanMessage(format_email(runtime.context.email)),
         SystemMessage(
-            """Your job is create a comprehensive email to the customer using the parts provided below. 
-            Reformulate parts if necessary. 
-            Include email salutation and closing greeting. 
-            Do not include the subject in the email body."""
+            """Create one coherent customer email from the drafted parts below.
+            Keep the meaning of the drafted parts; you may rephrase for clarity and tone.
+            Include salutation and closing greeting.
+            Do not include the subject in the email body.
+            Do not add new facts, promises, or assumptions that are not present in drafted parts."""
         ),
         AIMessage(f"Drafted email parts: {formatted_parts}"),
     ]
