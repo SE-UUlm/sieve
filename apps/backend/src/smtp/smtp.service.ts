@@ -25,7 +25,7 @@ export class SmtpService implements OnModuleInit {
         const user = this.configService.get<string>("SMTP_USER");
         const pass = this.configService.get<string>("SMTP_PASS");
         const from = this.configService.get<string>("SMTP_FROM");
-        if (!host || !port || !user || !pass || !from) {
+        if (!host || !port || !from) {
             Logger.log("SMTP module disabled");
             return;
         }
@@ -35,7 +35,10 @@ export class SmtpService implements OnModuleInit {
             host,
             port,
             secure: port === 465,
-            auth: { user, pass },
+            auth:
+                user !== undefined && pass !== undefined
+                    ? { user, pass }
+                    : undefined, // Only authenticate if username and password are provided
         });
 
         Logger.log("SMTP module initialized");
