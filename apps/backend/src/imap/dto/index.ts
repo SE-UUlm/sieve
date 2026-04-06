@@ -1,4 +1,5 @@
 export { AnalyzeSelectedEmailsDto } from "./analyze-selected-emails.dto";
+export { InboxEmailBodyDto } from "./inbox-email-body.dto";
 export { AnalyzeSelectedResponseDto } from "./analyze-selected-response.dto";
 export { ImapConfigDto } from "./imap-config.dto";
 export { ImapFolderListDto } from "./imap-folder-list.dto";

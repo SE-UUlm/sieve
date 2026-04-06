@@ -12,7 +12,7 @@ import { decodeMailHeader, decodeQuotedPrintable } from "../lib/mail-encoding";
 import { PrismaService } from "../prisma/prisma.service";
 import { SettingsService } from "../settings/settings.service";
 import { ImapConfig, ImapService } from "./imap.service";
-import type { InboxEmailDto, ListFoldersRequestDto } from "./dto";
+import type { InboxEmailBodyDto, InboxEmailDto, ListFoldersRequestDto } from "./dto";
 
 export interface NewImapEmailEvent {
     userId: string;
@@ -515,6 +515,52 @@ export class ImapPollerService {
             return emails;
         } catch (error) {
             this.logger.error(`[getInboxEmails] Failed: ${error instanceof Error ? error.message : String(error)}`);
+            try { await client.logout(); } catch { /* ignore */ }
+            throw error;
+        }
+    }
+
+    /**
+     * Fetches the plain-text body of a single email by UID from the configured inbox.
+     */
+    async getEmailBody(uid: number): Promise<InboxEmailBodyDto> {
+        const config = await this.settingsService.getImapConfig();
+        if (!config) {
+            throw new Error("IMAP is not configured");
+        }
+
+        const ImapClient = (await import("imapflow")).ImapFlow;
+
+        const client = new ImapClient({
+            host: config.host.trim(),
+            port: config.port,
+            secure: config.security === "ssl",
+            tls: config.security === "starttls" ? { rejectUnauthorized: false } : undefined,
+            auth: { user: config.username, pass: config.password },
+            logger: false,
+        });
+
+        try {
+            await client.connect();
+            await client.mailboxOpen(config.mailbox, { readOnly: true });
+
+            let body = "";
+            const fetchResult = await client.fetch(String(uid), {
+                uid: true,
+                text: true,
+                html: true,
+                source: true,
+            } as unknown as import("imapflow").FetchQueryObject, { uid: true });
+
+            for await (const msg of fetchResult) {
+                body = decodeQuotedPrintable(this.extractTextContent(msg));
+                break;
+            }
+
+            await client.logout();
+            return { uid, body };
+        } catch (error) {
+            this.logger.error(`[getEmailBody] Failed for uid=${uid}: ${error instanceof Error ? error.message : String(error)}`);
             try { await client.logout(); } catch { /* ignore */ }
             throw error;
         }

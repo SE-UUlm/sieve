@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Logger, Post, Put } from "@nestjs/common";
+import { Body, Controller, Get, Logger, Param, ParseIntPipe, Post, Put } from "@nestjs/common";
 import {
     ApiCookieAuth,
     ApiOperation,
@@ -15,6 +15,7 @@ import {
     ImapConfigDto,
     ImapFolderListDto,
     ImapStatusDto,
+    InboxEmailBodyDto,
     InboxEmailListDto,
     ListFoldersRequestDto,
     MailboxCountDto,
@@ -218,6 +219,26 @@ export class ImapController {
     async getInboxEmails(): Promise<InboxEmailListDto> {
         const emails = await this.imapPollerService.getInboxEmails();
         return { emails };
+    }
+
+    @Get("inbox-emails/:uid/body")
+    @Roles([UserRole.ADMIN])
+    @ApiCookieAuth("apiKeyCookie")
+    @ApiOperation({
+        summary: "Get email body by UID",
+        description: "Fetches the plain-text body of a single inbox email by its IMAP UID.",
+    })
+    @ApiResponse({
+        status: 200,
+        description: "Email body",
+        type: InboxEmailBodyDto,
+    })
+    @ApiResponse({ status: 401, description: "Unauthorized" })
+    @ApiResponse({ status: 403, description: "Forbidden" })
+    async getEmailBody(
+        @Param("uid", ParseIntPipe) uid: number,
+    ): Promise<InboxEmailBodyDto> {
+        return this.imapPollerService.getEmailBody(uid);
     }
 
     @Post("analyze-selected")
