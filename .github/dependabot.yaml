@@ -3,9 +3,9 @@ updates:
     - package-ecosystem: "github-actions"
       directory: "/"
       schedule:
-          interval: "weekly"
-          day: "sunday"
-          time: "16:00"
+          interval: "monthly"
+          # day: "sunday"
+          # time: "16:00"
 
       labels:
           - "dependencies"
@@ -23,17 +23,17 @@ updates:
     - package-ecosystem: "npm"
       directory: "/apps/frontend"
       schedule:
-          interval: "weekly"
-          day: "sunday"
-          time: "16:00"
+          interval: "monthly"
+          # day: "sunday"
+          # time: "16:00"
 
       versioning-strategy: "increase"
       open-pull-requests-limit: 10
 
-      cooldown:
-          semver-major-days: 7
-          semver-minor-days: 3
-          semver-patch-days: 1
+      # cooldown:
+      # semver-major-days: 7
+      # semver-minor-days: 3
+      # semver-patch-days: 1
 
       labels:
           - "dependencies"
@@ -79,17 +79,17 @@ updates:
     - package-ecosystem: "npm"
       directory: "/apps/backend"
       schedule:
-          interval: "weekly"
-          day: "sunday"
-          time: "16:00"
+          interval: "monthly"
+          # day: "sunday"
+          # time: "16:00"
 
       versioning-strategy: "increase"
       open-pull-requests-limit: 10
 
-      cooldown:
-          semver-major-days: 7
-          semver-minor-days: 3
-          semver-patch-days: 1
+      # cooldown:
+      # semver-major-days: 7
+      # semver-minor-days: 3
+      # semver-patch-days: 1
 
       labels:
           - "dependencies"
@@ -159,16 +159,16 @@ updates:
     - package-ecosystem: "uv"
       directory: "/apps/ai-backend"
       schedule:
-          interval: "weekly"
-          day: "sunday"
-          time: "16:00"
+          interval: "monthly"
+          # day: "sunday"
+          # time: "16:00"
 
       open-pull-requests-limit: 10
 
-      cooldown:
-          semver-major-days: 7
-          semver-minor-days: 3
-          semver-patch-days: 1
+      # cooldown:
+      # semver-major-days: 7
+      # semver-minor-days: 3
+      # semver-patch-days: 1
 
       labels:
           - "dependencies"
