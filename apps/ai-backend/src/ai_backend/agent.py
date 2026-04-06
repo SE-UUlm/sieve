@@ -103,7 +103,6 @@ async def categorize(state: GraphState, runtime: Runtime[Context]) -> dict:
 
     result = await structured.ainvoke(
         [
-            HumanMessage(format_email(context.email)),
             SystemMessage(
                 """Categorize the customer's email into the provided categories.
                 Use category names and descriptions as the source of truth for classification.
@@ -121,6 +120,7 @@ async def categorize(state: GraphState, runtime: Runtime[Context]) -> dict:
                     ]
                 )
             ),
+            HumanMessage(format_email(context.email)),
         ]
     )
 
@@ -149,21 +149,23 @@ async def overall_email_response(state: GraphState, runtime: Runtime[Context]) -
     )
 
     conversation = [
-        HumanMessage(format_email(runtime.context.email)),
         SystemMessage(
             """Create one coherent customer email from the drafted parts below.
             Keep the meaning of the drafted parts; you may rephrase for clarity and tone.
             Include salutation and closing greeting.
             Do not include the subject in the email body.
             Do not add new facts, promises, or assumptions that are not present in drafted parts."""
-        ),
-        AIMessage(f"Drafted email parts: {formatted_parts}"),
+        )
     ]
 
     custom_prompt = runtime.context.global_config.overall_email_response_prompt
 
     if custom_prompt:
         conversation.append(SystemMessage(custom_prompt))
+
+    conversation.append(AIMessage(f"Drafted email parts: {formatted_parts}"))
+
+    conversation.append(HumanMessage(format_email(runtime.context.email)))
 
     result = await structured.ainvoke(conversation)
     assert isinstance(
@@ -188,7 +190,6 @@ async def confidence_assessment(state: GraphState, runtime: Runtime[Context]) ->
     )
 
     messages = [
-        HumanMessage(format_email(runtime.context.email)),
         SystemMessage(
             """Your job is to assess how accurately the drafted response answers the customer's original email.
             Score conservatively: uncertainty, ambiguity, or partial mismatches must lower the score.
@@ -200,6 +201,7 @@ async def confidence_assessment(state: GraphState, runtime: Runtime[Context]) ->
             "Drafted overall email response:\n\n"
             f"{response.response_subject}\n\n{response.response_body}"
         ),
+        HumanMessage(format_email(runtime.context.email)),
     ]
 
     result = await structured.ainvoke(messages)

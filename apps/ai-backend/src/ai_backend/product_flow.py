@@ -81,7 +81,6 @@ async def db_step(
         context_schema=Context,
     )
     conversation = [
-        HumanMessage(format_email(runtime.context.email)),
         SystemMessage(f"""Identify which products from the database the customer refers to in this category.
         Only use email content relevant to '{category.name}: {category.description}' and ignore other parts.
         Use the category description as the strict scope boundary.
@@ -91,12 +90,17 @@ async def db_step(
         Keep tool usage efficient: avoid repeated equivalent searches, and only search again if ambiguity remains.
         If one product is clearly intended, return only that product with high confidence.
         If multiple plausible products remain, return those candidates with moderate/low confidence.
-        If no plausible product is found, return an empty related_products list with low confidence."""),
-        SystemMessage(f"""Database Schema: {runtime.context.db_schema}"""),
+        If no plausible product is found, return an empty related_products list with low confidence.""")
     ]
 
     if category.flow.db_step_prompt:
         conversation.append(SystemMessage(category.flow.db_step_prompt))
+
+    conversation.append(
+        SystemMessage(f"""Database Schema: {runtime.context.db_schema}""")
+    )
+
+    conversation.append(HumanMessage(format_email(runtime.context.email)))
 
     result = await agent.ainvoke(
         {"messages": conversation},

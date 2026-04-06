@@ -6,7 +6,6 @@ from ai_backend.schemas import FlowGraphState, Context, EmailResponsePartSchema
 
 async def summary(state: FlowGraphState, runtime: Runtime[Context]) -> dict:
     messages = [
-        HumanMessage(format_email(runtime.context.email)),
         SystemMessage(
             f"""Summarize only the parts of the customer's email that are relevant to the category
             '{state.category_config.name}: {state.category_config.description}'.
@@ -19,6 +18,8 @@ async def summary(state: FlowGraphState, runtime: Runtime[Context]) -> dict:
     summary_prompt = state.category_config.flow.summary_prompt
     if summary_prompt:
         messages.append(SystemMessage(summary_prompt))
+
+    messages.append(HumanMessage(format_email(runtime.context.email)))
 
     result = await runtime.context.simple_model.ainvoke(messages)
 
@@ -41,7 +42,6 @@ async def structured_response(state: FlowGraphState, runtime: Runtime[Context]) 
     json_string = dict_to_json(state.steps)
 
     messages = [
-        HumanMessage(format_email(runtime.context.email)),
         SystemMessage(
             f"""Convert the customer's email into the requested structured output.
             Only use content relevant to the category '{state.category_config.name}: {state.category_config.description}'.
@@ -49,14 +49,17 @@ async def structured_response(state: FlowGraphState, runtime: Runtime[Context]) 
             Use related information as supporting evidence and keep your output consistent with it.
             Populate fields only when supported by evidence from the email or related information.
             Do not guess missing values; leave them null/empty as allowed by the schema."""
-        ),
-        SystemMessage("Related information: " + json_string),
+        )
     ]
 
     if state.category_config.flow.structured_response_prompt:
         messages.append(
             SystemMessage(state.category_config.flow.structured_response_prompt)
         )
+
+    messages.append(SystemMessage("Related information: " + json_string))
+
+    messages.append(HumanMessage(format_email(runtime.context.email)))
 
     result = await structured.ainvoke(messages)
     return {"structured_output": result}
@@ -70,7 +73,6 @@ async def email_response(state: FlowGraphState, runtime: Runtime[Context]) -> di
     )
 
     conversation = [
-        HumanMessage(format_email(runtime.context.email)),
         SystemMessage(f"""Draft only this category's section of a customer reply.
         Only respond to the parts of the email relevant to '{category.name}: {category.description}' and ignore other parts.
         Use only explicit facts from the customer's email and related information.
@@ -78,12 +80,17 @@ async def email_response(state: FlowGraphState, runtime: Runtime[Context]) -> di
         Ask clarification questions only when information is truly missing or ambiguous.
         If intent is already clear (for example, a single clear product match), do not ask unnecessary clarification questions.
         If this category should not produce a reply section, return null.
-        Do not draft a full email; draft only a section."""),
-        SystemMessage(f"Related information: : {dict_to_json(state.steps)}"),
+        Do not draft a full email; draft only a section.""")
     ]
 
     if category.flow.email_response_prompt:
         conversation.append(SystemMessage(category.flow.email_response_prompt))
+
+    conversation.append(
+        SystemMessage(f"Related information: : {dict_to_json(state.steps)}")
+    )
+
+    conversation.append(HumanMessage(format_email(runtime.context.email)))
 
     result = await structured.ainvoke(conversation)
     assert isinstance(
