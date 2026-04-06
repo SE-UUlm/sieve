@@ -14,8 +14,8 @@ export function Sidebar({ onLogout }: SidebarProps) {
 
     const navItems = [
         { href: "/analyze", icon: MailSearch, label: "Analyze" },
-        { href: "/history", icon: History, label: "History" },
         { href: "/imap", icon: Inbox, label: "IMAP" },
+        { href: "/history", icon: History, label: "History" },
         { href: "/settings", icon: Settings, label: "Settings" },
     ];
 
