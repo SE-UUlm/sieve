@@ -1,4 +1,4 @@
-import { History, LogOut, MailSearch, Settings } from "lucide-react";
+import { History, Inbox, LogOut, MailSearch, Settings } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { Logo } from "@/components/composites/logo";
 import { SidebarActionButton } from "@/components/composites/sidebar/sidebar-action-button";
@@ -15,6 +15,7 @@ export function Sidebar({ onLogout }: SidebarProps) {
     const navItems = [
         { href: "/analyze", icon: MailSearch, label: "Analyze" },
         { href: "/history", icon: History, label: "History" },
+        { href: "/imap", icon: Inbox, label: "IMAP" },
         { href: "/settings", icon: Settings, label: "Settings" },
     ];
 
