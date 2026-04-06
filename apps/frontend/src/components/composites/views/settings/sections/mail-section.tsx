@@ -20,13 +20,11 @@ import {
     useImapControllerGetConfig,
     useImapControllerTestConnection,
     useImapControllerSaveConfig,
-    useImapControllerGetMailboxCount,
-    useImapControllerProcessExistingEmails,
+    useImapControllerListFolders,
 } from "@/lib/client/imap/imap";
-import { getJobControllerGetHistoryQueryKey } from "@/lib/client/jobs/jobs";
-import { useQueryClient } from "@tanstack/react-query";
 import { showPersistentErrorToast, showSuccessToast } from "@/lib/toast";
-import { Loader2, CheckCircle2, XCircle, AlertCircle, Mail } from "lucide-react";
+import { Loader2, CheckCircle2, XCircle, AlertCircle, FolderOpen } from "lucide-react";
+import { FolderSelectDialog } from "./folder-select-dialog";
 
 const formSchema = z.object({
     imapHost: z
@@ -46,10 +44,7 @@ const formSchema = z.object({
         .max(255, "Username must be at most 255 characters."),
     password: z.string().min(1, "Password is required."),
     security: z.enum(["ssl", "starttls", "none"]),
-    mailbox: z
-        .string()
-        .min(1, "Mailbox is required.")
-        .max(255, "Mailbox must be at most 255 characters."),
+    autoProcessEnabled: z.boolean(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -60,17 +55,16 @@ export function MailSection() {
         messageCount?: number;
         lastError?: string;
     } | null>(null);
-    const [showImportDialog, setShowImportDialog] = useState(false);
-    const [mailboxCount, setMailboxCount] = useState(0);
-    const [isFirstTimeSetup, setIsFirstTimeSetup] = useState(false);
+    const [selectedMailbox, setSelectedMailbox] = useState<string | null>(null);
+    const [showFolderDialog, setShowFolderDialog] = useState(false);
+    const [availableFolders, setAvailableFolders] = useState<string[]>([]);
+    const [pendingFormValues, setPendingFormValues] = useState<FormValues | null>(null);
 
     const { data: statusData, isLoading: isLoadingStatus } = useImapControllerGetStatus();
     const { data: configData, isLoading: isLoadingConfig } = useImapControllerGetConfig();
     const testConnection = useImapControllerTestConnection();
     const saveConfig = useImapControllerSaveConfig();
-    const getMailboxCount = useImapControllerGetMailboxCount();
-    const processExistingEmails = useImapControllerProcessExistingEmails();
-    const queryClient = useQueryClient();
+    const listFolders = useImapControllerListFolders();
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -81,7 +75,7 @@ export function MailSection() {
             username: "",
             password: "",
             security: "ssl",
-            mailbox: "INBOX",
+            autoProcessEnabled: false,
         },
     });
 
@@ -95,8 +89,11 @@ export function MailSection() {
                 username: config.username || "",
                 password: "", // Password is not returned for security
                 security: config.security || "ssl",
-                mailbox: config.mailbox || "INBOX",
+                autoProcessEnabled: (config as { autoProcessEnabled?: boolean }).autoProcessEnabled ?? false,
             });
+            if (config.mailbox) {
+                setSelectedMailbox(config.mailbox);
+            }
         }
     }, [configData, form]);
 
@@ -114,7 +111,15 @@ export function MailSection() {
 
     const handleTestConnection = async (values: FormValues) => {
         setTestStatus(null);
-        
+
+        if (!selectedMailbox) {
+            showPersistentErrorToast({
+                title: "No mailbox selected",
+                description: "Please save settings first to select a mailbox folder.",
+            });
+            return;
+        }
+
         try {
             const result = await testConnection.mutateAsync({
                 data: {
@@ -123,7 +128,7 @@ export function MailSection() {
                     username: values.username,
                     password: values.password,
                     security: values.security,
-                    mailbox: values.mailbox,
+                    mailbox: selectedMailbox,
                 },
             });
 
@@ -137,7 +142,7 @@ export function MailSection() {
                 if (result.data.isConnected) {
                     showSuccessToast({
                         title: "Connection successful",
-                        description: `Found ${result.data.messageCount} messages in ${values.mailbox}.`,
+                        description: `Found ${result.data.messageCount} messages in ${selectedMailbox}.`,
                     });
                 } else {
                     showPersistentErrorToast({
@@ -156,55 +161,44 @@ export function MailSection() {
 
     const handleSaveConfig = async (values: FormValues) => {
         try {
-            // First test the connection
-            const testResult = await testConnection.mutateAsync({
+            const foldersResult = await listFolders.mutateAsync({
                 data: {
                     host: values.imapHost,
                     port: parseInt(values.imapPort, 10),
                     username: values.username,
                     password: values.password,
                     security: values.security,
-                    mailbox: values.mailbox,
                 },
             });
 
-            if (!testResult.data?.isConnected) {
-                showPersistentErrorToast({
-                    title: "Cannot save settings",
-                    description: "Please fix the connection issues before saving.",
-                });
-                return;
+            if (foldersResult.data?.folders) {
+                setAvailableFolders(foldersResult.data.folders);
+                setPendingFormValues(values);
+                setShowFolderDialog(true);
             }
+        } catch (error) {
+            showPersistentErrorToast({
+                title: "Could not connect",
+                description: error instanceof Error ? error.message : "Failed to reach the IMAP server.",
+            });
+        }
+    };
 
-            // Check if this is first time setup (no existing config)
-            const isFirstTime = !configData?.data?.host;
-            setIsFirstTimeSetup(isFirstTime);
+    const handleFolderSelect = async (folder: string) => {
+        if (!pendingFormValues) return;
+        setShowFolderDialog(false);
 
-            if (isFirstTime) {
-                // Get mailbox count for import dialog
-                const countResult = await getMailboxCount.mutateAsync({
-                    data: {
-                        host: values.imapHost,
-                        port: parseInt(values.imapPort, 10),
-                        username: values.username,
-                        password: values.password,
-                        security: values.security,
-                        mailbox: values.mailbox,
-                    },
-                });
-                setMailboxCount(countResult.data?.count || 0);
-            }
-
-            // Save the configuration (enabled for automatic new mail processing)
+        try {
             const result = await saveConfig.mutateAsync({
                 data: {
-                    host: values.imapHost,
-                    port: parseInt(values.imapPort, 10),
-                    username: values.username,
-                    password: values.password,
-                    security: values.security,
-                    mailbox: values.mailbox,
-                    enabled: true, // Always enabled for automatic new mail processing
+                    host: pendingFormValues.imapHost,
+                    port: parseInt(pendingFormValues.imapPort, 10),
+                    username: pendingFormValues.username,
+                    password: pendingFormValues.password,
+                    security: pendingFormValues.security,
+                    mailbox: folder,
+                    enabled: true,
+                    autoProcessEnabled: pendingFormValues.autoProcessEnabled,
                 },
             });
 
@@ -214,61 +208,24 @@ export function MailSection() {
                     messageCount: result.data.messageCount,
                     lastError: result.data.lastError,
                 });
-                
+                setSelectedMailbox(folder);
                 showSuccessToast({
                     title: "Settings saved",
-                    description: "IMAP configuration has been saved successfully.",
+                    description: `IMAP configured with folder "${folder}".`,
                 });
-
-                // Show import dialog for first time setup
-                if (isFirstTime && mailboxCount > 0) {
-                    setShowImportDialog(true);
-                }
             }
         } catch (error) {
             showPersistentErrorToast({
                 title: "Save failed",
                 description: error instanceof Error ? error.message : "An unknown error occurred.",
             });
-        }
-    };
-
-    const handleProcessExistingEmails = async () => {
-        const values = form.getValues();
-        
-        try {
-            const result = await processExistingEmails.mutateAsync({
-                data: {
-                    host: values.imapHost,
-                    port: parseInt(values.imapPort, 10),
-                    username: values.username,
-                    password: values.password,
-                    security: values.security,
-                    mailbox: values.mailbox,
-                    enabled: true,
-                },
-            });
-
-            if (result.data?.success) {
-                showSuccessToast({
-                    title: "Import completed",
-                    description: `${result.data.processedCount} emails have been imported and processed.`,
-                });
-                // Refresh history to show imported emails
-                queryClient.invalidateQueries({ queryKey: getJobControllerGetHistoryQueryKey({ source: "IMAP" }) });
-                queryClient.invalidateQueries({ queryKey: getJobControllerGetHistoryQueryKey({}) });
-            }
-        } catch (error) {
-            showPersistentErrorToast({
-                title: "Import failed",
-                description: error instanceof Error ? error.message : "Failed to process existing emails.",
-            });
         } finally {
-            setShowImportDialog(false);
+            setPendingFormValues(null);
         }
     };
 
     const isLoading = isLoadingStatus || isLoadingConfig;
+    const isSaving = listFolders.isPending || saveConfig.isPending;
 
     const renderStatusBadge = () => {
         if (isLoading) {
@@ -470,50 +427,53 @@ export function MailSection() {
                         />
                     </div>
 
+                    {/* Mailbox — read-only display */}
                     <div className="space-y-2">
-                        <StyledLabel>Mailbox</StyledLabel>
-                        <Controller
-                            name="mailbox"
-                            control={form.control}
-                            render={({ field, fieldState }) => (
-                                <div className="space-y-1">
-                                    <StyledInput
-                                        {...field}
-                                        placeholder="INBOX"
-                                        aria-invalid={fieldState.invalid}
-                                        disabled={isLoading}
-                                    />
-                                    {fieldState.error && (
-                                        <p className="text-xs text-red-500">
-                                            {fieldState.error.message}
-                                        </p>
-                                    )}
-                                </div>
-                            )}
-                        />
+                        <StyledLabel>Inbox Folder</StyledLabel>
+                        <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-800/50">
+                            <FolderOpen className="h-4 w-4 shrink-0 text-slate-400" />
+                            <span className="truncate text-sm text-slate-700 dark:text-slate-300">
+                                {selectedMailbox ?? (
+                                    <span className="italic text-slate-400 dark:text-slate-500">
+                                        Selected on save
+                                    </span>
+                                )}
+                            </span>
+                        </div>
                     </div>
                 </div>
 
-                {/* Info Box */}
-                <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950/30">
-                    <div className="flex items-start gap-3">
-                        <Mail className="mt-0.5 h-5 w-5 text-blue-600 dark:text-blue-400" />
-                        <div>
-                            <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
-                                Automatic Email Processing
-                            </p>
-                            <p className="mt-1 text-sm text-blue-700 dark:text-blue-300">
-                                Once connected, new emails will be automatically processed. 
-                                On first setup, you can choose to import existing emails.
-                            </p>
-                        </div>
-                    </div>
+                {/* Automatic processing toggle */}
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900/50">
+                    <Controller
+                        name="autoProcessEnabled"
+                        control={form.control}
+                        render={({ field }) => (
+                            <label className="flex cursor-pointer items-start gap-3">
+                                <input
+                                    type="checkbox"
+                                    checked={field.value}
+                                    onChange={field.onChange}
+                                    className="mt-0.5 h-4 w-4 rounded border-slate-300 accent-blue-600"
+                                    disabled={isLoading}
+                                />
+                                <div>
+                                    <p className="text-sm font-medium text-slate-900 dark:text-white">
+                                        Automatic email processing
+                                    </p>
+                                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                                        When enabled, new emails arriving after this point are automatically analyzed and moved to the processed folder.
+                                    </p>
+                                </div>
+                            </label>
+                        )}
+                    />
                 </div>
 
                 {/* Buttons */}
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <p className="max-w-md text-sm text-slate-500 dark:text-slate-400">
-                        Test the connection before saving to ensure your settings are correct.
+                        Saving will connect to your server and let you choose the inbox folder.
                     </p>
                     <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                         <StyledButton
@@ -521,7 +481,7 @@ export function MailSection() {
                             sizeVariant="medium"
                             onClick={form.handleSubmit(handleTestConnection)}
                             isLoading={testConnection.isPending}
-                            disabled={!form.formState.isValid || testConnection.isPending || isLoading}
+                            disabled={!form.formState.isValid || testConnection.isPending || isLoading || !selectedMailbox}
                             label="Test Connection"
                             loadingLabel="Testing..."
                             className="w-full bg-slate-600 text-white hover:bg-slate-500 shadow-slate-900/20 disabled:bg-slate-600/50 sm:w-auto sm:min-w-[140px]"
@@ -530,64 +490,25 @@ export function MailSection() {
                             type="button"
                             sizeVariant="medium"
                             onClick={form.handleSubmit(handleSaveConfig)}
-                            isLoading={saveConfig.isPending || testConnection.isPending || getMailboxCount.isPending}
-                            disabled={!form.formState.isValid || saveConfig.isPending || testConnection.isPending || isLoading}
+                            isLoading={isSaving}
+                            disabled={!form.formState.isValid || isSaving || isLoading}
                             label="Save Settings"
-                            loadingLabel="Saving..."
+                            loadingLabel="Connecting..."
                             className="w-full sm:w-auto sm:min-w-[140px]"
                         />
                     </div>
                 </div>
             </form>
 
-            {/* Import Dialog */}
-            {showImportDialog && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                    <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-xl dark:border-slate-800 dark:bg-slate-900">
-                        <div className="mb-4 flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
-                                <Mail className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                            </div>
-                            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-                                Import Existing Emails?
-                            </h3>
-                        </div>
-                        
-                        <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
-                            Your mailbox contains <strong>{mailboxCount}</strong> messages. 
-                            Would you like to import and process these existing emails?
-                        </p>
-                        
-                        <p className="mb-6 text-xs text-slate-500 dark:text-slate-400">
-                            All future new emails will be automatically processed. This action only imports existing messages.
-                        </p>
-                        
-                        <div className="flex gap-3">
-                            <button
-                                type="button"
-                                onClick={() => setShowImportDialog(false)}
-                                className="flex-1 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-                            >
-                                Skip
-                            </button>
-                            <button
-                                type="button"
-                                onClick={handleProcessExistingEmails}
-                                disabled={processExistingEmails.isPending}
-                                className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 disabled:opacity-50"
-                            >
-                                {processExistingEmails.isPending ? (
-                                    <span className="flex items-center justify-center gap-2">
-                                        <Loader2 className="h-4 w-4 animate-spin" />
-                                        Importing...
-                                    </span>
-                                ) : (
-                                    `Import ${mailboxCount} Emails`
-                                )}
-                            </button>
-                        </div>
-                    </div>
-                </div>
+            {showFolderDialog && (
+                <FolderSelectDialog
+                    folders={availableFolders}
+                    onSelect={handleFolderSelect}
+                    onCancel={() => {
+                        setShowFolderDialog(false);
+                        setPendingFormValues(null);
+                    }}
+                />
             )}
         </SettingsSection>
     );
