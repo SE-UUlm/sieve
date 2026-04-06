@@ -80,7 +80,8 @@ async def email_response(state: FlowGraphState, runtime: Runtime[Context]) -> di
         Ask clarification questions only when information is truly missing or ambiguous.
         If intent is already clear (for example, a single clear product match), do not ask unnecessary clarification questions.
         If this category should not produce a reply section, return null.
-        Do not draft a full email; draft only a section.""")
+        Do not draft a full email; draft only a section.
+        Use plain text, no markdown.""")
     ]
 
     if category.flow.email_response_prompt:
