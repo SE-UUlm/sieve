@@ -55,7 +55,7 @@ export const DEFAULT_ANALYSIS_CATEGORIES: AnalysisCategories = [
     {
         name: "Product Inquiry",
         description:
-            "The user wants to order a product or wants to ask for information regarding a product they do not yet own or wants suggestion which product(s) to buy.",
+            "The user wants to order a product or wants to ask for information regarding a product they do not yet own or wants suggestion which product(s) to buy. Not about a product they already own or use.",
         flow: {
             name: "product",
             structured_response_schema: {
@@ -130,13 +130,13 @@ export const DEFAULT_ANALYSIS_CATEGORIES: AnalysisCategories = [
             db_step_prompt: `Database hints: Records contain LEGO sets; product names are primarily German; metadata includes part count.
 For a range (e.g., 100-110) of part counts, generate a separate \`{"number_of_parts": x}\` (use whole json object with space after :) query for every integer in that range. For vague terms like "approximately," apply a logical range of ±3-20 units (depending on number and phrasing) and iterate through each value individually. Ensure the final output is a complete list containing every single integer step without skips. Do not do this for more than 50 query items.`,
             email_response_prompt:
-                "Use related product matches and customer intent to draft a helpful reply. Ask for clarification only when product identity is still ambiguous after related information. If one product is clearly identified, do not ask which product they meant. Answer explicit product questions when related information supports it. For order placement requests, collect only missing required order details (for example name and address). Confirm placement only when the request and required details are present. If there are no related products, tell the customer that you could not find anything that matches this description in the product catalog. If this category has nothing actionable, return null.",
+                "Use related product matches and customer intent to draft a helpful reply. Ask for clarification only when product identity is still ambiguous after related information. If one product is clearly identified, do not ask which product they meant. Answer explicit product questions when related information supports it. For order placement requests, collect only missing required order details (for example name and address). Confirm placement only when the request and required details are present. If there are no related products, tell the customer that you could not find anything that matches this description in the product catalog. If this category has nothing actionable, return null. When talking about a product from related products include product name, price and id.",
         },
     },
     {
         name: "Product Support",
         description:
-            "The user asks about an existing product they already have or use.",
+            "The user asks about an existing product they already have or use. Not about a product they consider buying.",
         flow: {
             name: "product",
             structured_response_schema: {
