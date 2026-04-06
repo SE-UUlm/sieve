@@ -1,11 +1,13 @@
 import { Module } from "@nestjs/common";
+import { ConfigModule } from "@nestjs/config";
 import { AiBackendModule } from "../ai-backend/ai-backend.module";
 import { PrismaModule } from "../prisma/prisma.module";
+import { SmtpModule } from "../smtp/smtp.module";
 import { EmailController } from "./email.controller";
 import { EmailService } from "./email.service";
 
 @Module({
-    imports: [AiBackendModule, PrismaModule],
+    imports: [AiBackendModule, PrismaModule, SmtpModule, ConfigModule],
     controllers: [EmailController],
     providers: [EmailService],
 })

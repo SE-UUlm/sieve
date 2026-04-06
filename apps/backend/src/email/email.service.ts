@@ -60,7 +60,7 @@ export class EmailService {
                 });
             });
 
-            return { data: analysisResult };
+            return { data: analysisResult, email_response_sent: false };
         } catch (error) {
             if (error instanceof HttpException) {
                 throw error;

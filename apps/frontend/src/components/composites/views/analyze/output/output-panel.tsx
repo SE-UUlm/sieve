@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { type Dispatch, type SetStateAction, useState } from "react";
 import { ResultTab } from "@/components/composites/views/analyze/output/result-tab";
 import { WorkflowTab } from "@/components/composites/views/analyze/output/workflow-tab";
 import {
@@ -7,12 +7,14 @@ import {
     StyledTabsList,
     StyledTabsTrigger,
 } from "@/components/ui/styled-tabs";
-import type { AnalysisResult } from "../model/analysis-result";
+import type { CreateEmailDto, SubmitEmailResponseDto } from "@/lib/client";
 
 type OutputPanelProps = {
-    result: AnalysisResult | null;
+    result: SubmitEmailResponseDto | null;
     isAnalyzing: boolean;
     currentStep: number;
+    setResult: Dispatch<SetStateAction<SubmitEmailResponseDto | null>>;
+    request: CreateEmailDto | undefined;
 };
 
 /**
@@ -22,6 +24,8 @@ export function OutputPanel({
     result,
     isAnalyzing,
     currentStep,
+    setResult,
+    request,
 }: OutputPanelProps) {
     const [activeTab, setActiveTab] = useState<string>("result");
 
@@ -43,7 +47,12 @@ export function OutputPanel({
                     value="result"
                     className="mt-0 w-full flex-1 outline-none"
                 >
-                    <ResultTab result={result} isLoading={isAnalyzing} />
+                    <ResultTab
+                        result={result}
+                        isLoading={isAnalyzing}
+                        setResult={setResult}
+                        request={request}
+                    />
                 </StyledTabsContent>
 
                 <StyledTabsContent
@@ -51,7 +60,7 @@ export function OutputPanel({
                     className="mt-0 w-full flex-1 outline-none"
                 >
                     <WorkflowTab
-                        result={result}
+                        result={result?.data ?? null}
                         isAnalyzing={isAnalyzing}
                         step={currentStep}
                     />

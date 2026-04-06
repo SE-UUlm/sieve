@@ -46,6 +46,14 @@ services:
             SEED_USER_NAME: ${SEED_USER_NAME:-Alice Smith}
             SEED_USER_EMAIL: ${SEED_USER_EMAIL:-alice@example.com}
             SEED_USER_PASSWORD: ${SEED_USER_PASSWORD:-}
+
+            SMTP_HOST: ${SMTP_HOST}
+            SMTP_PORT: ${SMTP_PORT}
+            SMTP_USER: ${SMTP_USER}
+            SMTP_PASS: ${SMTP_PASS}
+            SMTP_FROM: ${SMTP_FROM}
+
+            AUTO_SEND_RESPOND_THRESHOLD: ${AUTO_SEND_RESPOND_THRESHOLD}
         ports:
             - ${BACKEND_PORT}:${BACKEND_PORT}
 

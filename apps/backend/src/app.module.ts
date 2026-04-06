@@ -9,6 +9,7 @@ import { JobResultModule } from "./job-result/job-result.module";
 import { auth } from "./lib/auth";
 import { PrismaModule } from "./prisma/prisma.module";
 import { SettingsModule } from "./settings/settings.module";
+import { SmtpModule } from "./smtp/smtp.module";
 import { UserModule } from "./user/user.module";
 
 @Module({
@@ -23,6 +24,7 @@ import { UserModule } from "./user/user.module";
         SettingsModule,
         AuthModule.forRoot({ auth }),
         AiBackendModule,
+        SmtpModule,
     ],
 })
 export class AppModule {}

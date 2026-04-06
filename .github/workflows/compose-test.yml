@@ -35,6 +35,7 @@ jobs:
                   AI_BACKEND_URL: http://localhost:8000
                   SETTINGS_ENCRYPTION_KEY: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
                   NEXT_PUBLIC_API_URL: http://localhost:5175
+                  AUTO_SEND_RESPOND_THRESHOLD: -1
 
             - name: Verify Backend Health
               run: |
