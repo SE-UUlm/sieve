@@ -75,7 +75,10 @@ export class EmailController {
         @Session() session: UserSession,
         @Body() dto: CreateEmailDto,
     ): Promise<SubmitEmailResponseDto> {
-        const result = await this.emailService.submitEmail(session.user.id, dto);
+        const result = await this.emailService.submitEmail(
+            session.user.id,
+            dto,
+        );
 
         let emailResponseSent = false;
         const emailResponse = result.data.email_response;
