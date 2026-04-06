@@ -216,7 +216,7 @@ For a range (e.g., 100-110) of part counts, generate a separate \`{"number_of_pa
             db_step_prompt:
                 "Database hints: Records contain LEGO sets; product names are primarily German; metadata includes part count.",
             summary_prompt:
-                "Summarize support-relevant facts concisely: product, issue, symptoms, steps already tried, and urgency signals. Do not invent details.",
+                "Summarize support-relevant facts concisely: product, issue, symptoms, steps already tried, and urgency signals. Do not invent details. No bullet points.",
             email_response_prompt:
                 "Respond with empathetic troubleshooting or support guidance grounded in available information. If a fix or next step is clear, state it. If required diagnostic details are missing, ask focused follow-up questions. Do not promise actions that are not supported by available information.",
         },
@@ -234,7 +234,7 @@ For a range (e.g., 100-110) of part counts, generate a separate \`{"number_of_pa
                 title: "Other",
             },
             summary_prompt:
-                "Provide a concise plain-text summary of concerns that did not match other categories.",
+                "Provide a concise plain-text summary of concerns that did not match other categories. No bullet points.",
             email_response_prompt:
                 "Return null unless there is a clear, actionable reply for this category.",
         },
