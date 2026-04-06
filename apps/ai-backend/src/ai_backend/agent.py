@@ -215,8 +215,9 @@ def init_simple_model(model_config: ModelConfig):
         model_provider=get_provider_name(model_config.provider),
         model=model_config.simple_model,
         temperature=0.1,
-        timeout=10,
+        timeout=20,
         api_key=model_config.api_key,
+        max_retries=2,
     )
 
 
@@ -225,8 +226,9 @@ def init_complex_model(model_config: ModelConfig):
         model_provider=get_provider_name(model_config.provider),
         model=model_config.complex_model,
         temperature=0.1,
-        timeout=10,
+        timeout=20,
         api_key=model_config.api_key,
+        max_retries=2,
     )
 
 
