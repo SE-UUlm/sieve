@@ -222,3 +222,7 @@ compose.override.yaml
 
 # DB Data
 **/db-data/
+
+# Claude Code
+CLAUDE.md
+.claude/

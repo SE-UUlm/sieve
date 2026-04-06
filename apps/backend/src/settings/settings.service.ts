@@ -374,6 +374,54 @@ export class SettingsService {
     }
 
     /**
+     * Gets the IMAP configuration from settings.
+     * @returns The IMAP configuration or null if not configured.
+     */
+    async getImapConfig(): Promise<{
+        host: string;
+        port: number;
+        username: string;
+        password: string;
+        security: "ssl" | "starttls" | "none";
+        mailbox: string;
+        autoProcessEnabled: boolean;
+    } | null> {
+        const settings = await this.prismaService.instanceSettings.findUnique({
+            where: { id: INSTANCE_SETTINGS_ID },
+            select: {
+                imapHost: true,
+                imapPort: true,
+                imapUsername: true,
+                imapPassword: true,
+                imapSecurity: true,
+                imapMailbox: true,
+                imapAutoProcessEnabled: true,
+            },
+        });
+
+        if (
+            !settings?.imapHost ||
+            !settings.imapPort ||
+            !settings.imapUsername
+        ) {
+            return null;
+        }
+
+        return {
+            host: settings.imapHost,
+            port: settings.imapPort,
+            username: settings.imapUsername,
+            password: settings.imapPassword
+                ? this.decryptValue(settings.imapPassword)
+                : "",
+            security:
+                (settings.imapSecurity as "ssl" | "starttls" | "none") || "ssl",
+            mailbox: settings.imapMailbox || "INBOX",
+            autoProcessEnabled: settings.imapAutoProcessEnabled,
+        };
+    }
+
+    /**
      * Sets simple and complex model identifiers for a provider.
      *
      * @param provider The provider to update.
@@ -395,6 +443,116 @@ export class SettingsService {
             update: {
                 simpleModel: simpleModel.trim(),
                 complexModel: complexModel.trim(),
+            },
+        });
+    }
+
+    /**
+     * Gets the IMAP connection status from settings.
+     * @returns The IMAP status.
+     */
+    async getImapStatus(): Promise<{
+        isConnected: boolean;
+        isEnabled: boolean;
+        lastError?: string;
+        lastSyncedAt?: Date;
+    }> {
+        const settings = await this.prismaService.instanceSettings.findUnique({
+            where: { id: INSTANCE_SETTINGS_ID },
+            select: {
+                imapEnabled: true,
+                imapIsConnected: true,
+                imapLastSyncedAt: true,
+            },
+        });
+
+        return {
+            isConnected: settings?.imapIsConnected ?? false,
+            isEnabled: settings?.imapEnabled ?? false,
+            lastSyncedAt: settings?.imapLastSyncedAt ?? undefined,
+        };
+    }
+
+    /**
+     * Updates the IMAP connection status.
+     * @param isConnected - Whether the IMAP connection is currently working.
+     */
+    async setImapConnectionStatus(isConnected: boolean): Promise<void> {
+        await this.prismaService.instanceSettings.upsert({
+            where: { id: INSTANCE_SETTINGS_ID },
+            create: {
+                id: INSTANCE_SETTINGS_ID,
+                imapIsConnected: isConnected,
+                imapEnabled: isConnected,
+            },
+            update: {
+                imapIsConnected: isConnected,
+            },
+        });
+    }
+
+    /**
+     * Saves the IMAP configuration to settings.
+     * @param config - The IMAP configuration to save.
+     * @param isConnected - Whether the IMAP connection is currently working.
+     */
+    async saveImapConfig(
+        config: {
+            host: string;
+            port: number;
+            username: string;
+            password: string;
+            security: "ssl" | "starttls" | "none";
+            mailbox: string;
+            enabled: boolean;
+            autoProcessEnabled: boolean;
+        },
+        isConnected?: boolean,
+    ): Promise<void> {
+        const encryptedPassword = config.password
+            ? this.encryptValue(config.password)
+            : null;
+
+        // When auto-process is being enabled for the first time, set imapLastSyncedAt = now()
+        // so the cron job only picks up emails arriving after this point.
+        const existing = await this.prismaService.instanceSettings.findUnique({
+            where: { id: INSTANCE_SETTINGS_ID },
+            select: { imapAutoProcessEnabled: true },
+        });
+        const wasAutoProcessEnabled = existing?.imapAutoProcessEnabled ?? false;
+        const activatingAutoProcess =
+            config.autoProcessEnabled && !wasAutoProcessEnabled;
+
+        await this.prismaService.instanceSettings.upsert({
+            where: { id: INSTANCE_SETTINGS_ID },
+            create: {
+                id: INSTANCE_SETTINGS_ID,
+                imapHost: config.host,
+                imapPort: config.port,
+                imapUsername: config.username,
+                imapPassword: encryptedPassword,
+                imapSecurity: config.security,
+                imapMailbox: config.mailbox,
+                imapEnabled: config.enabled,
+                imapIsConnected: isConnected ?? false,
+                imapAutoProcessEnabled: config.autoProcessEnabled,
+                imapLastSyncedAt: config.autoProcessEnabled
+                    ? new Date()
+                    : undefined,
+            },
+            update: {
+                imapHost: config.host,
+                imapPort: config.port,
+                imapUsername: config.username,
+                imapPassword: encryptedPassword,
+                imapSecurity: config.security,
+                imapMailbox: config.mailbox,
+                imapEnabled: config.enabled,
+                imapIsConnected: isConnected ?? false,
+                imapAutoProcessEnabled: config.autoProcessEnabled,
+                ...(activatingAutoProcess
+                    ? { imapLastSyncedAt: new Date() }
+                    : {}),
             },
         });
     }
@@ -478,6 +636,55 @@ export class SettingsService {
             isModelConfigured,
             isEnabled,
         };
+    }
+
+    /**
+     * Encrypts a value before persistence.
+     * @param plainText - The value to encrypt.
+     * @returns Encrypted payload in `iv:ciphertext:authTag` base64 format.
+     */
+    private encryptValue(plainText: string): string {
+        const iv = randomBytes(GCM_IV_LENGTH);
+        const cipher = createCipheriv("aes-256-gcm", this.encryptionKey, iv);
+        const encrypted = Buffer.concat([
+            cipher.update(plainText, "utf8"),
+            cipher.final(),
+        ]);
+        const authTag = cipher.getAuthTag();
+
+        return `${iv.toString("base64")}:${encrypted.toString("base64")}:${authTag.toString("base64")}`;
+    }
+
+    /**
+     * Decrypts a persisted value.
+     * @param encryptedPayload - Stored payload in `iv:ciphertext:authTag` base64 format.
+     * @returns Decrypted string.
+     */
+    private decryptValue(encryptedPayload: string): string {
+        const parts = encryptedPayload.split(":");
+
+        // Backward-compatible fallback for legacy plaintext records.
+        if (parts.length !== 3) {
+            return encryptedPayload;
+        }
+
+        const [ivBase64, encryptedBase64, authTagBase64] = parts;
+        const iv = Buffer.from(ivBase64, "base64");
+        const encrypted = Buffer.from(encryptedBase64, "base64");
+        const authTag = Buffer.from(authTagBase64, "base64");
+
+        const decipher = createDecipheriv(
+            "aes-256-gcm",
+            this.encryptionKey,
+            iv,
+        );
+        decipher.setAuthTag(authTag);
+        const decrypted = Buffer.concat([
+            decipher.update(encrypted),
+            decipher.final(),
+        ]);
+
+        return decrypted.toString("utf8");
     }
 
     /**

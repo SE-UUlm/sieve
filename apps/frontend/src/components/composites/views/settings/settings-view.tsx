@@ -9,6 +9,7 @@ import {
     TextBlockSkeleton,
 } from "@/components/composites/skeletons";
 import { CategorySection } from "@/components/composites/views/settings/sections/category-section";
+import { MailSection } from "@/components/composites/views/settings/sections/mail-section";
 import { ProviderSection } from "@/components/composites/views/settings/sections/provider/provider-section";
 import { UserProfileSection } from "@/components/composites/views/settings/sections/user-profile-section";
 import { UserSecuritySection } from "@/components/composites/views/settings/sections/user-security-section";
@@ -17,7 +18,12 @@ import { SplitViewPane } from "@/components/composites/views/split-view/split-vi
 import { StyledSkeleton } from "@/components/ui/styled-skeleton";
 import { authClient } from "@/lib/auth-client";
 
-type SettingsSectionKey = "profile" | "security" | "provider" | "category";
+type SettingsSectionKey =
+    | "profile"
+    | "security"
+    | "mail"
+    | "provider"
+    | "category";
 
 export function SettingsView() {
     const { data: session, isPending: isSessionPending } =
@@ -42,6 +48,12 @@ export function SettingsView() {
                     key: "security" as const,
                     title: "Security",
                     description: "Change your account password.",
+                },
+                {
+                    key: "mail" as const,
+                    title: "Mail",
+                    description:
+                        "Connect an IMAP mailbox to import incoming emails.",
                 },
                 ...(isAdmin
                     ? [
@@ -150,6 +162,7 @@ export function SettingsView() {
                 <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col">
                     {selectedSection === "profile" && <UserProfileSection />}
                     {selectedSection === "security" && <UserSecuritySection />}
+                    {selectedSection === "mail" && <MailSection />}
                     {selectedSection === "provider" && isAdmin && (
                         <ProviderSection />
                     )}

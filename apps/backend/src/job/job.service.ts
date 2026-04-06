@@ -1,7 +1,11 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { type UserSession } from "@thallesp/nestjs-better-auth";
 import { type Prisma } from "../../prisma/client/client";
-import { JobStatus, UserRole } from "../../prisma/client/enums";
+import {
+    type EmailSource,
+    JobStatus,
+    UserRole,
+} from "../../prisma/client/enums";
 import type { EmailAnalysisResultDto } from "../email/dto/email-analysis-result.dto";
 import type { JobResultDto } from "../job-result/dto/job-result.dto";
 import { PrismaService } from "../prisma/prisma.service";
@@ -85,11 +89,36 @@ export class JobService {
 
     /**
      * Returns history entries for the active user.
+     * For IMAP source, returns all entries regardless of user (since IMAP is instance-wide).
+     * For MANUAL source or no filter, returns user-scoped entries.
+     * @param source - Optional filter for email source (MANUAL or IMAP)
      */
-    async getHistory(session: UserSession): Promise<JobHistoryEntryDto[]> {
+    async getHistory(
+        session: UserSession,
+        source?: EmailSource,
+    ): Promise<JobHistoryEntryDto[]> {
+        const where: Prisma.JobWhereInput = {};
+
+        // IMAP emails are instance-wide and visible to all users
+        // Manual emails are user-scoped
+        if (source === "MANUAL") {
+            Object.assign(where, this.getScopedJobWhere(session));
+            where.email = { source: "MANUAL" };
+        } else if (source === "IMAP") {
+            // IMAP emails visible to all users
+            where.email = { source: "IMAP" };
+        } else {
+            // No source filter: show user's manual emails + all IMAP emails
+            Object.assign(where, this.getScopedJobWhere(session));
+            where.OR = [
+                { email: { source: "IMAP" } },
+                { userId: session.user.id, email: { source: "MANUAL" } },
+            ];
+        }
+
         const jobs = await this.prismaService.job.findMany({
             where: {
-                ...this.getScopedJobWhere(session),
+                ...where,
                 status: JobStatus.COMPLETED,
             },
             include: { email: true, result: true },
@@ -187,6 +216,7 @@ export class JobService {
             body: job.email.body,
             result: this.toHistoryResult(job.result?.output),
             createdAt: job.createdAt.toISOString(),
+            source: job.email.source,
         };
     }
 

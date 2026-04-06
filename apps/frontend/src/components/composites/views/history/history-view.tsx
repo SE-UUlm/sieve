@@ -1,6 +1,6 @@
 "use client";
 
-import { FileJson, Search } from "lucide-react";
+import { FileJson, Inbox, Mail, Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { AnalysisResult } from "@/components/composites/views/analyze/model/analysis-result";
 import { SplitView } from "@/components/composites/views/split-view/split-view";
@@ -12,8 +12,11 @@ import {
     useJobControllerGetHistory,
 } from "@/lib/client";
 import { showPersistentErrorToast } from "@/lib/toast";
+import { cn } from "@/lib/utils/shadcn-helper";
 import { HistoryAnalysisPanel } from "./history-analysis-panel";
 import { HistoryListItem } from "./history-list-item";
+
+type EmailSource = "MANUAL" | "IMAP";
 
 type HistoryEntry = {
     id: string;
@@ -21,6 +24,7 @@ type HistoryEntry = {
     body: string;
     result: AnalysisResult | null;
     rawResult?: unknown | null;
+    source: EmailSource;
 };
 
 type HistoryViewProps = {
@@ -43,26 +47,75 @@ function filterEntries(entries: HistoryEntry[], query: string) {
 }
 
 export function HistoryView({ history = [] }: HistoryViewProps) {
+    const [selectedSource, setSelectedSource] = useState<EmailSource | "ALL">(
+        "ALL",
+    );
+
     const hasProvidedHistory = history.length > 0;
-    const historyQuery = useJobControllerGetHistory({
-        query: {
-            queryKey: getJobControllerGetHistoryQueryKey(),
-            enabled: !hasProvidedHistory,
-            staleTime: 30_000,
-            retry: false,
+
+    // Fetch all history
+    const allHistoryQuery = useJobControllerGetHistory(
+        {},
+        {
+            query: {
+                queryKey: getJobControllerGetHistoryQueryKey({}),
+                enabled: !hasProvidedHistory,
+                staleTime: 30_000,
+                retry: false,
+            },
         },
-    });
+    );
+
+    // Fetch manual history
+    const manualHistoryQuery = useJobControllerGetHistory(
+        { source: "MANUAL" },
+        {
+            query: {
+                queryKey: getJobControllerGetHistoryQueryKey({
+                    source: "MANUAL",
+                }),
+                enabled: !hasProvidedHistory && selectedSource === "MANUAL",
+                staleTime: 30_000,
+                retry: false,
+            },
+        },
+    );
+
+    // Fetch IMAP history
+    const imapHistoryQuery = useJobControllerGetHistory(
+        { source: "IMAP" },
+        {
+            query: {
+                queryKey: getJobControllerGetHistoryQueryKey({
+                    source: "IMAP",
+                }),
+                enabled: !hasProvidedHistory && selectedSource === "IMAP",
+                staleTime: 30_000,
+                retry: false,
+            },
+        },
+    );
+
+    const currentQuery = useMemo(() => {
+        if (selectedSource === "MANUAL") return manualHistoryQuery;
+        if (selectedSource === "IMAP") return imapHistoryQuery;
+        return allHistoryQuery;
+    }, [selectedSource, allHistoryQuery, manualHistoryQuery, imapHistoryQuery]);
+
     const sourceHistory = useMemo(() => {
         if (hasProvidedHistory) {
-            return history;
+            return history.filter(
+                (entry) =>
+                    selectedSource === "ALL" || entry.source === selectedSource,
+            );
         }
 
-        if (historyQuery.data?.status !== 200) {
+        if (currentQuery.data?.status !== 200) {
             return [];
         }
 
-        return historyQuery.data.data.map(mapHistoryEntryDtoToHistoryEntry);
-    }, [hasProvidedHistory, history, historyQuery.data]);
+        return currentQuery.data.data.map(mapHistoryEntryDtoToHistoryEntry);
+    }, [hasProvidedHistory, history, currentQuery.data, selectedSource]);
 
     const [selectedId, setSelectedId] = useState<string | null>(
         sourceHistory[0]?.id ?? null,
@@ -91,17 +144,31 @@ export function HistoryView({ history = [] }: HistoryViewProps) {
     }, [filteredHistory, selectedId]);
 
     useEffect(() => {
-        if (historyQuery.isError && !hasProvidedHistory) {
+        if (currentQuery.isError && !hasProvidedHistory) {
             showPersistentErrorToast({
                 title: "Failed to Load History",
                 description: "Could not load history. Please try again later.",
             });
         }
-    }, [historyQuery.isError, hasProvidedHistory]);
+    }, [currentQuery.isError, hasProvidedHistory]);
 
     const selectedItem =
         filteredHistory.find((item) => item.id === selectedId) ?? null;
     const selectedRawResult = selectedItem?.rawResult ?? selectedItem?.result;
+
+    const tabConfig: {
+        key: EmailSource | "ALL";
+        label: string;
+        icon: typeof Mail;
+        count?: number;
+    }[] = [
+        { key: "ALL", label: "All", icon: Mail },
+        { key: "MANUAL", label: "Manual", icon: Mail },
+        { key: "IMAP", label: "IMAP", icon: Inbox },
+    ];
+
+    const isLoading = currentQuery.isLoading && !hasProvidedHistory;
+    const isError = currentQuery.isError && !hasProvidedHistory;
 
     return (
         <SplitView resizable>
@@ -115,6 +182,31 @@ export function HistoryView({ history = [] }: HistoryViewProps) {
                             Browse previous analysis runs and inspect their
                             output.
                         </p>
+                    </div>
+
+                    {/* Source Tabs */}
+                    <div className="mb-6 flex gap-2">
+                        {tabConfig.map((tab) => {
+                            const Icon = tab.icon;
+                            const isActive = selectedSource === tab.key;
+
+                            return (
+                                <button
+                                    key={tab.key}
+                                    type="button"
+                                    onClick={() => setSelectedSource(tab.key)}
+                                    className={cn(
+                                        "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
+                                        isActive
+                                            ? "bg-blue-600 text-white"
+                                            : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700",
+                                    )}
+                                >
+                                    <Icon className="h-4 w-4" />
+                                    {tab.label}
+                                </button>
+                            );
+                        })}
                     </div>
 
                     <div className="relative mb-4">
@@ -132,13 +224,13 @@ export function HistoryView({ history = [] }: HistoryViewProps) {
                     </div>
 
                     <div className="space-y-3">
-                        {historyQuery.isLoading && !hasProvidedHistory ? (
+                        {isLoading ? (
                             <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-400">
                                 Loading history...
                             </div>
-                        ) : historyQuery.isError && !hasProvidedHistory ? (
-                            <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-400">
-                                Failed to load history.
+                        ) : isError ? (
+                            <div className="rounded-2xl border border-dashed border-red-300 bg-red-50 p-6 text-sm text-red-600 dark:border-red-900/70 dark:bg-red-950/40 dark:text-red-300">
+                                Could not load history. Please try again.
                             </div>
                         ) : filteredHistory.length > 0 ? (
                             filteredHistory.map((entry) => (
@@ -151,7 +243,7 @@ export function HistoryView({ history = [] }: HistoryViewProps) {
                             ))
                         ) : (
                             <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-400">
-                                No history entries found.
+                                No history entries found for this category.
                             </div>
                         )}
                     </div>
@@ -162,10 +254,19 @@ export function HistoryView({ history = [] }: HistoryViewProps) {
                 {selectedItem ? (
                     <div className="mx-auto flex min-h-full w-full flex-col gap-4">
                         <section className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900/60">
-                            <h3 className="text-sm font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
-                                Email
-                            </h3>
-                            <h2 className="mt-3 text-xl font-semibold text-slate-900 dark:text-white">
+                            <div className="mb-4 flex items-center gap-2">
+                                {selectedItem.source === "IMAP" ? (
+                                    <Inbox className="h-5 w-5 text-purple-500 dark:text-purple-400" />
+                                ) : (
+                                    <Mail className="h-5 w-5 text-blue-500 dark:text-blue-400" />
+                                )}
+                                <span className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                                    {selectedItem.source === "IMAP"
+                                        ? "IMAP Import"
+                                        : "Manual Entry"}
+                                </span>
+                            </div>
+                            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
                                 {selectedItem.subject || "Untitled mail"}
                             </h2>
                             <p className="mt-3 whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">
@@ -214,6 +315,7 @@ function mapHistoryEntryDtoToHistoryEntry(
         body: entry.body,
         result: toHistoryAnalysisResult(entry.result),
         rawResult: entry.result ?? null,
+        source: entry.source ?? "MANUAL",
     };
 }
 
