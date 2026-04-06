@@ -129,6 +129,7 @@ CREATE TABLE "instance_settings" (
     "imapEnabled" BOOLEAN NOT NULL DEFAULT false,
     "imapIsConnected" BOOLEAN NOT NULL DEFAULT false,
     "imapLastSyncedAt" TIMESTAMP(3),
+    "imapAutoProcessEnabled" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 

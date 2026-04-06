@@ -1,5 +1,11 @@
+export { AnalyzeSelectedEmailsDto } from "./analyze-selected-emails.dto";
+export { AnalyzeSelectedResponseDto } from "./analyze-selected-response.dto";
 export { ImapConfigDto } from "./imap-config.dto";
+export { ImapFolderListDto } from "./imap-folder-list.dto";
 export { ImapStatusDto } from "./imap-status.dto";
+export { InboxEmailDto } from "./inbox-email.dto";
+export { InboxEmailListDto } from "./inbox-email-list.dto";
+export { ListFoldersRequestDto } from "./list-folders-request.dto";
 export { MailboxCountDto } from "./mailbox-count.dto";
 export { ProcessEmailsResponseDto } from "./process-emails-response.dto";
 export { SaveImapConfigDto } from "./save-imap-config.dto";

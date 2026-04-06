@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 
-export class SaveImapConfigDto {
+export class ListFoldersRequestDto {
     @ApiProperty({
         description: "IMAP server hostname",
         example: "imap.gmail.com",
@@ -31,22 +31,4 @@ export class SaveImapConfigDto {
         example: "ssl",
     })
     security!: "ssl" | "starttls" | "none";
-
-    @ApiProperty({
-        description: "Mailbox to connect to",
-        example: "INBOX",
-    })
-    mailbox!: string;
-
-    @ApiProperty({
-        description: "Whether to enable IMAP integration",
-        example: true,
-    })
-    enabled!: boolean;
-
-    @ApiProperty({
-        description: "Whether to automatically process new incoming emails",
-        example: false,
-    })
-    autoProcessEnabled!: boolean;
 }

@@ -129,9 +129,10 @@ model InstanceSettings {
     imapPassword     String?
     imapSecurity     String?   // "ssl", "starttls", "none"
     imapMailbox      String?   @default("INBOX")
-    imapEnabled      Boolean   @default(false)
-    imapIsConnected  Boolean   @default(false)
-    imapLastSyncedAt DateTime?
+    imapEnabled             Boolean   @default(false)
+    imapIsConnected         Boolean   @default(false)
+    imapLastSyncedAt        DateTime?
+    imapAutoProcessEnabled  Boolean   @default(false)
     createdAt        DateTime  @default(now())
     updatedAt        DateTime  @updatedAt
 

@@ -384,6 +384,7 @@ export class SettingsService {
         password: string;
         security: "ssl" | "starttls" | "none";
         mailbox: string;
+        autoProcessEnabled: boolean;
     } | null> {
         const settings = await this.prismaService.instanceSettings.findUnique({
             where: { id: INSTANCE_SETTINGS_ID },
@@ -394,6 +395,7 @@ export class SettingsService {
                 imapPassword: true,
                 imapSecurity: true,
                 imapMailbox: true,
+                imapAutoProcessEnabled: true,
             },
         });
 
@@ -415,6 +417,7 @@ export class SettingsService {
             security:
                 (settings.imapSecurity as "ssl" | "starttls" | "none") || "ssl",
             mailbox: settings.imapMailbox || "INBOX",
+            autoProcessEnabled: settings.imapAutoProcessEnabled,
         };
     }
 
@@ -502,12 +505,22 @@ export class SettingsService {
             security: "ssl" | "starttls" | "none";
             mailbox: string;
             enabled: boolean;
+            autoProcessEnabled: boolean;
         },
         isConnected?: boolean,
     ): Promise<void> {
         const encryptedPassword = config.password
             ? this.encryptValue(config.password)
             : null;
+
+        // When auto-process is being enabled for the first time, set imapLastSyncedAt = now()
+        // so the cron job only picks up emails arriving after this point.
+        const existing = await this.prismaService.instanceSettings.findUnique({
+            where: { id: INSTANCE_SETTINGS_ID },
+            select: { imapAutoProcessEnabled: true },
+        });
+        const wasAutoProcessEnabled = existing?.imapAutoProcessEnabled ?? false;
+        const activatingAutoProcess = config.autoProcessEnabled && !wasAutoProcessEnabled;
 
         await this.prismaService.instanceSettings.upsert({
             where: { id: INSTANCE_SETTINGS_ID },
@@ -521,6 +534,8 @@ export class SettingsService {
                 imapMailbox: config.mailbox,
                 imapEnabled: config.enabled,
                 imapIsConnected: isConnected ?? false,
+                imapAutoProcessEnabled: config.autoProcessEnabled,
+                imapLastSyncedAt: config.autoProcessEnabled ? new Date() : undefined,
             },
             update: {
                 imapHost: config.host,
@@ -531,6 +546,8 @@ export class SettingsService {
                 imapMailbox: config.mailbox,
                 imapEnabled: config.enabled,
                 imapIsConnected: isConnected ?? false,
+                imapAutoProcessEnabled: config.autoProcessEnabled,
+                ...(activatingAutoProcess ? { imapLastSyncedAt: new Date() } : {}),
             },
         });
     }
