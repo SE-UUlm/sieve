@@ -9,7 +9,48 @@ import {
     type SubmitEmailResponseDto,
     useEmailControllerSendEmailResponse,
 } from "@/lib/client";
-import { showPersistentErrorToast } from "@/lib/toast";
+import { showPersistentErrorToast, showSuccessToast } from "@/lib/toast";
+
+type SendEmailResponseToast = {
+    title: string;
+    description: string;
+};
+
+function getSendResponseErrorToastFromStatus(
+    status: number,
+): SendEmailResponseToast {
+    if (status === 400) {
+        return {
+            title: "Invalid Recipient Address",
+            description:
+                "The sender's email address is not valid. Cannot send a response.",
+        };
+    }
+
+    if (status === 503) {
+        return {
+            title: "Email Sending Unavailable",
+            description:
+                "Email sending is not configured for this instance. Please contact an admin.",
+        };
+    }
+
+    return {
+        title: "Email Response Send Failed",
+        description:
+            "There was an issue sending the response. Please try again later.",
+    };
+}
+
+function getSendResponseErrorToastFromError(
+    error: unknown,
+): SendEmailResponseToast {
+    if (error && typeof error === "object" && "status" in error && typeof error.status === "number") {
+        return getSendResponseErrorToastFromStatus(error.status);
+    }
+
+    return getSendResponseErrorToastFromStatus(500);
+}
 
 type EmailResponseSectionProps = {
     result: SubmitEmailResponseDto;
@@ -38,22 +79,19 @@ export function EmailResponseSection({
                                 email_response_sent: true,
                             },
                     );
+                    showSuccessToast({ title: "Email Response Sent" });
                     return;
                 }
 
-                showPersistentErrorToast({
-                    title: "Email Response Send Failed",
-                    description:
-                        "There was an issue with the server. Please try again later.",
-                });
+                showPersistentErrorToast(
+                    getSendResponseErrorToastFromStatus(response.status),
+                );
             },
             onError: (error) => {
                 console.error("[analyze] Email Response Send failed", error);
-                showPersistentErrorToast({
-                    title: "Email Response Send Failed",
-                    description:
-                        "There was an issue with the server. Please try again later.",
-                });
+                showPersistentErrorToast(
+                    getSendResponseErrorToastFromError(error),
+                );
             },
         },
     });
