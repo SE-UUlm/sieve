@@ -1,5 +1,6 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { type SubmitErrorHandler, useForm } from "react-hook-form";
 import {
@@ -11,6 +12,7 @@ import { OutputPanel } from "@/components/composites/views/analyze/output/output
 import { SplitView } from "@/components/composites/views/split-view/split-view";
 import { SplitViewPane } from "@/components/composites/views/split-view/split-view-pane";
 import {
+    getJobControllerGetHistoryQueryKey,
     type SubmitEmailResponseDto,
     useEmailControllerSubmitEmail,
 } from "@/lib/client";
@@ -20,6 +22,8 @@ import { showPersistentErrorToast } from "@/lib/toast";
  * Analyze page container that orchestrates authentication, API calls, and view state.
  */
 export function AnalyzeView() {
+    const queryClient = useQueryClient();
+
     // Local UI State
     const [result, setResult] = useState<SubmitEmailResponseDto | null>(null);
     const [currentStep, setCurrentStep] = useState(0);
@@ -39,10 +43,13 @@ export function AnalyzeView() {
                 setResult(null);
                 setCurrentStep(0);
             },
-            onSuccess: (response) => {
+            onSuccess: async (response) => {
                 if (response.status === 201) {
                     setResult(response.data);
                     setCurrentStep(4);
+                    await queryClient.invalidateQueries({
+                        queryKey: getJobControllerGetHistoryQueryKey(),
+                    });
                     return;
                 }
 

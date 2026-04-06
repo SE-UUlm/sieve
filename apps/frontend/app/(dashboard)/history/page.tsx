@@ -1,4 +1,4 @@
-import { HistoryView } from "@/components/composites/views/history-view";
+import { HistoryView } from "@/components/composites/views/history/history-view";
 
 export default function HistoryPage() {
     return <HistoryView />;

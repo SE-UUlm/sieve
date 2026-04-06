@@ -14,11 +14,12 @@ import {
     ApiResponse,
     ApiTags,
 } from "@nestjs/swagger";
+import { Session, type UserSession } from "@thallesp/nestjs-better-auth";
 import { SmtpService } from "src/smtp/smtp.service";
-import { AiBackendService } from "../ai-backend/ai-backend.service";
 import { CreateEmailDto } from "./dto/create-email.dto";
 import { SubmitEmailResponseDto } from "./dto/email-analysis-result.dto";
 import { SendEmailResponseDto } from "./dto/send-email-response.dto";
+import { EmailService } from "./email.service";
 
 @ApiTags("Emails")
 @Controller("emails")
@@ -26,7 +27,7 @@ export class EmailController {
     private autoSendResponseThreshold!: number;
 
     constructor(
-        private readonly aiBackendService: AiBackendService,
+        private readonly emailService: EmailService,
         private smtpService: SmtpService,
         private configService: ConfigService<null, true>,
     ) {}
@@ -71,57 +72,40 @@ export class EmailController {
      * Submits an email payload for analysis and returns structured output.
      */
     async submitEmail(
+        @Session() session: UserSession,
         @Body() dto: CreateEmailDto,
     ): Promise<SubmitEmailResponseDto> {
-        try {
-            const result = await this.aiBackendService.runFlow(
-                dto.body,
-                dto.subject,
-            );
+        const result = await this.emailService.submitEmail(
+            session.user.id,
+            dto,
+        );
 
-            let emailResponseSent = false;
-
-            const emailResponse = result.email_response;
-            if (
-                emailResponse &&
-                dto.sender &&
-                result.confidence_assessment.score != null &&
-                this.autoSendResponseThreshold !== -1 &&
-                result.confidence_assessment.score >
-                    this.autoSendResponseThreshold &&
-                this.smtpService.isConfigured()
-            ) {
-                try {
-                    this.smtpService.sendMail(
-                        // Do not wait for email sending to speed up display of result
-                        dto.sender,
-                        dto.subject
-                            ? `Re: ${dto.subject}`
-                            : emailResponse.response_subject ||
-                                  "Support Response",
-                        emailResponse.response_body,
-                    );
-                    emailResponseSent = true;
-                } catch (error) {
-                    Logger.error("Error sending email response:", error);
-                }
+        let emailResponseSent = false;
+        const emailResponse = result.data.email_response;
+        if (
+            emailResponse &&
+            dto.sender &&
+            result.data.confidence_assessment.score != null &&
+            this.autoSendResponseThreshold !== -1 &&
+            result.data.confidence_assessment.score >
+                this.autoSendResponseThreshold &&
+            this.smtpService.isConfigured()
+        ) {
+            try {
+                this.smtpService.sendMail(
+                    dto.sender,
+                    dto.subject
+                        ? `Re: ${dto.subject}`
+                        : emailResponse.response_subject || "Support Response",
+                    emailResponse.response_body,
+                );
+                emailResponseSent = true;
+            } catch (error) {
+                Logger.error("Error sending email response:", error);
             }
-
-            return {
-                data: result,
-                email_response_sent: emailResponseSent,
-            };
-        } catch (error) {
-            if (error instanceof HttpException) {
-                throw error;
-            }
-            Logger.error("Error running AiBackend agent:", error);
-
-            throw new InternalServerErrorException({
-                message: "Failed to process email",
-                details: error instanceof Error ? error.message : error,
-            });
         }
+
+        return { ...result, email_response_sent: emailResponseSent };
     }
 
     @Post("send-email-response")
