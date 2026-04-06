@@ -19,14 +19,20 @@ export function NotificationListener() {
             console.log("Disconnected from notifications WebSocket");
         });
 
-        socket.on("notification", (data: { type: string; data: { emailId: string; subject: string | null } }) => {
-            if (data.type === "NEW_IMAP_EMAIL") {
-                showSuccessToast({
-                    title: "New Email Received",
-                    description: `A new email "${data.data.subject || "(no subject)"}" has been processed from IMAP.`,
-                });
-            }
-        });
+        socket.on(
+            "notification",
+            (data: {
+                type: string;
+                data: { emailId: string; subject: string | null };
+            }) => {
+                if (data.type === "NEW_IMAP_EMAIL") {
+                    showSuccessToast({
+                        title: "New Email Received",
+                        description: `A new email "${data.data.subject || "(no subject)"}" has been processed from IMAP.`,
+                    });
+                }
+            },
+        );
 
         return () => {
             socket.disconnect();

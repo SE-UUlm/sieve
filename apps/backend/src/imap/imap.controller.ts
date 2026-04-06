@@ -331,7 +331,7 @@ export class ImapController {
     @ApiResponse({ status: 403, description: "Forbidden" })
     async processExistingEmails(
         @Body() dto: SaveImapConfigDto,
-        @AuthUser() _user: { id: string },
+        @AuthUser() user: { id: string },
     ): Promise<ProcessEmailsResponseDto> {
         const processedCount =
             await this.imapPollerService.processExistingEmails(

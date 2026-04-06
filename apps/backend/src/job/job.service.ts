@@ -1,7 +1,11 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { type UserSession } from "@thallesp/nestjs-better-auth";
 import { type Prisma } from "../../prisma/client/client";
-import { JobStatus, UserRole, type EmailSource } from "../../prisma/client/enums";
+import {
+    type EmailSource,
+    JobStatus,
+    UserRole,
+} from "../../prisma/client/enums";
 import type { EmailAnalysisResultDto } from "../email/dto/email-analysis-result.dto";
 import type { JobResultDto } from "../job-result/dto/job-result.dto";
 import { PrismaService } from "../prisma/prisma.service";

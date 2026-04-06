@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { FolderOpen, Loader2 } from "lucide-react";
+import { useState } from "react";
 
 type FolderSelectDialogProps = {
     folders: string[];
@@ -68,7 +68,9 @@ export function FolderSelectDialog({
                     </button>
                     <button
                         type="button"
-                        onClick={() => selectedFolder && onSelect(selectedFolder)}
+                        onClick={() =>
+                            selectedFolder && onSelect(selectedFolder)
+                        }
                         disabled={!selectedFolder}
                         className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
                     >

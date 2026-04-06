@@ -30,7 +30,6 @@ export default function DashboardLayout({
 
     return (
         <div className="flex h-screen w-screen overflow-hidden bg-slate-50 font-sans transition-colors duration-300 dark:bg-slate-950 dark:text-slate-200">
-
             <Sidebar onLogout={logout} />
 
             <main className="relative flex h-full w-full overflow-hidden">

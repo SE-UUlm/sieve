@@ -80,7 +80,8 @@ function fixPathParameters(document: OpenAPIObject): OpenAPIObject {
                 }
             }
 
-            (operation as { parameters?: Parameter[] }).parameters = existingParams;
+            (operation as { parameters?: Parameter[] }).parameters =
+                existingParams;
         }
     }
 

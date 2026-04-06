@@ -49,7 +49,9 @@ export function HistoryListItem({
                         {entry.body || "No content preview available."}
                     </p>
                     <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
-                        {entry.source === "IMAP" ? "IMAP Import" : "Manual Entry"}
+                        {entry.source === "IMAP"
+                            ? "IMAP Import"
+                            : "Manual Entry"}
                     </p>
                 </div>
             </div>

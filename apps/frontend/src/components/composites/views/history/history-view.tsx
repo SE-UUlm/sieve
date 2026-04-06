@@ -1,6 +1,6 @@
 "use client";
 
-import { FileJson, Search, Mail, Inbox } from "lucide-react";
+import { FileJson, Inbox, Mail, Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { AnalysisResult } from "@/components/composites/views/analyze/model/analysis-result";
 import { SplitView } from "@/components/composites/views/split-view/split-view";
@@ -12,8 +12,8 @@ import {
     useJobControllerGetHistory,
 } from "@/lib/client";
 import { showPersistentErrorToast } from "@/lib/toast";
-import { HistoryAnalysisPanel } from "./history-analysis-panel";
 import { cn } from "@/lib/utils/shadcn-helper";
+import { HistoryAnalysisPanel } from "./history-analysis-panel";
 import { HistoryListItem } from "./history-list-item";
 
 type EmailSource = "MANUAL" | "IMAP";
@@ -47,10 +47,12 @@ function filterEntries(entries: HistoryEntry[], query: string) {
 }
 
 export function HistoryView({ history = [] }: HistoryViewProps) {
-    const [selectedSource, setSelectedSource] = useState<EmailSource | "ALL">("ALL");
-    
+    const [selectedSource, setSelectedSource] = useState<EmailSource | "ALL">(
+        "ALL",
+    );
+
     const hasProvidedHistory = history.length > 0;
-    
+
     // Fetch all history
     const allHistoryQuery = useJobControllerGetHistory(
         {},
@@ -69,7 +71,9 @@ export function HistoryView({ history = [] }: HistoryViewProps) {
         { source: "MANUAL" },
         {
             query: {
-                queryKey: getJobControllerGetHistoryQueryKey({ source: "MANUAL" }),
+                queryKey: getJobControllerGetHistoryQueryKey({
+                    source: "MANUAL",
+                }),
                 enabled: !hasProvidedHistory && selectedSource === "MANUAL",
                 staleTime: 30_000,
                 retry: false,
@@ -82,7 +86,9 @@ export function HistoryView({ history = [] }: HistoryViewProps) {
         { source: "IMAP" },
         {
             query: {
-                queryKey: getJobControllerGetHistoryQueryKey({ source: "IMAP" }),
+                queryKey: getJobControllerGetHistoryQueryKey({
+                    source: "IMAP",
+                }),
                 enabled: !hasProvidedHistory && selectedSource === "IMAP",
                 staleTime: 30_000,
                 retry: false,
@@ -99,7 +105,8 @@ export function HistoryView({ history = [] }: HistoryViewProps) {
     const sourceHistory = useMemo(() => {
         if (hasProvidedHistory) {
             return history.filter(
-                (entry) => selectedSource === "ALL" || entry.source === selectedSource
+                (entry) =>
+                    selectedSource === "ALL" || entry.source === selectedSource,
             );
         }
 
@@ -149,7 +156,12 @@ export function HistoryView({ history = [] }: HistoryViewProps) {
         filteredHistory.find((item) => item.id === selectedId) ?? null;
     const selectedRawResult = selectedItem?.rawResult ?? selectedItem?.result;
 
-    const tabConfig: { key: EmailSource | "ALL"; label: string; icon: typeof Mail; count?: number }[] = [
+    const tabConfig: {
+        key: EmailSource | "ALL";
+        label: string;
+        icon: typeof Mail;
+        count?: number;
+    }[] = [
         { key: "ALL", label: "All", icon: Mail },
         { key: "MANUAL", label: "Manual", icon: Mail },
         { key: "IMAP", label: "IMAP", icon: Inbox },
@@ -167,7 +179,8 @@ export function HistoryView({ history = [] }: HistoryViewProps) {
                             History
                         </h2>
                         <p className="mt-2 text-slate-500 dark:text-slate-400">
-                            Browse previous analysis runs and inspect their output.
+                            Browse previous analysis runs and inspect their
+                            output.
                         </p>
                     </div>
 
@@ -176,7 +189,7 @@ export function HistoryView({ history = [] }: HistoryViewProps) {
                         {tabConfig.map((tab) => {
                             const Icon = tab.icon;
                             const isActive = selectedSource === tab.key;
-                            
+
                             return (
                                 <button
                                     key={tab.key}
@@ -186,7 +199,7 @@ export function HistoryView({ history = [] }: HistoryViewProps) {
                                         "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
                                         isActive
                                             ? "bg-blue-600 text-white"
-                                            : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                                            : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700",
                                     )}
                                 >
                                     <Icon className="h-4 w-4" />
@@ -248,7 +261,9 @@ export function HistoryView({ history = [] }: HistoryViewProps) {
                                     <Mail className="h-5 w-5 text-blue-500 dark:text-blue-400" />
                                 )}
                                 <span className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                                    {selectedItem.source === "IMAP" ? "IMAP Import" : "Manual Entry"}
+                                    {selectedItem.source === "IMAP"
+                                        ? "IMAP Import"
+                                        : "Manual Entry"}
                                 </span>
                             </div>
                             <h2 className="text-xl font-semibold text-slate-900 dark:text-white">

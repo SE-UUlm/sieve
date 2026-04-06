@@ -520,7 +520,8 @@ export class SettingsService {
             select: { imapAutoProcessEnabled: true },
         });
         const wasAutoProcessEnabled = existing?.imapAutoProcessEnabled ?? false;
-        const activatingAutoProcess = config.autoProcessEnabled && !wasAutoProcessEnabled;
+        const activatingAutoProcess =
+            config.autoProcessEnabled && !wasAutoProcessEnabled;
 
         await this.prismaService.instanceSettings.upsert({
             where: { id: INSTANCE_SETTINGS_ID },
@@ -535,7 +536,9 @@ export class SettingsService {
                 imapEnabled: config.enabled,
                 imapIsConnected: isConnected ?? false,
                 imapAutoProcessEnabled: config.autoProcessEnabled,
-                imapLastSyncedAt: config.autoProcessEnabled ? new Date() : undefined,
+                imapLastSyncedAt: config.autoProcessEnabled
+                    ? new Date()
+                    : undefined,
             },
             update: {
                 imapHost: config.host,
@@ -547,7 +550,9 @@ export class SettingsService {
                 imapEnabled: config.enabled,
                 imapIsConnected: isConnected ?? false,
                 imapAutoProcessEnabled: config.autoProcessEnabled,
-                ...(activatingAutoProcess ? { imapLastSyncedAt: new Date() } : {}),
+                ...(activatingAutoProcess
+                    ? { imapLastSyncedAt: new Date() }
+                    : {}),
             },
         });
     }

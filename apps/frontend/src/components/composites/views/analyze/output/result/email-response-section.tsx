@@ -45,7 +45,12 @@ function getSendResponseErrorToastFromStatus(
 function getSendResponseErrorToastFromError(
     error: unknown,
 ): SendEmailResponseToast {
-    if (error && typeof error === "object" && "status" in error && typeof error.status === "number") {
+    if (
+        error &&
+        typeof error === "object" &&
+        "status" in error &&
+        typeof error.status === "number"
+    ) {
         return getSendResponseErrorToastFromStatus(error.status);
     }
 

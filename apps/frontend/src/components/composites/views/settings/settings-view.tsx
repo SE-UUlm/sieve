@@ -18,7 +18,12 @@ import { SplitViewPane } from "@/components/composites/views/split-view/split-vi
 import { StyledSkeleton } from "@/components/ui/styled-skeleton";
 import { authClient } from "@/lib/auth-client";
 
-type SettingsSectionKey = "profile" | "security" | "mail" | "provider" | "category";
+type SettingsSectionKey =
+    | "profile"
+    | "security"
+    | "mail"
+    | "provider"
+    | "category";
 
 export function SettingsView() {
     const { data: session, isPending: isSessionPending } =
