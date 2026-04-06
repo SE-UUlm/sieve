@@ -88,7 +88,7 @@ async def email_response(state: FlowGraphState, runtime: Runtime[Context]) -> di
         conversation.append(SystemMessage(category.flow.email_response_prompt))
 
     conversation.append(
-        SystemMessage(f"Related information: : {dict_to_json(state.steps)}")
+        SystemMessage(f"Related information: {dict_to_json(state.steps)}")
     )
 
     conversation.append(HumanMessage(format_email(runtime.context.email)))

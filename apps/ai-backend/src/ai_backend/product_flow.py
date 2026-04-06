@@ -91,7 +91,7 @@ async def db_step(
         If one product is clearly intended, return only that product.
         If multiple plausible products remain, return those candidates.
         If no plausible product is found, return an empty related_products list.
-        Assess your confidence based on ho well the results match the customer's request and how well you could search the customer's request using the search_product tool.
+        Assess your confidence based on how well the results match the customer's request and how well you could search the customer's request using the search_product tool.
         If no products found, assess your confidence on how sure you are that the database does not contain the products the customer was referring to.""")
     ]
 
