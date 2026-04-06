@@ -160,7 +160,7 @@ export function HistoryView({ history = [] }: HistoryViewProps) {
 
             <SplitViewPane variant="secondary" isScrollable>
                 {selectedItem ? (
-                    <div className="mx-auto flex h-full w-full max-w-4xl flex-col gap-4">
+                    <div className="mx-auto flex min-h-full w-full max-w-4xl flex-col gap-4">
                         <section className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900/60">
                             <h3 className="text-sm font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
                                 Email
