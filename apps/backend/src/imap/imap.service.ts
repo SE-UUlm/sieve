@@ -32,7 +32,7 @@ export class ImapService {
             const ImapClient = (await import("imapflow")).ImapFlow;
 
             const client = new ImapClient({
-                host: config.host,
+                host: config.host.trim(),
                 port: config.port,
                 secure: config.security === "ssl",
                 tls:

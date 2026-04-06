@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Put } from "@nestjs/common";
+import { Body, Controller, Get, Logger, Post, Put } from "@nestjs/common";
 import {
     ApiCookieAuth,
     ApiOperation,
@@ -23,6 +23,8 @@ import { ImapPollerService } from "./imap-poller.service";
 @ApiTags("IMAP")
 @Controller("imap")
 export class ImapController {
+    private readonly logger = new Logger(ImapController.name);
+
     constructor(
         private readonly imapService: ImapService,
         private readonly settingsService: SettingsService,
@@ -139,7 +141,8 @@ export class ImapController {
         @Body() dto: SaveImapConfigDto,
         @AuthUser() user: { id: string },
     ): Promise<ImapStatusDto> {
-        // Test connection first
+        this.logger.log(`[saveConfig] Called – host=${dto.host} port=${dto.port} password=${dto.password ? "(set)" : "(empty)"}`);
+
         const testResult = await this.imapService.testConnection({
             host: dto.host,
             port: dto.port,
@@ -148,8 +151,8 @@ export class ImapController {
             security: dto.security,
             mailbox: dto.mailbox,
         });
+        this.logger.log(`[saveConfig] testConnection result: isConnected=${testResult.isConnected} error=${testResult.lastError ?? "none"}`);
 
-        // Save config regardless of test result, but don't enable if test failed
         await this.settingsService.saveImapConfig(
             {
                 host: dto.host,
@@ -163,9 +166,11 @@ export class ImapController {
             testResult.isConnected,
         );
 
-        // If connection successful, process emails in background
         if (testResult.isConnected) {
+            this.logger.log(`[saveConfig] Connection OK – starting background import`);
             this.processEmailsInBackground(dto, user.id);
+        } else {
+            this.logger.warn(`[saveConfig] Connection FAILED – skipping import`);
         }
 
         const status = await this.settingsService.getImapStatus();
@@ -178,11 +183,8 @@ export class ImapController {
         };
     }
 
-    /**
-     * Processes emails in the background after successful connection test.
-     * Does not block the response - runs asynchronously.
-     */
     private processEmailsInBackground(dto: SaveImapConfigDto, userId: string): void {
+        this.logger.log(`[processEmailsInBackground] Spawning background import for user ${userId}`);
         this.imapPollerService.processExistingEmails(
             {
                 host: dto.host,
@@ -194,8 +196,7 @@ export class ImapController {
             },
             userId,
         ).catch((error) => {
-            // Log error but don't fail the request - this is fire-and-forget
-            console.error("[IMAP] Background email processing failed:", error);
+            this.logger.error(`[processEmailsInBackground] Failed: ${error instanceof Error ? error.message : String(error)}`);
         });
     }
 

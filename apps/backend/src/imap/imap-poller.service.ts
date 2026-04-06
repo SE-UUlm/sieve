@@ -70,20 +70,18 @@ export class ImapPollerService {
     private async ensureAnalyzedFolderExists(
         client: import("imapflow").ImapFlow,
     ): Promise<void> {
+        this.analyzedFolderPath = this.ANALYZED_FOLDER;
+        this.logger.log(`[Folder] Attempting to create folder "${this.analyzedFolderPath}"...`);
         try {
-            // Store the folder path for later use
-            this.analyzedFolderPath = this.ANALYZED_FOLDER;
-            await client.mailboxCreate(this.analyzedFolderPath);
-            this.logger.log(`Created folder: ${this.analyzedFolderPath}`);
+            const result = await client.mailboxCreate(this.analyzedFolderPath);
+            this.logger.log(`[Folder] Created: ${JSON.stringify(result)}`);
         } catch (error) {
-            // Folder might already exist, which is fine
-            if (error instanceof Error && 
-                (error.message?.includes("exists") || error.message?.includes("already"))) {
-                this.logger.log(`Folder ${this.ANALYZED_FOLDER} already exists`);
+            const msg = error instanceof Error ? error.message : String(error);
+            this.logger.warn(`[Folder] mailboxCreate error (raw): "${msg}"`);
+            if (msg.includes("exists") || msg.includes("already") || msg.includes("ALREADYEXISTS")) {
+                this.logger.log(`[Folder] Folder already exists – continuing`);
             } else {
-                this.logger.warn(
-                    `Could not create analyzed folder: ${error instanceof Error ? error.message : String(error)}`,
-                );
+                this.logger.warn(`[Folder] Unexpected error – will still attempt moves`);
             }
         }
     }
@@ -129,7 +127,7 @@ export class ImapPollerService {
                 setTimeout(() => reject(new Error('COPY timeout after 10s')), 10000)
             );
             const copyResult = await Promise.race([copyPromise, copyTimeout]);
-            this.logger.log(`[MOVE] COPY success: ${JSON.stringify(copyResult)}`);
+            this.logger.log(`[MOVE] COPY success: uid=${(copyResult as { uid?: unknown })?.uid ?? "?"}`);
             
             // Step 2: DELETE original message (mark as deleted)
             this.logger.log(`[MOVE] Step 2: Mark message ${uid} as deleted...`);
@@ -152,7 +150,7 @@ export class ImapPollerService {
         const ImapClient = (await import("imapflow")).ImapFlow;
 
         const client = new ImapClient({
-            host: config.host,
+            host: config.host.trim(),
             port: config.port,
             secure: config.security === "ssl",
             tls:
@@ -338,7 +336,7 @@ export class ImapPollerService {
         const ImapClient = (await import("imapflow")).ImapFlow;
 
         const client = new ImapClient({
-            host: config.host,
+            host: config.host.trim(),
             port: config.port,
             secure: config.security === "ssl",
             tls:
@@ -367,159 +365,64 @@ export class ImapPollerService {
     }
 
     /**
-     * Processes existing emails from the IMAP mailbox.
-     * Called when user confirms initial import.
-     * Processes each email through AI backend and creates job results.
-     * Skips emails that are already in the AI-Analyzed folder.
+     * Moves all existing emails in the mailbox to the ai_analyzed folder.
+     * Called on initial mail settings setup. No AI analysis – just move.
      */
-    async processExistingEmails(
-        config: ImapConfig,
-        userId: string,
-    ): Promise<number> {
+    async processExistingEmails(config: ImapConfig, _userId: string): Promise<number> {
         const ImapClient = (await import("imapflow")).ImapFlow;
 
+        this.logger.log(`[Import] Starting – host=${config.host.trim()} port=${config.port} security=${config.security} mailbox=${config.mailbox}`);
+
         const client = new ImapClient({
-            host: config.host,
+            host: config.host.trim(),
             port: config.port,
             secure: config.security === "ssl",
-            tls:
-                config.security === "starttls"
-                    ? { rejectUnauthorized: false }
-                    : undefined,
-            auth: {
-                user: config.username,
-                pass: config.password,
-            },
+            tls: config.security === "starttls" ? { rejectUnauthorized: false } : undefined,
+            auth: { user: config.username, pass: config.password },
             logger: false,
         });
 
-        let processedCount = 0;
-
         try {
+            this.logger.log(`[Import] Connecting...`);
             await client.connect();
+            this.logger.log(`[Import] Connected`);
 
-            // Ensure the analyzed folder exists
             await this.ensureAnalyzedFolderExists(client);
 
-            await client.mailboxOpen(config.mailbox, { readOnly: false });
+            this.logger.log(`[Import] Opening mailbox "${config.mailbox}" (readOnly: false)...`);
+            const mailboxInfo = await client.mailboxOpen(config.mailbox, { readOnly: false });
+            this.logger.log(`[Import] Mailbox open – exists=${mailboxInfo.exists} uidValidity=${mailboxInfo.uidValidity}`);
 
-            // Fetch all messages
-            const messages = await client.fetch({ all: true }, {
-                uid: true,
-                envelope: true,
-                source: true,
-                text: true,
-                html: true,
-            } as unknown as import("imapflow").FetchQueryObject);
-
-            let totalMessages = 0;
+            // Collect all UIDs first so we don't hold the iterator open during moves
+            const uids: number[] = [];
+            this.logger.log(`[Import] Fetching all UIDs...`);
+            const messages = await client.fetch({ all: true }, { uid: true } as unknown as import("imapflow").FetchQueryObject);
             for await (const message of messages) {
-                totalMessages++;
-                this.logger.debug(`Processing message ${totalMessages}: uid=${message.uid}, subject=${message.envelope?.subject?.substring(0, 50)}`);
-                
-                // Skip messages that are already in the AI-Analyzed folder
-                if (this.isMessageInAnalyzedFolder(message)) {
-                    this.logger.debug(`Skipping message ${message.uid} - already in analyzed folder (Gmail label)`);
-                    continue;
+                if (message.uid) {
+                    uids.push(message.uid);
+                    this.logger.debug(`[Import] Found uid=${message.uid}`);
                 }
+            }
+            this.logger.log(`[Import] Collected ${uids.length} UIDs: [${uids.join(", ")}]`);
 
-                // Check if already processed
-                const messageId = message.envelope?.messageId || "";
-                this.logger.debug(`Checking if message ${message.uid} (messageId=${messageId}) exists in DB...`);
-                const existingEmail = await this.prismaService.email.findFirst({
-                    where: {
-                        source: EmailSource.IMAP,
-                        body: {
-                            contains: messageId,
-                        },
-                    },
-                });
-
-                if (existingEmail) {
-                    this.logger.debug(`Skipping message ${message.uid} - already exists in DB`);
-                    continue;
-                }
-
-                const subject = decodeMailHeader(
-                    message.envelope?.subject || "",
-                );
-                const sender = message.envelope?.from?.[0]?.address || null;
-                const body = decodeQuotedPrintable(
-                    this.extractTextContent(message),
-                );
-
-                // Process email through AI backend
+            let movedCount = 0;
+            for (const uid of uids) {
                 try {
-                    this.logger.log(`Starting AI analysis for: ${subject || "(no subject)"} (uid=${message.uid})`);
-                    const analysisResult = await this.aiBackendService.runFlow(
-                        body,
-                        subject,
-                    );
-                    this.logger.log(`AI analysis completed for uid=${message.uid}`);
-                    
-                    const now = new Date();
-
-                    this.logger.log(`Starting DB transaction for uid=${message.uid}...`);
-                    await this.prismaService.$transaction(
-                        async (transaction) => {
-                            this.logger.log(`[TX] Creating email for uid=${message.uid}...`);
-                            const email = await transaction.email.create({
-                                data: {
-                                    userId,
-                                    sender,
-                                    subject,
-                                    body,
-                                    source: EmailSource.IMAP,
-                                },
-                            });
-                            this.logger.log(`[TX] Created email ${email.id}`);
-
-                            this.logger.log(`[TX] Creating job for email ${email.id}...`);
-                            const job = await transaction.job.create({
-                                data: {
-                                    userId,
-                                    emailId: email.id,
-                                    status: JobStatus.COMPLETED,
-                                    startedAt: now,
-                                    completedAt: now,
-                                },
-                            });
-                            this.logger.log(`[TX] Created job ${job.id}`);
-
-                            this.logger.log(`[TX] Creating job result for job ${job.id}...`);
-                            await transaction.jobResult.create({
-                                data: {
-                                    jobId: job.id,
-                                    status: JobResultStatus.SUCCESS,
-                                    output: analysisResult as unknown as Prisma.InputJsonValue,
-                                },
-                            });
-                            this.logger.log(`[TX] Created job result`);
-
-                            processedCount++;
-                        },
-                    );
-                    this.logger.log(`DB transaction COMMITTED for uid=${message.uid}`);
-                    
-                    // Note: We don't move messages during processExistingEmails because the IMAP connection
-                    // may timeout during the AI analysis (which takes several seconds). 
-                    // The messages will be moved during the next polling cycle (checkForNewEmails).
-                    // The DB check (messageId) prevents double-processing.
-                    this.logger.log(`Message ${message.uid} processed successfully. Will be moved during next poll cycle.`);
-                } catch (error) {
-                    this.logger.error(
-                        `Failed to process email: ${subject || "(no subject)"}`,
-                        error,
-                    );
-                    // Continue with next email even if one fails
+                    await this.moveMessageToAnalyzedFolder(client, uid);
+                    movedCount++;
+                } catch (moveError) {
+                    this.logger.warn(`[Import] Could not move uid=${uid}: ${moveError instanceof Error ? moveError.message : String(moveError)}`);
                 }
             }
 
+            this.logger.log(`[Import] Logging out...`);
             await client.logout();
-            this.logger.log(`processExistingEmails completed. Total processed: ${processedCount}`);
-            return processedCount;
+            this.logger.log(`[Import] Done – moved ${movedCount}/${uids.length} messages to "${this.ANALYZED_FOLDER}"`);
+            return movedCount;
         } catch (error) {
-            this.logger.error("Error processing existing emails:", error);
+            this.logger.error(`[Import] Failed: ${error instanceof Error ? error.message : String(error)}`);
+            this.logger.error(error);
+            try { await client.logout(); } catch { /* ignore */ }
             throw error;
         }
     }
