@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Logger, Param, ParseIntPipe, Post, Put } from "@nestjs/common";
+import {
+    Body,
+    Controller,
+    Get,
+    Logger,
+    Param,
+    ParseIntPipe,
+    Post,
+    Put,
+} from "@nestjs/common";
 import {
     ApiCookieAuth,
     ApiOperation,
@@ -133,7 +142,8 @@ export class ImapController {
     @ApiCookieAuth("apiKeyCookie")
     @ApiOperation({
         summary: "Save IMAP configuration",
-        description: "Saves the IMAP configuration, tests the connection, and processes existing emails (excluding ai_analyzed folder).",
+        description:
+            "Saves the IMAP configuration, tests the connection, and processes existing emails (excluding ai_analyzed folder).",
     })
     @ApiResponse({
         status: 200,
@@ -145,9 +155,11 @@ export class ImapController {
     @ApiResponse({ status: 403, description: "Forbidden" })
     async saveConfig(
         @Body() dto: SaveImapConfigDto,
-        @AuthUser() user: { id: string },
+        @AuthUser() _user: { id: string },
     ): Promise<ImapStatusDto> {
-        this.logger.log(`[saveConfig] Called – host=${dto.host} port=${dto.port} password=${dto.password ? "(set)" : "(empty)"}`);
+        this.logger.log(
+            `[saveConfig] Called – host=${dto.host} port=${dto.port} password=${dto.password ? "(set)" : "(empty)"}`,
+        );
 
         const testResult = await this.imapService.testConnection({
             host: dto.host,
@@ -157,7 +169,9 @@ export class ImapController {
             security: dto.security,
             mailbox: dto.mailbox,
         });
-        this.logger.log(`[saveConfig] testConnection result: isConnected=${testResult.isConnected} error=${testResult.lastError ?? "none"}`);
+        this.logger.log(
+            `[saveConfig] testConnection result: isConnected=${testResult.isConnected} error=${testResult.lastError ?? "none"}`,
+        );
 
         await this.settingsService.saveImapConfig(
             {
@@ -188,7 +202,8 @@ export class ImapController {
     @ApiCookieAuth("apiKeyCookie")
     @ApiOperation({
         summary: "List available IMAP folders",
-        description: "Connects with the provided credentials and returns all available IMAP folders. Used for folder selection before saving settings.",
+        description:
+            "Connects with the provided credentials and returns all available IMAP folders. Used for folder selection before saving settings.",
     })
     @ApiResponse({
         status: 200,
@@ -197,7 +212,9 @@ export class ImapController {
     })
     @ApiResponse({ status: 401, description: "Unauthorized" })
     @ApiResponse({ status: 403, description: "Forbidden" })
-    async listFolders(@Body() dto: ListFoldersRequestDto): Promise<ImapFolderListDto> {
+    async listFolders(
+        @Body() dto: ListFoldersRequestDto,
+    ): Promise<ImapFolderListDto> {
         const folders = await this.imapPollerService.listFolders(dto);
         return { folders };
     }
@@ -207,7 +224,8 @@ export class ImapController {
     @ApiCookieAuth("apiKeyCookie")
     @ApiOperation({
         summary: "Get emails in configured inbox",
-        description: "Returns metadata for all emails currently in the configured inbox folder (not yet moved to ai_analyzed).",
+        description:
+            "Returns metadata for all emails currently in the configured inbox folder (not yet moved to ai_analyzed).",
     })
     @ApiResponse({
         status: 200,
@@ -226,7 +244,8 @@ export class ImapController {
     @ApiCookieAuth("apiKeyCookie")
     @ApiOperation({
         summary: "Get email body by UID",
-        description: "Fetches the plain-text body of a single inbox email by its IMAP UID.",
+        description:
+            "Fetches the plain-text body of a single inbox email by its IMAP UID.",
     })
     @ApiResponse({
         status: 200,
@@ -246,7 +265,8 @@ export class ImapController {
     @ApiCookieAuth("apiKeyCookie")
     @ApiOperation({
         summary: "Analyze selected emails",
-        description: "Processes the specified emails (by UID) through the AI backend and moves them to the ai_analyzed folder.",
+        description:
+            "Processes the specified emails (by UID) through the AI backend and moves them to the ai_analyzed folder.",
     })
     @ApiResponse({
         status: 200,
@@ -259,7 +279,8 @@ export class ImapController {
         @Body() dto: AnalyzeSelectedEmailsDto,
         @AuthUser() _user: { id: string },
     ): Promise<AnalyzeSelectedResponseDto> {
-        const processedCount = await this.imapPollerService.analyzeSelectedEmails(dto.uids);
+        const processedCount =
+            await this.imapPollerService.analyzeSelectedEmails(dto.uids);
         return { processedCount, success: true };
     }
 
@@ -310,7 +331,7 @@ export class ImapController {
     @ApiResponse({ status: 403, description: "Forbidden" })
     async processExistingEmails(
         @Body() dto: SaveImapConfigDto,
-        @AuthUser() user: { id: string },
+        @AuthUser() _user: { id: string },
     ): Promise<ProcessEmailsResponseDto> {
         const processedCount =
             await this.imapPollerService.processExistingEmails(

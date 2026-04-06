@@ -1,7 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import {
+    AlertCircle,
+    CheckCircle2,
+    FolderOpen,
+    Loader2,
+    XCircle,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import z from "zod";
 import { SettingsSection } from "@/components/composites/views/settings/settings-section";
@@ -16,14 +23,13 @@ import {
     StyledSelectValue,
 } from "@/components/ui/styled-select";
 import {
-    useImapControllerGetStatus,
     useImapControllerGetConfig,
-    useImapControllerTestConnection,
-    useImapControllerSaveConfig,
+    useImapControllerGetStatus,
     useImapControllerListFolders,
+    useImapControllerSaveConfig,
+    useImapControllerTestConnection,
 } from "@/lib/client/imap/imap";
 import { showPersistentErrorToast, showSuccessToast } from "@/lib/toast";
-import { Loader2, CheckCircle2, XCircle, AlertCircle, FolderOpen } from "lucide-react";
 import { FolderSelectDialog } from "./folder-select-dialog";
 
 const formSchema = z.object({
@@ -34,10 +40,10 @@ const formSchema = z.object({
     imapPort: z
         .string()
         .min(1, "Port is required.")
-        .refine(
-            (v) => { const n = parseInt(v, 10); return !isNaN(n) && n >= 1 && n <= 65535; },
-            "Port must be a number between 1 and 65535.",
-        ),
+        .refine((v) => {
+            const n = parseInt(v, 10);
+            return !Number.isNaN(n) && n >= 1 && n <= 65535;
+        }, "Port must be a number between 1 and 65535."),
     username: z
         .string()
         .min(1, "Username is required.")
@@ -58,10 +64,13 @@ export function MailSection() {
     const [selectedMailbox, setSelectedMailbox] = useState<string | null>(null);
     const [showFolderDialog, setShowFolderDialog] = useState(false);
     const [availableFolders, setAvailableFolders] = useState<string[]>([]);
-    const [pendingFormValues, setPendingFormValues] = useState<FormValues | null>(null);
+    const [pendingFormValues, setPendingFormValues] =
+        useState<FormValues | null>(null);
 
-    const { data: statusData, isLoading: isLoadingStatus } = useImapControllerGetStatus();
-    const { data: configData, isLoading: isLoadingConfig } = useImapControllerGetConfig();
+    const { data: statusData, isLoading: isLoadingStatus } =
+        useImapControllerGetStatus();
+    const { data: configData, isLoading: isLoadingConfig } =
+        useImapControllerGetConfig();
     const testConnection = useImapControllerTestConnection();
     const saveConfig = useImapControllerSaveConfig();
     const listFolders = useImapControllerListFolders();
@@ -89,7 +98,9 @@ export function MailSection() {
                 username: config.username || "",
                 password: "", // Password is not returned for security
                 security: config.security || "ssl",
-                autoProcessEnabled: (config as { autoProcessEnabled?: boolean }).autoProcessEnabled ?? false,
+                autoProcessEnabled:
+                    (config as { autoProcessEnabled?: boolean })
+                        .autoProcessEnabled ?? false,
             });
             if (config.mailbox) {
                 setSelectedMailbox(config.mailbox);
@@ -115,7 +126,8 @@ export function MailSection() {
         if (!selectedMailbox) {
             showPersistentErrorToast({
                 title: "No mailbox selected",
-                description: "Please save settings first to select a mailbox folder.",
+                description:
+                    "Please save settings first to select a mailbox folder.",
             });
             return;
         }
@@ -147,14 +159,19 @@ export function MailSection() {
                 } else {
                     showPersistentErrorToast({
                         title: "Connection failed",
-                        description: result.data.lastError || "Could not connect to IMAP server.",
+                        description:
+                            result.data.lastError ||
+                            "Could not connect to IMAP server.",
                     });
                 }
             }
         } catch (error) {
             showPersistentErrorToast({
                 title: "Connection test failed",
-                description: error instanceof Error ? error.message : "An unknown error occurred.",
+                description:
+                    error instanceof Error
+                        ? error.message
+                        : "An unknown error occurred.",
             });
         }
     };
@@ -179,7 +196,10 @@ export function MailSection() {
         } catch (error) {
             showPersistentErrorToast({
                 title: "Could not connect",
-                description: error instanceof Error ? error.message : "Failed to reach the IMAP server.",
+                description:
+                    error instanceof Error
+                        ? error.message
+                        : "Failed to reach the IMAP server.",
             });
         }
     };
@@ -217,7 +237,10 @@ export function MailSection() {
         } catch (error) {
             showPersistentErrorToast({
                 title: "Save failed",
-                description: error instanceof Error ? error.message : "An unknown error occurred.",
+                description:
+                    error instanceof Error
+                        ? error.message
+                        : "An unknown error occurred.",
             });
         } finally {
             setPendingFormValues(null);
@@ -462,7 +485,9 @@ export function MailSection() {
                                         Automatic email processing
                                     </p>
                                     <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                                        When enabled, new emails arriving after this point are automatically analyzed and moved to the processed folder.
+                                        When enabled, new emails arriving after
+                                        this point are automatically analyzed
+                                        and moved to the processed folder.
                                     </p>
                                 </div>
                             </label>
@@ -473,7 +498,8 @@ export function MailSection() {
                 {/* Buttons */}
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <p className="max-w-md text-sm text-slate-500 dark:text-slate-400">
-                        Saving will connect to your server and let you choose the inbox folder.
+                        Saving will connect to your server and let you choose
+                        the inbox folder.
                     </p>
                     <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                         <StyledButton
@@ -481,7 +507,12 @@ export function MailSection() {
                             sizeVariant="medium"
                             onClick={form.handleSubmit(handleTestConnection)}
                             isLoading={testConnection.isPending}
-                            disabled={!form.formState.isValid || testConnection.isPending || isLoading || !selectedMailbox}
+                            disabled={
+                                !form.formState.isValid ||
+                                testConnection.isPending ||
+                                isLoading ||
+                                !selectedMailbox
+                            }
                             label="Test Connection"
                             loadingLabel="Testing..."
                             className="w-full bg-slate-600 text-white hover:bg-slate-500 shadow-slate-900/20 disabled:bg-slate-600/50 sm:w-auto sm:min-w-[140px]"
@@ -491,7 +522,9 @@ export function MailSection() {
                             sizeVariant="medium"
                             onClick={form.handleSubmit(handleSaveConfig)}
                             isLoading={isSaving}
-                            disabled={!form.formState.isValid || isSaving || isLoading}
+                            disabled={
+                                !form.formState.isValid || isSaving || isLoading
+                            }
                             label="Save Settings"
                             loadingLabel="Connecting..."
                             className="w-full sm:w-auto sm:min-w-[140px]"

@@ -80,8 +80,7 @@ function fixPathParameters(document: OpenAPIObject): OpenAPIObject {
                 }
             }
 
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (operation as any).parameters = existingParams;
+            (operation as { parameters?: Parameter[] }).parameters = existingParams;
         }
     }
 

@@ -1,45 +1,46 @@
 "use client";
 
-import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Calendar, FileJson, Inbox, Loader2, User } from "lucide-react";
-import {
-    useImapControllerGetInboxEmails,
-    getImapControllerGetInboxEmailsQueryKey,
-    useImapControllerAnalyzeSelected,
-    useImapControllerGetEmailBody,
-    getImapControllerGetEmailBodyQueryKey,
-} from "@/lib/client/imap/imap";
-import { getJobControllerGetHistoryQueryKey } from "@/lib/client/jobs/jobs";
-import { showPersistentErrorToast, showSuccessToast } from "@/lib/toast";
-import type { InboxEmailDto } from "@/lib/client/models/inboxEmailDto";
+import { useState } from "react";
 import { SplitView } from "@/components/composites/views/split-view/split-view";
 import { SplitViewPane } from "@/components/composites/views/split-view/split-view-pane";
 import { StyledButton } from "@/components/ui/styled-button";
 import { StyledSkeleton } from "@/components/ui/styled-skeleton";
+import {
+    getImapControllerGetEmailBodyQueryKey,
+    getImapControllerGetInboxEmailsQueryKey,
+    useImapControllerAnalyzeSelected,
+    useImapControllerGetEmailBody,
+    useImapControllerGetInboxEmails,
+} from "@/lib/client/imap/imap";
+import { getJobControllerGetHistoryQueryKey } from "@/lib/client/jobs/jobs";
+import type { InboxEmailDto } from "@/lib/client/models/inboxEmailDto";
+import { showPersistentErrorToast, showSuccessToast } from "@/lib/toast";
 
 export function ImapView() {
     const [selectedUids, setSelectedUids] = useState<Set<number>>(new Set());
     const [previewUid, setPreviewUid] = useState<number | null>(null);
     const queryClient = useQueryClient();
 
-    const { data, isLoading, isError, refetch } = useImapControllerGetInboxEmails({
-        query: {
-            queryKey: getImapControllerGetInboxEmailsQueryKey(),
-            staleTime: 30_000,
-        },
-    });
-
-    const { data: bodyData, isLoading: isBodyLoading } = useImapControllerGetEmailBody(
-        previewUid ?? 0,
-        {
+    const { data, isLoading, isError, refetch } =
+        useImapControllerGetInboxEmails({
             query: {
-                queryKey: getImapControllerGetEmailBodyQueryKey(previewUid ?? 0),
+                queryKey: getImapControllerGetInboxEmailsQueryKey(),
+                staleTime: 30_000,
+            },
+        });
+
+    const { data: bodyData, isLoading: isBodyLoading } =
+        useImapControllerGetEmailBody(previewUid ?? 0, {
+            query: {
+                queryKey: getImapControllerGetEmailBodyQueryKey(
+                    previewUid ?? 0,
+                ),
                 enabled: previewUid !== null,
                 staleTime: 60_000,
             },
-        },
-    );
+        });
 
     const analyzeSelected = useImapControllerAnalyzeSelected({
         mutation: {
@@ -56,7 +57,9 @@ export function ImapView() {
                         queryKey: getImapControllerGetInboxEmailsQueryKey(),
                     });
                     queryClient.invalidateQueries({
-                        queryKey: getJobControllerGetHistoryQueryKey({ source: "IMAP" }),
+                        queryKey: getJobControllerGetHistoryQueryKey({
+                            source: "IMAP",
+                        }),
                     });
                 }
             },
@@ -70,7 +73,8 @@ export function ImapView() {
     });
 
     const emails: InboxEmailDto[] = data?.data?.emails ?? [];
-    const allSelected = emails.length > 0 && emails.every((e) => selectedUids.has(e.uid));
+    const allSelected =
+        emails.length > 0 && emails.every((e) => selectedUids.has(e.uid));
     const previewEmail = emails.find((e) => e.uid === previewUid) ?? null;
 
     const toggleSelectAll = () => {
@@ -121,7 +125,8 @@ export function ImapView() {
                             IMAP Inbox
                         </h2>
                         <p className="mt-2 text-slate-500 dark:text-slate-400">
-                            Select emails to analyze and move to processed folder.
+                            Select emails to analyze and move to processed
+                            folder.
                         </p>
                     </div>
 
@@ -129,13 +134,20 @@ export function ImapView() {
                     <div className="min-h-0 flex-1 overflow-y-auto">
                         {isLoading ? (
                             <div className="space-y-3">
-                                {Array.from({ length: 5 }).map((_, i) => (
-                                    <StyledSkeleton key={i} className="h-16 w-full rounded-2xl" />
-                                ))}
+                                {["sk-0", "sk-1", "sk-2", "sk-3", "sk-4"].map(
+                                    (id) => (
+                                        <StyledSkeleton
+                                            key={id}
+                                            className="h-16 w-full rounded-2xl"
+                                        />
+                                    ),
+                                )}
                             </div>
                         ) : isError ? (
                             <div className="flex flex-col items-center justify-center gap-3 py-16 text-slate-500 dark:text-slate-400">
-                                <p className="text-sm">Failed to load inbox emails.</p>
+                                <p className="text-sm">
+                                    Failed to load inbox emails.
+                                </p>
                                 <button
                                     type="button"
                                     onClick={() => refetch()}
@@ -166,7 +178,9 @@ export function ImapView() {
                                         <InboxEmailRow
                                             key={email.uid}
                                             email={email}
-                                            isSelected={selectedUids.has(email.uid)}
+                                            isSelected={selectedUids.has(
+                                                email.uid,
+                                            )}
                                             isActive={previewUid === email.uid}
                                             onToggle={toggleEmail}
                                             onSelect={setPreviewUid}
@@ -196,7 +210,11 @@ export function ImapView() {
                 {previewEmail ? (
                     <EmailPreview
                         email={previewEmail}
-                        body={bodyData?.status === 200 ? bodyData.data.body : undefined}
+                        body={
+                            bodyData?.status === 200
+                                ? bodyData.data.body
+                                : undefined
+                        }
                         isLoadingBody={isBodyLoading}
                         formatDate={formatDate}
                     />
@@ -230,11 +248,7 @@ function InboxEmailRow({
 }: InboxEmailRowProps) {
     return (
         <div
-            role="button"
-            tabIndex={0}
-            onClick={() => onSelect(email.uid)}
-            onKeyDown={(e) => e.key === "Enter" && onSelect(email.uid)}
-            className={`flex cursor-pointer items-center gap-3 rounded-2xl border p-4 transition-colors ${
+            className={`flex items-center gap-3 rounded-2xl border p-4 transition-colors ${
                 isActive
                     ? "border-blue-300 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/30"
                     : "border-slate-200 bg-white hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900/60 dark:hover:bg-slate-900"
@@ -244,10 +258,13 @@ function InboxEmailRow({
                 type="checkbox"
                 checked={isSelected}
                 onChange={() => onToggle(email.uid)}
-                onClick={(e) => e.stopPropagation()}
                 className="h-4 w-4 shrink-0 rounded border-slate-300 accent-blue-600"
             />
-            <div className="min-w-0 flex-1">
+            <button
+                type="button"
+                onClick={() => onSelect(email.uid)}
+                className="min-w-0 flex-1 cursor-pointer text-left"
+            >
                 <div className="flex items-baseline justify-between gap-2">
                     <span className="truncate text-sm font-semibold text-slate-900 dark:text-white">
                         {email.subject || "(no subject)"}
@@ -259,7 +276,7 @@ function InboxEmailRow({
                 <p className="mt-0.5 truncate text-xs text-slate-500 dark:text-slate-400">
                     {email.sender || "Unknown sender"}
                 </p>
-            </div>
+            </button>
         </div>
     );
 }
@@ -271,7 +288,12 @@ type EmailPreviewProps = {
     formatDate: (iso: string | null | undefined) => string;
 };
 
-function EmailPreview({ email, body, isLoadingBody, formatDate }: EmailPreviewProps) {
+function EmailPreview({
+    email,
+    body,
+    isLoadingBody,
+    formatDate,
+}: EmailPreviewProps) {
     return (
         <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
             <section className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900/60">

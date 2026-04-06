@@ -11,8 +11,12 @@ import { AiBackendService } from "../ai-backend/ai-backend.service";
 import { decodeMailHeader, decodeQuotedPrintable } from "../lib/mail-encoding";
 import { PrismaService } from "../prisma/prisma.service";
 import { SettingsService } from "../settings/settings.service";
+import type {
+    InboxEmailBodyDto,
+    InboxEmailDto,
+    ListFoldersRequestDto,
+} from "./dto";
 import { ImapConfig, ImapService } from "./imap.service";
-import type { InboxEmailBodyDto, InboxEmailDto, ListFoldersRequestDto } from "./dto";
 
 export interface NewImapEmailEvent {
     userId: string;
@@ -76,17 +80,25 @@ export class ImapPollerService {
         client: import("imapflow").ImapFlow,
     ): Promise<void> {
         this.analyzedFolderPath = this.ANALYZED_FOLDER;
-        this.logger.log(`[Folder] Attempting to create folder "${this.analyzedFolderPath}"...`);
+        this.logger.log(
+            `[Folder] Attempting to create folder "${this.analyzedFolderPath}"...`,
+        );
         try {
             const result = await client.mailboxCreate(this.analyzedFolderPath);
             this.logger.log(`[Folder] Created: ${JSON.stringify(result)}`);
         } catch (error) {
             const msg = error instanceof Error ? error.message : String(error);
             this.logger.warn(`[Folder] mailboxCreate error (raw): "${msg}"`);
-            if (msg.includes("exists") || msg.includes("already") || msg.includes("ALREADYEXISTS")) {
+            if (
+                msg.includes("exists") ||
+                msg.includes("already") ||
+                msg.includes("ALREADYEXISTS")
+            ) {
                 this.logger.log(`[Folder] Folder already exists – continuing`);
             } else {
-                this.logger.warn(`[Folder] Unexpected error – will still attempt moves`);
+                this.logger.warn(
+                    `[Folder] Unexpected error – will still attempt moves`,
+                );
             }
         }
     }
@@ -117,33 +129,53 @@ export class ImapPollerService {
         uid: number,
     ): Promise<void> {
         const folderPath = this.analyzedFolderPath || this.ANALYZED_FOLDER;
-        this.logger.log(`[MOVE] Starting move for message ${uid} to ${folderPath}`);
-        
+        this.logger.log(
+            `[MOVE] Starting move for message ${uid} to ${folderPath}`,
+        );
+
         try {
             // Keep connection alive before attempting move
             this.logger.log(`[MOVE] Sending NOOP to keep connection alive...`);
             await client.noop();
             this.logger.log(`[MOVE] NOOP succeeded`);
-            
+
             // Step 1: COPY message to ai_analyzed folder
-            this.logger.log(`[MOVE] Step 1: COPY message ${uid} to ${folderPath}...`);
-            const copyPromise = client.messageCopy(String(uid), folderPath, { uid: true });
-            const copyTimeout = new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('COPY timeout after 10s')), 10000)
+            this.logger.log(
+                `[MOVE] Step 1: COPY message ${uid} to ${folderPath}...`,
+            );
+            const copyPromise = client.messageCopy(String(uid), folderPath, {
+                uid: true,
+            });
+            const copyTimeout = new Promise((_, reject) =>
+                setTimeout(
+                    () => reject(new Error("COPY timeout after 10s")),
+                    10000,
+                ),
             );
             const copyResult = await Promise.race([copyPromise, copyTimeout]);
-            this.logger.log(`[MOVE] COPY success: uid=${(copyResult as { uid?: unknown })?.uid ?? "?"}`);
-            
+            this.logger.log(
+                `[MOVE] COPY success: uid=${(copyResult as { uid?: unknown })?.uid ?? "?"}`,
+            );
+
             // Step 2: DELETE original message (mark as deleted)
             this.logger.log(`[MOVE] Step 2: Mark message ${uid} as deleted...`);
-            const deletePromise = client.messageDelete(String(uid), { uid: true });
-            const deleteTimeout = new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('DELETE timeout after 10s')), 10000)
+            const deletePromise = client.messageDelete(String(uid), {
+                uid: true,
+            });
+            const deleteTimeout = new Promise((_, reject) =>
+                setTimeout(
+                    () => reject(new Error("DELETE timeout after 10s")),
+                    10000,
+                ),
             );
             await Promise.race([deletePromise, deleteTimeout]);
-            this.logger.log(`[MOVE] DELETE success - message ${uid} moved to ${folderPath}`);
+            this.logger.log(
+                `[MOVE] DELETE success - message ${uid} moved to ${folderPath}`,
+            );
         } catch (error) {
-            this.logger.error(`[MOVE] FAILED for uid ${uid}: ${error instanceof Error ? error.message : String(error)}`);
+            this.logger.error(
+                `[MOVE] FAILED for uid ${uid}: ${error instanceof Error ? error.message : String(error)}`,
+            );
             throw error; // Re-throw so caller knows it failed
         }
     }
@@ -295,13 +327,16 @@ export class ImapPollerService {
                             newEmailCount++;
                         },
                     );
-                    
+
                     // Move the message to AI-Analyzed folder AFTER successful transaction
                     // Note: This happens outside the transaction so DB changes are preserved
                     // even if the move fails (e.g., due to connection issues with GMX)
                     if (message.uid) {
                         try {
-                            await this.moveMessageToAnalyzedFolder(client, message.uid);
+                            await this.moveMessageToAnalyzedFolder(
+                                client,
+                                message.uid,
+                            );
                         } catch (moveError) {
                             this.logger.warn(
                                 `Could not move message ${message.uid} to analyzed folder, but email was processed: ${moveError instanceof Error ? moveError.message : String(moveError)}`,
@@ -373,16 +408,24 @@ export class ImapPollerService {
      * Moves all existing emails in the mailbox to the ai_analyzed folder.
      * Called on initial mail settings setup. No AI analysis – just move.
      */
-    async processExistingEmails(config: ImapConfig, _userId: string): Promise<number> {
+    async processExistingEmails(
+        config: ImapConfig,
+        _userId: string,
+    ): Promise<number> {
         const ImapClient = (await import("imapflow")).ImapFlow;
 
-        this.logger.log(`[Import] Starting – host=${config.host.trim()} port=${config.port} security=${config.security} mailbox=${config.mailbox}`);
+        this.logger.log(
+            `[Import] Starting – host=${config.host.trim()} port=${config.port} security=${config.security} mailbox=${config.mailbox}`,
+        );
 
         const client = new ImapClient({
             host: config.host.trim(),
             port: config.port,
             secure: config.security === "ssl",
-            tls: config.security === "starttls" ? { rejectUnauthorized: false } : undefined,
+            tls:
+                config.security === "starttls"
+                    ? { rejectUnauthorized: false }
+                    : undefined,
             auth: { user: config.username, pass: config.password },
             logger: false,
         });
@@ -394,21 +437,31 @@ export class ImapPollerService {
 
             await this.ensureAnalyzedFolderExists(client);
 
-            this.logger.log(`[Import] Opening mailbox "${config.mailbox}" (readOnly: false)...`);
-            const mailboxInfo = await client.mailboxOpen(config.mailbox, { readOnly: false });
-            this.logger.log(`[Import] Mailbox open – exists=${mailboxInfo.exists} uidValidity=${mailboxInfo.uidValidity}`);
+            this.logger.log(
+                `[Import] Opening mailbox "${config.mailbox}" (readOnly: false)...`,
+            );
+            const mailboxInfo = await client.mailboxOpen(config.mailbox, {
+                readOnly: false,
+            });
+            this.logger.log(
+                `[Import] Mailbox open – exists=${mailboxInfo.exists} uidValidity=${mailboxInfo.uidValidity}`,
+            );
 
             // Collect all UIDs first so we don't hold the iterator open during moves
             const uids: number[] = [];
             this.logger.log(`[Import] Fetching all UIDs...`);
-            const messages = await client.fetch({ all: true }, { uid: true } as unknown as import("imapflow").FetchQueryObject);
+            const messages = await client.fetch({ all: true }, {
+                uid: true,
+            } as unknown as import("imapflow").FetchQueryObject);
             for await (const message of messages) {
                 if (message.uid) {
                     uids.push(message.uid);
                     this.logger.debug(`[Import] Found uid=${message.uid}`);
                 }
             }
-            this.logger.log(`[Import] Collected ${uids.length} UIDs: [${uids.join(", ")}]`);
+            this.logger.log(
+                `[Import] Collected ${uids.length} UIDs: [${uids.join(", ")}]`,
+            );
 
             let movedCount = 0;
             for (const uid of uids) {
@@ -416,18 +469,28 @@ export class ImapPollerService {
                     await this.moveMessageToAnalyzedFolder(client, uid);
                     movedCount++;
                 } catch (moveError) {
-                    this.logger.warn(`[Import] Could not move uid=${uid}: ${moveError instanceof Error ? moveError.message : String(moveError)}`);
+                    this.logger.warn(
+                        `[Import] Could not move uid=${uid}: ${moveError instanceof Error ? moveError.message : String(moveError)}`,
+                    );
                 }
             }
 
             this.logger.log(`[Import] Logging out...`);
             await client.logout();
-            this.logger.log(`[Import] Done – moved ${movedCount}/${uids.length} messages to "${this.ANALYZED_FOLDER}"`);
+            this.logger.log(
+                `[Import] Done – moved ${movedCount}/${uids.length} messages to "${this.ANALYZED_FOLDER}"`,
+            );
             return movedCount;
         } catch (error) {
-            this.logger.error(`[Import] Failed: ${error instanceof Error ? error.message : String(error)}`);
+            this.logger.error(
+                `[Import] Failed: ${error instanceof Error ? error.message : String(error)}`,
+            );
             this.logger.error(error);
-            try { await client.logout(); } catch { /* ignore */ }
+            try {
+                await client.logout();
+            } catch {
+                /* ignore */
+            }
             throw error;
         }
     }
@@ -443,7 +506,10 @@ export class ImapPollerService {
             host: credentials.host.trim(),
             port: credentials.port,
             secure: credentials.security === "ssl",
-            tls: credentials.security === "starttls" ? { rejectUnauthorized: false } : undefined,
+            tls:
+                credentials.security === "starttls"
+                    ? { rejectUnauthorized: false }
+                    : undefined,
             auth: { user: credentials.username, pass: credentials.password },
             logger: false,
         });
@@ -457,8 +523,14 @@ export class ImapPollerService {
             await client.logout();
             return folders;
         } catch (error) {
-            this.logger.error(`[listFolders] Failed: ${error instanceof Error ? error.message : String(error)}`);
-            try { await client.logout(); } catch { /* ignore */ }
+            this.logger.error(
+                `[listFolders] Failed: ${error instanceof Error ? error.message : String(error)}`,
+            );
+            try {
+                await client.logout();
+            } catch {
+                /* ignore */
+            }
             throw error;
         }
     }
@@ -479,14 +551,19 @@ export class ImapPollerService {
             host: config.host.trim(),
             port: config.port,
             secure: config.security === "ssl",
-            tls: config.security === "starttls" ? { rejectUnauthorized: false } : undefined,
+            tls:
+                config.security === "starttls"
+                    ? { rejectUnauthorized: false }
+                    : undefined,
             auth: { user: config.username, pass: config.password },
             logger: false,
         });
 
         try {
             await client.connect();
-            const mailboxInfo = await client.mailboxOpen(config.mailbox, { readOnly: true });
+            const mailboxInfo = await client.mailboxOpen(config.mailbox, {
+                readOnly: true,
+            });
 
             if (mailboxInfo.exists === 0) {
                 await client.logout();
@@ -514,8 +591,14 @@ export class ImapPollerService {
             await client.logout();
             return emails;
         } catch (error) {
-            this.logger.error(`[getInboxEmails] Failed: ${error instanceof Error ? error.message : String(error)}`);
-            try { await client.logout(); } catch { /* ignore */ }
+            this.logger.error(
+                `[getInboxEmails] Failed: ${error instanceof Error ? error.message : String(error)}`,
+            );
+            try {
+                await client.logout();
+            } catch {
+                /* ignore */
+            }
             throw error;
         }
     }
@@ -535,7 +618,10 @@ export class ImapPollerService {
             host: config.host.trim(),
             port: config.port,
             secure: config.security === "ssl",
-            tls: config.security === "starttls" ? { rejectUnauthorized: false } : undefined,
+            tls:
+                config.security === "starttls"
+                    ? { rejectUnauthorized: false }
+                    : undefined,
             auth: { user: config.username, pass: config.password },
             logger: false,
         });
@@ -545,12 +631,16 @@ export class ImapPollerService {
             await client.mailboxOpen(config.mailbox, { readOnly: true });
 
             let body = "";
-            const fetchResult = await client.fetch(String(uid), {
-                uid: true,
-                text: true,
-                html: true,
-                source: true,
-            } as unknown as import("imapflow").FetchQueryObject, { uid: true });
+            const fetchResult = await client.fetch(
+                String(uid),
+                {
+                    uid: true,
+                    text: true,
+                    html: true,
+                    source: true,
+                } as unknown as import("imapflow").FetchQueryObject,
+                { uid: true },
+            );
 
             for await (const msg of fetchResult) {
                 body = decodeQuotedPrintable(this.extractTextContent(msg));
@@ -560,8 +650,14 @@ export class ImapPollerService {
             await client.logout();
             return { uid, body };
         } catch (error) {
-            this.logger.error(`[getEmailBody] Failed for uid=${uid}: ${error instanceof Error ? error.message : String(error)}`);
-            try { await client.logout(); } catch { /* ignore */ }
+            this.logger.error(
+                `[getEmailBody] Failed for uid=${uid}: ${error instanceof Error ? error.message : String(error)}`,
+            );
+            try {
+                await client.logout();
+            } catch {
+                /* ignore */
+            }
             throw error;
         }
     }
@@ -591,7 +687,10 @@ export class ImapPollerService {
             host: config.host.trim(),
             port: config.port,
             secure: config.security === "ssl",
-            tls: config.security === "starttls" ? { rejectUnauthorized: false } : undefined,
+            tls:
+                config.security === "starttls"
+                    ? { rejectUnauthorized: false }
+                    : undefined,
             auth: { user: config.username, pass: config.password },
             logger: false,
         });
@@ -614,13 +713,17 @@ export class ImapPollerService {
                         source?: Buffer;
                     } | null = null;
 
-                    const fetchResult = await client.fetch(String(uid), {
-                        uid: true,
-                        envelope: true,
-                        source: true,
-                        text: true,
-                        html: true,
-                    } as unknown as import("imapflow").FetchQueryObject, { uid: true });
+                    const fetchResult = await client.fetch(
+                        String(uid),
+                        {
+                            uid: true,
+                            envelope: true,
+                            source: true,
+                            text: true,
+                            html: true,
+                        } as unknown as import("imapflow").FetchQueryObject,
+                        { uid: true },
+                    );
 
                     for await (const msg of fetchResult) {
                         fetchedMessage = msg;
@@ -628,66 +731,91 @@ export class ImapPollerService {
                     }
 
                     if (!fetchedMessage) {
-                        this.logger.warn(`[analyzeSelected] Message uid=${uid} not found`);
+                        this.logger.warn(
+                            `[analyzeSelected] Message uid=${uid} not found`,
+                        );
                         continue;
                     }
 
                     // Skip if already in DB
                     const messageId = fetchedMessage.envelope?.messageId || "";
                     if (messageId) {
-                        const existing = await this.prismaService.email.findFirst({
-                            where: { source: EmailSource.IMAP, body: { contains: messageId } },
-                        });
+                        const existing =
+                            await this.prismaService.email.findFirst({
+                                where: {
+                                    source: EmailSource.IMAP,
+                                    body: { contains: messageId },
+                                },
+                            });
                         if (existing) {
-                            this.logger.log(`[analyzeSelected] uid=${uid} already processed – skipping`);
+                            this.logger.log(
+                                `[analyzeSelected] uid=${uid} already processed – skipping`,
+                            );
                             // Still move it to analyzed folder
-                            try { await this.moveMessageToAnalyzedFolder(client, uid); } catch { /* ignore */ }
+                            try {
+                                await this.moveMessageToAnalyzedFolder(
+                                    client,
+                                    uid,
+                                );
+                            } catch {
+                                /* ignore */
+                            }
                             continue;
                         }
                     }
 
-                    const subject = decodeMailHeader(fetchedMessage.envelope?.subject || "");
-                    const sender = fetchedMessage.envelope?.from?.[0]?.address ?? null;
-                    const body = decodeQuotedPrintable(this.extractTextContent(fetchedMessage));
+                    const subject = decodeMailHeader(
+                        fetchedMessage.envelope?.subject || "",
+                    );
+                    const sender =
+                        fetchedMessage.envelope?.from?.[0]?.address ?? null;
+                    const body = decodeQuotedPrintable(
+                        this.extractTextContent(fetchedMessage),
+                    );
 
-                    const analysisResult = await this.aiBackendService.runFlow(body, subject);
+                    const analysisResult = await this.aiBackendService.runFlow(
+                        body,
+                        subject,
+                    );
                     const now = new Date();
 
-                    await this.prismaService.$transaction(async (transaction) => {
-                        const email = await transaction.email.create({
-                            data: {
-                                userId: adminUser.id,
-                                sender,
-                                subject,
-                                body,
-                                source: EmailSource.IMAP,
-                            },
-                        });
+                    await this.prismaService.$transaction(
+                        async (transaction) => {
+                            const email = await transaction.email.create({
+                                data: {
+                                    userId: adminUser.id,
+                                    sender,
+                                    subject,
+                                    body,
+                                    source: EmailSource.IMAP,
+                                },
+                            });
 
-                        const job = await transaction.job.create({
-                            data: {
+                            const job = await transaction.job.create({
+                                data: {
+                                    userId: adminUser.id,
+                                    emailId: email.id,
+                                    status: JobStatus.COMPLETED,
+                                    startedAt: now,
+                                    completedAt: now,
+                                },
+                            });
+
+                            await transaction.jobResult.create({
+                                data: {
+                                    jobId: job.id,
+                                    status: JobResultStatus.SUCCESS,
+                                    output: analysisResult as unknown as Prisma.InputJsonValue,
+                                },
+                            });
+
+                            this.eventEmitter.emit("imap.email.received", {
                                 userId: adminUser.id,
                                 emailId: email.id,
-                                status: JobStatus.COMPLETED,
-                                startedAt: now,
-                                completedAt: now,
-                            },
-                        });
-
-                        await transaction.jobResult.create({
-                            data: {
-                                jobId: job.id,
-                                status: JobResultStatus.SUCCESS,
-                                output: analysisResult as unknown as Prisma.InputJsonValue,
-                            },
-                        });
-
-                        this.eventEmitter.emit("imap.email.received", {
-                            userId: adminUser.id,
-                            emailId: email.id,
-                            subject,
-                        } as NewImapEmailEvent);
-                    });
+                                subject,
+                            } as NewImapEmailEvent);
+                        },
+                    );
 
                     try {
                         await this.moveMessageToAnalyzedFolder(client, uid);
@@ -698,9 +826,13 @@ export class ImapPollerService {
                     }
 
                     processedCount++;
-                    this.logger.log(`[analyzeSelected] Processed uid=${uid}: ${subject || "(no subject)"}`);
+                    this.logger.log(
+                        `[analyzeSelected] Processed uid=${uid}: ${subject || "(no subject)"}`,
+                    );
                 } catch (error) {
-                    this.logger.error(`[analyzeSelected] Failed for uid=${uid}: ${error instanceof Error ? error.message : String(error)}`);
+                    this.logger.error(
+                        `[analyzeSelected] Failed for uid=${uid}: ${error instanceof Error ? error.message : String(error)}`,
+                    );
                 }
             }
 
@@ -712,8 +844,14 @@ export class ImapPollerService {
 
             await client.logout();
         } catch (error) {
-            this.logger.error(`[analyzeSelected] Fatal: ${error instanceof Error ? error.message : String(error)}`);
-            try { await client.logout(); } catch { /* ignore */ }
+            this.logger.error(
+                `[analyzeSelected] Fatal: ${error instanceof Error ? error.message : String(error)}`,
+            );
+            try {
+                await client.logout();
+            } catch {
+                /* ignore */
+            }
             throw error;
         }
 
@@ -745,14 +883,14 @@ export class ImapPollerService {
             const sourceStr = message.source.toString();
             // Try to find text/plain content in MIME
             const textMatch = sourceStr.match(
-                /Content-Type:\s*text\/plain[^]*?\r?\n\r?\n([^]*?)(?:\r?\n--|$)/i,
+                /Content-Type:\s*text\/plain[\s\S]*?\r?\n\r?\n([\s\S]*?)(?:\r?\n--|$)/i,
             );
             if (textMatch) {
                 return textMatch[1].trim().slice(0, 10000);
             }
             // Try to find text/html content and strip tags
             const htmlMatch = sourceStr.match(
-                /Content-Type:\s*text\/html[^]*?\r?\n\r?\n([^]*?)(?:\r?\n--|$)/i,
+                /Content-Type:\s*text\/html[\s\S]*?\r?\n\r?\n([\s\S]*?)(?:\r?\n--|$)/i,
             );
             if (htmlMatch) {
                 return this.stripHtmlTags(htmlMatch[1]).trim().slice(0, 10000);
