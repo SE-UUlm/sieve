@@ -2,6 +2,7 @@ import { Controller, Get, Param, ParseEnumPipe, Query } from "@nestjs/common";
 import {
     ApiCookieAuth,
     ApiOperation,
+    ApiQuery,
     ApiResponse,
     ApiTags,
 } from "@nestjs/swagger";
@@ -28,6 +29,7 @@ export class JobController {
         type: [JobHistoryEntryDto],
     })
     @ApiResponse({ status: 401, description: "Unauthorized" })
+    @ApiQuery({ name: "source", enum: ["MANUAL", "IMAP"], required: false })
     getHistory(
         @Session() session: UserSession,
         @Query("source") source?: EmailSource,

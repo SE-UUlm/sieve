@@ -34,11 +34,12 @@ const formSchema = z.object({
         .min(1, "IMAP server is required.")
         .max(255, "IMAP server must be at most 255 characters."),
     imapPort: z
-        .coerce
-        .number()
-        .int("Port must be a whole number.")
-        .min(1, "Port must be between 1 and 65535.")
-        .max(65535, "Port must be between 1 and 65535."),
+        .string()
+        .min(1, "Port is required.")
+        .refine(
+            (v) => { const n = parseInt(v, 10); return !isNaN(n) && n >= 1 && n <= 65535; },
+            "Port must be a number between 1 and 65535.",
+        ),
     username: z
         .string()
         .min(1, "Username is required.")
@@ -76,7 +77,7 @@ export function MailSection() {
         mode: "onChange",
         defaultValues: {
             imapHost: "",
-            imapPort: 993,
+            imapPort: "993",
             username: "",
             password: "",
             security: "ssl",
@@ -90,7 +91,7 @@ export function MailSection() {
             const config = configData.data;
             form.reset({
                 imapHost: config.host || "",
-                imapPort: config.port || 993,
+                imapPort: String(config.port || 993),
                 username: config.username || "",
                 password: "", // Password is not returned for security
                 security: config.security || "ssl",
@@ -118,7 +119,7 @@ export function MailSection() {
             const result = await testConnection.mutateAsync({
                 data: {
                     host: values.imapHost,
-                    port: values.imapPort,
+                    port: parseInt(values.imapPort, 10),
                     username: values.username,
                     password: values.password,
                     security: values.security,
@@ -159,7 +160,7 @@ export function MailSection() {
             const testResult = await testConnection.mutateAsync({
                 data: {
                     host: values.imapHost,
-                    port: values.imapPort,
+                    port: parseInt(values.imapPort, 10),
                     username: values.username,
                     password: values.password,
                     security: values.security,
@@ -184,7 +185,7 @@ export function MailSection() {
                 const countResult = await getMailboxCount.mutateAsync({
                     data: {
                         host: values.imapHost,
-                        port: values.imapPort,
+                        port: parseInt(values.imapPort, 10),
                         username: values.username,
                         password: values.password,
                         security: values.security,
@@ -198,7 +199,7 @@ export function MailSection() {
             const result = await saveConfig.mutateAsync({
                 data: {
                     host: values.imapHost,
-                    port: values.imapPort,
+                    port: parseInt(values.imapPort, 10),
                     username: values.username,
                     password: values.password,
                     security: values.security,
@@ -239,7 +240,7 @@ export function MailSection() {
             const result = await processExistingEmails.mutateAsync({
                 data: {
                     host: values.imapHost,
-                    port: values.imapPort,
+                    port: parseInt(values.imapPort, 10),
                     username: values.username,
                     password: values.password,
                     security: values.security,
@@ -517,6 +518,7 @@ export function MailSection() {
                     <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                         <StyledButton
                             type="button"
+                            sizeVariant="medium"
                             onClick={form.handleSubmit(handleTestConnection)}
                             isLoading={testConnection.isPending}
                             disabled={!form.formState.isValid || testConnection.isPending || isLoading}
@@ -526,6 +528,7 @@ export function MailSection() {
                         />
                         <StyledButton
                             type="button"
+                            sizeVariant="medium"
                             onClick={form.handleSubmit(handleSaveConfig)}
                             isLoading={saveConfig.isPending || testConnection.isPending || getMailboxCount.isPending}
                             disabled={!form.formState.isValid || saveConfig.isPending || testConnection.isPending || isLoading}

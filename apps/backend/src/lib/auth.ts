@@ -12,7 +12,7 @@ const trustedOrigins = trustedOriginsEnv
 const prisma = new PrismaService(configService);
 export const auth = betterAuth({
     appName: "SIEVE",
-    basePath: "/auth",
+    basePath: "/api/auth",
     trustedOrigins: trustedOrigins,
     database: prismaAdapter(prisma, {
         provider: "postgresql",
