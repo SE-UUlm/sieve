@@ -103,11 +103,13 @@ async def categorize(state: GraphState, runtime: Runtime[Context]) -> dict:
 
     result = await structured.ainvoke(
         [
-            HumanMessage(format_email(context.email)),
             SystemMessage(
-                """Your job is to categorize an email from a customer into the possible categories. 
-                If the customer has multiple requests that fit different categories, list multiple different categories. 
-                Do not list duplicate categories."""
+                """Categorize the customer's email into the provided categories.
+                Use category names and descriptions as the source of truth for classification.
+                If the email contains multiple distinct concerns, include each matching category once.
+                Do not include categories without clear supporting evidence.
+                Use "Other" only for concerns that do not fit any more specific category.
+                Do not return duplicate categories."""
             ),
             SystemMessage(
                 "Available categories: "
@@ -118,6 +120,7 @@ async def categorize(state: GraphState, runtime: Runtime[Context]) -> dict:
                     ]
                 )
             ),
+            HumanMessage(format_email(context.email)),
         ]
     )
 
@@ -146,20 +149,23 @@ async def overall_email_response(state: GraphState, runtime: Runtime[Context]) -
     )
 
     conversation = [
-        HumanMessage(format_email(runtime.context.email)),
         SystemMessage(
-            """Your job is create a comprehensive email to the customer using the parts provided below. 
-            Reformulate parts if necessary. 
-            Include email salutation and closing greeting. 
-            Do not include the subject in the email body."""
-        ),
-        AIMessage(f"Drafted email parts: {formatted_parts}"),
+            """Create one coherent customer email from the drafted parts below.
+            Keep the meaning of the drafted parts; you may rephrase for clarity and tone.
+            Include salutation and closing greeting.
+            Do not include the subject in the email body.
+            Do not add new facts, promises, or assumptions that are not present in drafted parts."""
+        )
     ]
 
     custom_prompt = runtime.context.global_config.overall_email_response_prompt
 
     if custom_prompt:
         conversation.append(SystemMessage(custom_prompt))
+
+    conversation.append(AIMessage(f"Drafted email parts: {formatted_parts}"))
+
+    conversation.append(HumanMessage(format_email(runtime.context.email)))
 
     result = await structured.ainvoke(conversation)
     assert isinstance(
@@ -184,7 +190,6 @@ async def confidence_assessment(state: GraphState, runtime: Runtime[Context]) ->
     )
 
     messages = [
-        HumanMessage(format_email(runtime.context.email)),
         SystemMessage(
             """Your job is to assess how accurately the drafted response answers the customer's original email.
             Score conservatively: uncertainty, ambiguity, or partial mismatches must lower the score.
@@ -196,6 +201,7 @@ async def confidence_assessment(state: GraphState, runtime: Runtime[Context]) ->
             "Drafted overall email response:\n\n"
             f"{response.response_subject}\n\n{response.response_body}"
         ),
+        HumanMessage(format_email(runtime.context.email)),
     ]
 
     result = await structured.ainvoke(messages)
@@ -209,8 +215,9 @@ def init_simple_model(model_config: ModelConfig):
         model_provider=get_provider_name(model_config.provider),
         model=model_config.simple_model,
         temperature=0.1,
-        timeout=10,
+        timeout=20,
         api_key=model_config.api_key,
+        max_retries=2,
     )
 
 
@@ -219,8 +226,9 @@ def init_complex_model(model_config: ModelConfig):
         model_provider=get_provider_name(model_config.provider),
         model=model_config.complex_model,
         temperature=0.1,
-        timeout=10,
+        timeout=20,
         api_key=model_config.api_key,
+        max_retries=2,
     )
 
 

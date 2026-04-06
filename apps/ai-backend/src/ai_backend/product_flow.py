@@ -27,7 +27,7 @@ async def search_product(
     runtime: ToolRuntime[Context],
 ):
     """Useful to search for product information. Use multiple keywords for query.
-    If of the query items is contained in any specified column value, the item is returned.
+    If one of the query items is contained in any specified column value, the item is returned.
     Try to use short query items, ideally only one word per item. But multiple items."""
 
     tool_calls = len([m for m in state["messages"] if m.type == "tool"])
@@ -81,24 +81,33 @@ async def db_step(
         context_schema=Context,
     )
     conversation = [
-        HumanMessage(format_email(runtime.context.email)),
-        SystemMessage(f"""Your job is to find the product(s) the customer wants to buy or is talking about in their email. 
-        Only use the parts of the email that relates to the category '{category.name}: {category.description}' and ignore other parts.
-        Use the search_product tool to find the products the customer might want, use the provided database schema (tables and their columns). 
-        Try multiple different keywords, variants, translation and try again a maximum of 5 times until you're satisfied with the results.
-        If you think you found the right products or tried too many times, return them using the provided output format. Together with your confidence score."""),
-        SystemMessage(f"""Database Schema: {runtime.context.db_schema}"""),
+        SystemMessage(f"""Identify which products from the database the customer refers to in this category.
+        Only use email content relevant to '{category.name}: {category.description}' and ignore other parts.
+        Use the category description as the strict scope boundary.
+        Use the search_product tool to find candidates, based on the provided database schema.
+        Never invent products that were not returned by the tool.
+        Prefer one tool call with a query list containing multiple keywords/variants (customer wording, translations, abbreviations, core nouns).
+        Keep tool usage efficient: avoid repeated equivalent searches, and only search again if ambiguity remains.
+        If one product is clearly intended, return only that product.
+        If multiple plausible products remain, return those candidates.
+        If no plausible product is found, return an empty related_products list.
+        Assess your confidence based on how well the results match the customer's request and how well you could search the customer's request using the search_product tool.
+        If no products found, assess your confidence on how sure you are that the database does not contain the products the customer was referring to.""")
     ]
 
     if category.flow.db_step_prompt:
         conversation.append(SystemMessage(category.flow.db_step_prompt))
 
+    conversation.append(
+        SystemMessage(f"""Database Schema: {runtime.context.db_schema}""")
+    )
+
+    conversation.append(HumanMessage(format_email(runtime.context.email)))
+
     result = await agent.ainvoke(
         {"messages": conversation},
         context=runtime.context,
     )
-
-    # TODO: Sometimes it doesnt finish with 4o-mini and if it does not find the right products. Maybe try to debug with streaming.
 
     for msg in result["messages"]:
         msg.pretty_print()
