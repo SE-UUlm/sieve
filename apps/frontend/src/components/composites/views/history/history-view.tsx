@@ -2,6 +2,7 @@
 
 import { FileJson, Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import type { AnalysisResult } from "@/components/composites/views/analyze/model/analysis-result";
 import { SplitView } from "@/components/composites/views/split-view/split-view";
 import { SplitViewPane } from "@/components/composites/views/split-view/split-view-pane";
 import { StyledInput } from "@/components/ui/styled-input";
@@ -11,13 +12,15 @@ import {
     useJobControllerGetHistory,
 } from "@/lib/client";
 import { showPersistentErrorToast } from "@/lib/toast";
+import { HistoryAnalysisPanel } from "./history-analysis-panel";
 import { HistoryListItem } from "./history-list-item";
 
 type HistoryEntry = {
     id: string;
     subject: string;
     body: string;
-    result: JobHistoryEntryDto["result"];
+    result: AnalysisResult | null;
+    rawResult?: unknown | null;
 };
 
 type HistoryViewProps = {
@@ -98,9 +101,10 @@ export function HistoryView({ history = [] }: HistoryViewProps) {
 
     const selectedItem =
         filteredHistory.find((item) => item.id === selectedId) ?? null;
+    const selectedRawResult = selectedItem?.rawResult ?? selectedItem?.result;
 
     return (
-        <SplitView>
+        <SplitView resizable>
             <SplitViewPane variant="primary" isScrollable>
                 <div className="mx-auto flex h-full w-full flex-col">
                     <div className="mb-8">
@@ -156,7 +160,7 @@ export function HistoryView({ history = [] }: HistoryViewProps) {
 
             <SplitViewPane variant="secondary" isScrollable>
                 {selectedItem ? (
-                    <div className="mx-auto flex h-full w-full max-w-3xl flex-col gap-4">
+                    <div className="mx-auto flex min-h-full w-full max-w-4xl flex-col gap-4">
                         <section className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900/60">
                             <h3 className="text-sm font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
                                 Email
@@ -173,14 +177,14 @@ export function HistoryView({ history = [] }: HistoryViewProps) {
                             <h3 className="text-sm font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
                                 Analysis Result
                             </h3>
-                            {selectedItem.result ? (
-                                <pre className="mt-3 overflow-x-auto rounded-xl bg-slate-950 p-4 text-xs leading-relaxed text-slate-100">
-                                    {JSON.stringify(
-                                        selectedItem.result,
-                                        null,
-                                        2,
-                                    )}
-                                </pre>
+                            {selectedRawResult != null ? (
+                                <div className="mt-3">
+                                    <HistoryAnalysisPanel
+                                        key={selectedItem.id}
+                                        result={selectedItem.result}
+                                        rawResult={selectedRawResult}
+                                    />
+                                </div>
                             ) : (
                                 <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
                                     No analysis result available for this entry.
@@ -208,6 +212,21 @@ function mapHistoryEntryDtoToHistoryEntry(
         id: entry.id,
         subject: entry.subject ?? "",
         body: entry.body,
-        result: entry.result ?? null,
+        result: toHistoryAnalysisResult(entry.result),
+        rawResult: entry.result ?? null,
     };
+}
+
+function toHistoryAnalysisResult(
+    result: JobHistoryEntryDto["result"],
+): AnalysisResult | null {
+    if (!result) {
+        return null;
+    }
+
+    if (!Array.isArray(result.category_results)) {
+        return null;
+    }
+
+    return result as AnalysisResult;
 }
