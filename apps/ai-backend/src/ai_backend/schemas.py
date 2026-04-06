@@ -92,6 +92,11 @@ class SearchResult(BaseModel):
     confidence: float = Field(
         description="How confident you are that the products you found are the ones the customer meant"
     )
+    agent_remarks: str = Field(
+        min_length=1,
+        max_length=400,
+        description="Concise notes from the agent on how well they could execute the customer's search request. Max 250 characters.",
+    )
 
 
 class EmailResponsePart(BaseModel):
