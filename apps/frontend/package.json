@@ -33,10 +33,10 @@
         "zod": "^4.3.6"
     },
     "devDependencies": {
-        "@biomejs/biome": "2.4.9",
+        "@biomejs/biome": "2.4.10",
         "@faker-js/faker": "^10.4.0",
         "@tailwindcss/postcss": "^4.2.2",
-        "@types/node": "^25.5.0",
+        "@types/node": "^25.5.2",
         "@types/react": "19.2.14",
         "@types/react-dom": "19.2.3",
         "license-checker-rseidelsohn": "^4.4.2",
