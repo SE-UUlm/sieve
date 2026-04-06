@@ -10,8 +10,13 @@ import { UserRole } from "../../prisma/client/enums";
 import { AuthUser } from "../lib/auth-user.decorator";
 import { SettingsService } from "../settings/settings.service";
 import {
+    AnalyzeSelectedEmailsDto,
+    AnalyzeSelectedResponseDto,
     ImapConfigDto,
+    ImapFolderListDto,
     ImapStatusDto,
+    InboxEmailListDto,
+    ListFoldersRequestDto,
     MailboxCountDto,
     ProcessEmailsResponseDto,
     SaveImapConfigDto,
@@ -162,16 +167,10 @@ export class ImapController {
                 security: dto.security,
                 mailbox: dto.mailbox,
                 enabled: dto.enabled && testResult.isConnected,
+                autoProcessEnabled: dto.autoProcessEnabled,
             },
             testResult.isConnected,
         );
-
-        if (testResult.isConnected) {
-            this.logger.log(`[saveConfig] Connection OK – starting background import`);
-            this.processEmailsInBackground(dto, user.id);
-        } else {
-            this.logger.warn(`[saveConfig] Connection FAILED – skipping import`);
-        }
 
         const status = await this.settingsService.getImapStatus();
         return {
@@ -183,21 +182,64 @@ export class ImapController {
         };
     }
 
-    private processEmailsInBackground(dto: SaveImapConfigDto, userId: string): void {
-        this.logger.log(`[processEmailsInBackground] Spawning background import for user ${userId}`);
-        this.imapPollerService.processExistingEmails(
-            {
-                host: dto.host,
-                port: dto.port,
-                username: dto.username,
-                password: dto.password,
-                security: dto.security,
-                mailbox: dto.mailbox,
-            },
-            userId,
-        ).catch((error) => {
-            this.logger.error(`[processEmailsInBackground] Failed: ${error instanceof Error ? error.message : String(error)}`);
-        });
+    @Post("list-folders")
+    @Roles([UserRole.ADMIN])
+    @ApiCookieAuth("apiKeyCookie")
+    @ApiOperation({
+        summary: "List available IMAP folders",
+        description: "Connects with the provided credentials and returns all available IMAP folders. Used for folder selection before saving settings.",
+    })
+    @ApiResponse({
+        status: 200,
+        description: "List of available folders",
+        type: ImapFolderListDto,
+    })
+    @ApiResponse({ status: 401, description: "Unauthorized" })
+    @ApiResponse({ status: 403, description: "Forbidden" })
+    async listFolders(@Body() dto: ListFoldersRequestDto): Promise<ImapFolderListDto> {
+        const folders = await this.imapPollerService.listFolders(dto);
+        return { folders };
+    }
+
+    @Get("inbox-emails")
+    @Roles([UserRole.ADMIN])
+    @ApiCookieAuth("apiKeyCookie")
+    @ApiOperation({
+        summary: "Get emails in configured inbox",
+        description: "Returns metadata for all emails currently in the configured inbox folder (not yet moved to ai_analyzed).",
+    })
+    @ApiResponse({
+        status: 200,
+        description: "List of inbox emails",
+        type: InboxEmailListDto,
+    })
+    @ApiResponse({ status: 401, description: "Unauthorized" })
+    @ApiResponse({ status: 403, description: "Forbidden" })
+    async getInboxEmails(): Promise<InboxEmailListDto> {
+        const emails = await this.imapPollerService.getInboxEmails();
+        return { emails };
+    }
+
+    @Post("analyze-selected")
+    @Roles([UserRole.ADMIN])
+    @ApiCookieAuth("apiKeyCookie")
+    @ApiOperation({
+        summary: "Analyze selected emails",
+        description: "Processes the specified emails (by UID) through the AI backend and moves them to the ai_analyzed folder.",
+    })
+    @ApiResponse({
+        status: 200,
+        description: "Analysis complete",
+        type: AnalyzeSelectedResponseDto,
+    })
+    @ApiResponse({ status: 401, description: "Unauthorized" })
+    @ApiResponse({ status: 403, description: "Forbidden" })
+    async analyzeSelected(
+        @Body() dto: AnalyzeSelectedEmailsDto,
+        @AuthUser() _user: { id: string },
+    ): Promise<AnalyzeSelectedResponseDto> {
+        const processedCount = await this.imapPollerService.analyzeSelectedEmails(dto.uids);
+        return { processedCount, success: true };
     }
 
     @Post("mailbox-count")

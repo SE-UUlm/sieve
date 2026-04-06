@@ -12,6 +12,7 @@ import { decodeMailHeader, decodeQuotedPrintable } from "../lib/mail-encoding";
 import { PrismaService } from "../prisma/prisma.service";
 import { SettingsService } from "../settings/settings.service";
 import { ImapConfig, ImapService } from "./imap.service";
+import type { InboxEmailDto, ListFoldersRequestDto } from "./dto";
 
 export interface NewImapEmailEvent {
     userId: string;
@@ -50,6 +51,10 @@ export class ImapPollerService {
 
         const status = await this.settingsService.getImapStatus();
         if (!status.isEnabled) {
+            return;
+        }
+
+        if (!config.autoProcessEnabled) {
             return;
         }
 
@@ -425,6 +430,248 @@ export class ImapPollerService {
             try { await client.logout(); } catch { /* ignore */ }
             throw error;
         }
+    }
+
+    /**
+     * Lists all available IMAP folders for the given credentials.
+     * Used to populate the folder selection dialog before saving settings.
+     */
+    async listFolders(credentials: ListFoldersRequestDto): Promise<string[]> {
+        const ImapClient = (await import("imapflow")).ImapFlow;
+
+        const client = new ImapClient({
+            host: credentials.host.trim(),
+            port: credentials.port,
+            secure: credentials.security === "ssl",
+            tls: credentials.security === "starttls" ? { rejectUnauthorized: false } : undefined,
+            auth: { user: credentials.username, pass: credentials.password },
+            logger: false,
+        });
+
+        try {
+            await client.connect();
+            const mailboxList = await client.list();
+            const folders: string[] = mailboxList
+                .map((m) => m.path)
+                .filter((p): p is string => !!p && p !== this.ANALYZED_FOLDER);
+            await client.logout();
+            return folders;
+        } catch (error) {
+            this.logger.error(`[listFolders] Failed: ${error instanceof Error ? error.message : String(error)}`);
+            try { await client.logout(); } catch { /* ignore */ }
+            throw error;
+        }
+    }
+
+    /**
+     * Returns metadata for all emails currently in the configured inbox folder.
+     * Used to populate the IMAP view in the frontend.
+     */
+    async getInboxEmails(): Promise<InboxEmailDto[]> {
+        const config = await this.settingsService.getImapConfig();
+        if (!config) {
+            return [];
+        }
+
+        const ImapClient = (await import("imapflow")).ImapFlow;
+
+        const client = new ImapClient({
+            host: config.host.trim(),
+            port: config.port,
+            secure: config.security === "ssl",
+            tls: config.security === "starttls" ? { rejectUnauthorized: false } : undefined,
+            auth: { user: config.username, pass: config.password },
+            logger: false,
+        });
+
+        try {
+            await client.connect();
+            const mailboxInfo = await client.mailboxOpen(config.mailbox, { readOnly: true });
+
+            if (mailboxInfo.exists === 0) {
+                await client.logout();
+                return [];
+            }
+
+            const emails: InboxEmailDto[] = [];
+            const messages = await client.fetch("1:*", {
+                uid: true,
+                envelope: true,
+            } as unknown as import("imapflow").FetchQueryObject);
+
+            for await (const message of messages) {
+                if (!message.uid) continue;
+                emails.push({
+                    uid: message.uid,
+                    subject: message.envelope?.subject
+                        ? decodeMailHeader(message.envelope.subject)
+                        : undefined,
+                    sender: message.envelope?.from?.[0]?.address ?? undefined,
+                    date: message.envelope?.date?.toISOString() ?? undefined,
+                });
+            }
+
+            await client.logout();
+            return emails;
+        } catch (error) {
+            this.logger.error(`[getInboxEmails] Failed: ${error instanceof Error ? error.message : String(error)}`);
+            try { await client.logout(); } catch { /* ignore */ }
+            throw error;
+        }
+    }
+
+    /**
+     * Processes a specific set of emails (by UID) through the AI backend
+     * and moves them to the ai_analyzed folder.
+     */
+    async analyzeSelectedEmails(uids: number[]): Promise<number> {
+        if (uids.length === 0) return 0;
+
+        const config = await this.settingsService.getImapConfig();
+        if (!config) {
+            throw new Error("IMAP is not configured");
+        }
+
+        const adminUser = await this.prismaService.user.findFirst({
+            where: { role: "ADMIN" },
+        });
+        if (!adminUser) {
+            throw new Error("No admin user found");
+        }
+
+        const ImapClient = (await import("imapflow")).ImapFlow;
+
+        const client = new ImapClient({
+            host: config.host.trim(),
+            port: config.port,
+            secure: config.security === "ssl",
+            tls: config.security === "starttls" ? { rejectUnauthorized: false } : undefined,
+            auth: { user: config.username, pass: config.password },
+            logger: false,
+        });
+
+        let processedCount = 0;
+
+        try {
+            await client.connect();
+            await this.ensureAnalyzedFolderExists(client);
+            await client.mailboxOpen(config.mailbox);
+
+            for (const uid of uids) {
+                try {
+                    // Fetch full message content
+                    let fetchedMessage: {
+                        uid?: number;
+                        envelope?: import("imapflow").MessageEnvelopeObject;
+                        text?: string;
+                        html?: string;
+                        source?: Buffer;
+                    } | null = null;
+
+                    const fetchResult = await client.fetch(String(uid), {
+                        uid: true,
+                        envelope: true,
+                        source: true,
+                        text: true,
+                        html: true,
+                    } as unknown as import("imapflow").FetchQueryObject, { uid: true });
+
+                    for await (const msg of fetchResult) {
+                        fetchedMessage = msg;
+                        break;
+                    }
+
+                    if (!fetchedMessage) {
+                        this.logger.warn(`[analyzeSelected] Message uid=${uid} not found`);
+                        continue;
+                    }
+
+                    // Skip if already in DB
+                    const messageId = fetchedMessage.envelope?.messageId || "";
+                    if (messageId) {
+                        const existing = await this.prismaService.email.findFirst({
+                            where: { source: EmailSource.IMAP, body: { contains: messageId } },
+                        });
+                        if (existing) {
+                            this.logger.log(`[analyzeSelected] uid=${uid} already processed – skipping`);
+                            // Still move it to analyzed folder
+                            try { await this.moveMessageToAnalyzedFolder(client, uid); } catch { /* ignore */ }
+                            continue;
+                        }
+                    }
+
+                    const subject = decodeMailHeader(fetchedMessage.envelope?.subject || "");
+                    const sender = fetchedMessage.envelope?.from?.[0]?.address ?? null;
+                    const body = decodeQuotedPrintable(this.extractTextContent(fetchedMessage));
+
+                    const analysisResult = await this.aiBackendService.runFlow(body, subject);
+                    const now = new Date();
+
+                    await this.prismaService.$transaction(async (transaction) => {
+                        const email = await transaction.email.create({
+                            data: {
+                                userId: adminUser.id,
+                                sender,
+                                subject,
+                                body,
+                                source: EmailSource.IMAP,
+                            },
+                        });
+
+                        const job = await transaction.job.create({
+                            data: {
+                                userId: adminUser.id,
+                                emailId: email.id,
+                                status: JobStatus.COMPLETED,
+                                startedAt: now,
+                                completedAt: now,
+                            },
+                        });
+
+                        await transaction.jobResult.create({
+                            data: {
+                                jobId: job.id,
+                                status: JobResultStatus.SUCCESS,
+                                output: analysisResult as unknown as Prisma.InputJsonValue,
+                            },
+                        });
+
+                        this.eventEmitter.emit("imap.email.received", {
+                            userId: adminUser.id,
+                            emailId: email.id,
+                            subject,
+                        } as NewImapEmailEvent);
+                    });
+
+                    try {
+                        await this.moveMessageToAnalyzedFolder(client, uid);
+                    } catch (moveError) {
+                        this.logger.warn(
+                            `[analyzeSelected] Could not move uid=${uid} to analyzed folder: ${moveError instanceof Error ? moveError.message : String(moveError)}`,
+                        );
+                    }
+
+                    processedCount++;
+                    this.logger.log(`[analyzeSelected] Processed uid=${uid}: ${subject || "(no subject)"}`);
+                } catch (error) {
+                    this.logger.error(`[analyzeSelected] Failed for uid=${uid}: ${error instanceof Error ? error.message : String(error)}`);
+                }
+            }
+
+            // Update last synced timestamp
+            await this.prismaService.instanceSettings.update({
+                where: { id: "singleton" },
+                data: { imapLastSyncedAt: new Date() },
+            });
+
+            await client.logout();
+        } catch (error) {
+            this.logger.error(`[analyzeSelected] Fatal: ${error instanceof Error ? error.message : String(error)}`);
+            try { await client.logout(); } catch { /* ignore */ }
+            throw error;
+        }
+
+        return processedCount;
     }
 
     /**
