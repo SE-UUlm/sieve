@@ -42,7 +42,7 @@
         "class-validator": "^0.15.1",
         "graphql": "^16.13.1",
         "imapflow": "^1.2.15",
-        "joi": "^18.0.2",
+        "joi": "^18.1.2",
         "nodemailer": "^8.0.4",
         "orval": "^8.5.3",
         "pg": "^8.20.0",
