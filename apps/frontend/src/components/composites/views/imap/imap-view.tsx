@@ -8,6 +8,7 @@ import { SplitViewPane } from "@/components/composites/views/split-view/split-vi
 import { StyledButton } from "@/components/ui/styled-button";
 import { StyledSkeleton } from "@/components/ui/styled-skeleton";
 import {
+    type imapControllerGetInboxEmailsResponseSuccess,
     getImapControllerGetEmailBodyQueryKey,
     getImapControllerGetInboxEmailsQueryKey,
     useImapControllerAnalyzeSelected,
@@ -44,6 +45,31 @@ export function ImapView() {
 
     const analyzeSelected = useImapControllerAnalyzeSelected({
         mutation: {
+            onMutate: async ({ data: { uids } }) => {
+                await queryClient.cancelQueries({
+                    queryKey: getImapControllerGetInboxEmailsQueryKey(),
+                });
+                const previousData =
+                    queryClient.getQueryData<imapControllerGetInboxEmailsResponseSuccess>(
+                        getImapControllerGetInboxEmailsQueryKey(),
+                    );
+                queryClient.setQueryData<imapControllerGetInboxEmailsResponseSuccess>(
+                    getImapControllerGetInboxEmailsQueryKey(),
+                    (old) => {
+                        if (!old?.data?.emails) return old;
+                        return {
+                            ...old,
+                            data: {
+                                ...old.data,
+                                emails: old.data.emails.filter(
+                                    (email) => !uids.includes(email.uid),
+                                ),
+                            },
+                        };
+                    },
+                );
+                return { previousData };
+            },
             onSuccess: (response) => {
                 if (response.status === 200) {
                     const count = response.data.processedCount;
@@ -54,19 +80,27 @@ export function ImapView() {
                     setSelectedUids(new Set());
                     setPreviewUid(null);
                     queryClient.invalidateQueries({
-                        queryKey: getImapControllerGetInboxEmailsQueryKey(),
-                    });
-                    queryClient.invalidateQueries({
                         queryKey: getJobControllerGetHistoryQueryKey({
                             source: "IMAP",
                         }),
                     });
                 }
             },
-            onError: () => {
+            onError: (_error, _variables, context) => {
+                if (context?.previousData !== undefined) {
+                    queryClient.setQueryData(
+                        getImapControllerGetInboxEmailsQueryKey(),
+                        context.previousData,
+                    );
+                }
                 showPersistentErrorToast({
                     title: "Analysis failed",
                     description: "Could not process the selected emails.",
+                });
+            },
+            onSettled: () => {
+                queryClient.invalidateQueries({
+                    queryKey: getImapControllerGetInboxEmailsQueryKey(),
                 });
             },
         },

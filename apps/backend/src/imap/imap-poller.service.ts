@@ -28,6 +28,7 @@ export interface NewImapEmailEvent {
 export class ImapPollerService {
     private readonly logger = new Logger(ImapPollerService.name);
     private isRunning = false;
+    private readonly processingUids = new Set<number>();
     private readonly ANALYZED_FOLDER = "ai_analyzed";
     private analyzedFolderPath: string | null = null;
 
@@ -606,6 +607,10 @@ export class ImapPollerService {
                 ) {
                     continue;
                 }
+                // Hide UIDs that are currently being processed (manual analyze in progress)
+                if (this.processingUids.has(message.uid)) {
+                    continue;
+                }
                 emails.push({
                     uid: message.uid,
                     subject: message.envelope?.subject
@@ -730,6 +735,10 @@ export class ImapPollerService {
         });
 
         let processedCount = 0;
+
+        for (const uid of uids) {
+            this.processingUids.add(uid);
+        }
 
         try {
             await client.connect();
@@ -861,6 +870,8 @@ export class ImapPollerService {
                     this.logger.error(
                         `[analyzeSelected] Failed for uid=${uid}: ${error instanceof Error ? error.message : String(error)}`,
                     );
+                } finally {
+                    this.processingUids.delete(uid);
                 }
             }
 
@@ -875,6 +886,7 @@ export class ImapPollerService {
             this.logger.error(
                 `[analyzeSelected] Fatal: ${error instanceof Error ? error.message : String(error)}`,
             );
+            uids.forEach((uid) => this.processingUids.delete(uid));
             try {
                 await client.logout();
             } catch {
