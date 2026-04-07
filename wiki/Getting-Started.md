@@ -201,3 +201,13 @@ For a practical quick-start and full technical reference for category configurat
 3. Use the `IMAP` view to preview inbox emails and analyze selected messages.
 4. Processed emails are moved to the `ai_analyzed` folder and appear in `History` with source label `IMAP Import`.
 5. If automatic processing is enabled in Mail settings, new inbox emails are imported and analyzed periodically.
+
+## Working with the history view
+
+The `History` view lists all completed analysis runs. For each entry you can:
+
+- **Filter by source** — switch between `All`, `Manual`, and `IMAP` tabs.
+- **Filter by handled status** — switch between `All`, `Unhandled`, and `Handled` tabs to focus on mails that still need a response.
+- **Search** — filter entries by subject or body content.
+- **Send a response** — if the analysis produced a suggested email response and the original sender address is known, a `Send Email Response` button appears in the detail panel. Clicking it sends the response via SMTP and automatically marks the mail as handled.
+- **Toggle handled manually** — use the `Mark handled` / `Unmark` button on any history card to set or clear the handled status without sending an email.
