@@ -3,6 +3,7 @@
 import { CheckCheck, FileJson, Inbox, Mail, Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { AnalysisResult } from "@/components/composites/views/analyze/model/analysis-result";
+import { EmailResponseSection } from "@/components/composites/views/analyze/output/result/email-response-section";
 import { SplitView } from "@/components/composites/views/split-view/split-view";
 import { SplitViewPane } from "@/components/composites/views/split-view/split-view-pane";
 import { Badge } from "@/components/primitives/badge";
@@ -10,6 +11,7 @@ import { StyledInput } from "@/components/ui/styled-input";
 import {
     getJobControllerGetHistoryQueryKey,
     type JobHistoryEntryDto,
+    type SubmitEmailResponseDto,
     useJobControllerGetHistory,
     useJobControllerSetJobHandled,
 } from "@/lib/client";
@@ -24,6 +26,7 @@ type HandledFilter = "ALL" | "UNHANDLED" | "HANDLED";
 
 type HistoryEntry = {
     id: string;
+    sender: string | null;
     subject: string;
     body: string;
     result: AnalysisResult | null;
@@ -198,6 +201,21 @@ export function HistoryView({ history = [] }: HistoryViewProps) {
     const selectedItem =
         filteredHistory.find((item) => item.id === selectedId) ?? null;
     const selectedRawResult = selectedItem?.rawResult ?? selectedItem?.result;
+
+    const [historyEmailResult, setHistoryEmailResult] =
+        useState<SubmitEmailResponseDto | null>(null);
+
+    useEffect(() => {
+        if (!selectedItem?.result?.email_response) {
+            setHistoryEmailResult(null);
+            return;
+        }
+        setHistoryEmailResult({
+            data: selectedItem.result,
+            email_response_sent: selectedItem.handled,
+            jobId: selectedItem.id,
+        });
+    }, [selectedItem?.id, selectedItem?.handled]);
 
     const tabConfig: {
         key: EmailSource | "ALL";
@@ -378,6 +396,22 @@ export function HistoryView({ history = [] }: HistoryViewProps) {
                                 </p>
                             )}
                         </section>
+
+                        {historyEmailResult && (
+                            <section className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900/60">
+                                <EmailResponseSection
+                                    result={historyEmailResult}
+                                    setResult={setHistoryEmailResult}
+                                    request={{
+                                        body: selectedItem.body,
+                                        subject:
+                                            selectedItem.subject || undefined,
+                                        sender:
+                                            selectedItem.sender ?? undefined,
+                                    }}
+                                />
+                            </section>
+                        )}
                     </div>
                 ) : (
                     <div className="mx-auto flex h-full w-full max-w-md flex-col items-center justify-center text-slate-400 dark:text-slate-500">
@@ -397,6 +431,7 @@ function mapHistoryEntryDtoToHistoryEntry(
 ): HistoryEntry {
     return {
         id: entry.id,
+        sender: entry.sender ?? null,
         subject: entry.subject ?? "",
         body: entry.body,
         result: toHistoryAnalysisResult(entry.result),
