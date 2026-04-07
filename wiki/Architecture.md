@@ -103,7 +103,7 @@ IMAP ingestion is handled end-to-end by backend orchestration with frontend admi
 
 ### Email encoding
 
-Raw IMAP messages are parsed with [`mailparser`](https://nodemailer.com/extras/mailparser/) (`simpleParser`) before
+Raw IMAP messages are parsed with `mailparser` (`simpleParser`) before
 subject and body text are extracted. This handles all common MIME encodings transparently:
 
 - `quoted-printable` and `base64` body parts
