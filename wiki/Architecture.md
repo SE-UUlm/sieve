@@ -101,6 +101,20 @@ IMAP ingestion is handled end-to-end by backend orchestration with frontend admi
    - Score < threshold or threshold is `null` → no auto-send; response remains available for manual send in History.
 8. Backend emits notification events over the `notifications` WebSocket namespace for newly processed IMAP emails.
 
+### Email encoding
+
+Raw IMAP messages are parsed with `mailparser` (`simpleParser`) before
+subject and body text are extracted. This handles all common MIME encodings transparently:
+
+- `quoted-printable` and `base64` body parts
+- RFC 2047 encoded-word headers (e.g. `=?UTF-8?Q?...?=`, `=?UTF-8?B?...?=`)
+- Non-UTF-8 charsets (ISO-8859-1, Windows-1252, …)
+
+This applies to all three ingestion paths: auto-poll (`detectNewEmails`), manual selection
+(`analyzeSelectedEmails`), and the inbox body preview (`getEmailBody`). The inbox list view
+(`getInboxEmails`) uses the envelope subject delivered by imapflow, which is decoded separately
+via the same RFC 2047 logic.
+
 ## AI-backend flow architecture
 
 The AI-backend runs a top-level LangGraph workflow that:
