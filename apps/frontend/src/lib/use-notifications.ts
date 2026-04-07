@@ -3,9 +3,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { io, type Socket } from "socket.io-client";
-import {
-    getImapControllerGetInboxEmailsQueryKey,
-} from "@/lib/client/imap/imap";
+import { getImapControllerGetInboxEmailsQueryKey } from "@/lib/client/imap/imap";
 import { getJobControllerGetHistoryQueryKey } from "@/lib/client/jobs/jobs";
 import { showSuccessToast } from "@/lib/toast";
 
@@ -15,9 +13,12 @@ export function useNotifications() {
 
     useEffect(() => {
         // Connect to WebSocket server
-        const socket = io(`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5175"}/notifications`, {
-            withCredentials: true,
-        });
+        const socket = io(
+            `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5175"}/notifications`,
+            {
+                withCredentials: true,
+            },
+        );
 
         socketRef.current = socket;
 
