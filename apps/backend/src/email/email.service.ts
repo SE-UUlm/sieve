@@ -37,6 +37,7 @@ export class EmailService {
                     const email = await transaction.email.create({
                         data: {
                             userId,
+                            sender: dto.sender ?? null,
                             subject: dto.subject?.trim() || null,
                             body: dto.body,
                         },
