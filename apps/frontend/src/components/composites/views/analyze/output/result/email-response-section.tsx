@@ -7,9 +7,12 @@ import { StyledButton } from "@/components/ui/styled-button";
 import {
     type CreateEmailDto,
     type SubmitEmailResponseDto,
+    getJobControllerGetHistoryQueryKey,
     useEmailControllerSendEmailResponse,
+    useJobControllerSetJobHandled,
 } from "@/lib/client";
 import { showPersistentErrorToast, showSuccessToast } from "@/lib/toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 type SendEmailResponseToast = {
     title: string;
@@ -73,6 +76,10 @@ export function EmailResponseSection({
 }: EmailResponseSectionProps) {
     const response = result.data.email_response;
 
+    const queryClient = useQueryClient();
+
+    const { mutate: setHandled } = useJobControllerSetJobHandled();
+
     const { mutate, isPending } = useEmailControllerSendEmailResponse({
         mutation: {
             onSuccess: (response) => {
@@ -85,6 +92,31 @@ export function EmailResponseSection({
                             },
                     );
                     showSuccessToast({ title: "Email Response Sent" });
+
+                    setHandled(
+                        { jobId: result.jobId, data: { handled: true } },
+                        {
+                            onSuccess: () => {
+                                void queryClient.invalidateQueries({
+                                    queryKey:
+                                        getJobControllerGetHistoryQueryKey({}),
+                                });
+                                void queryClient.invalidateQueries({
+                                    queryKey:
+                                        getJobControllerGetHistoryQueryKey({
+                                            source: "MANUAL",
+                                        }),
+                                });
+                                void queryClient.invalidateQueries({
+                                    queryKey:
+                                        getJobControllerGetHistoryQueryKey({
+                                            source: "IMAP",
+                                        }),
+                                });
+                            },
+                        },
+                    );
+
                     return;
                 }
 
@@ -110,6 +142,7 @@ export function EmailResponseSection({
                     ? `Re: ${request.subject}`
                     : response?.response_subject || "Support Response",
                 body: response.response_body,
+                jobId: result.jobId,
             },
         });
     };
