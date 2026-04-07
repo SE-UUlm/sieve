@@ -252,6 +252,7 @@ export class JobService {
     private toJobHistoryEntryDto(job: JobWithRelations): JobHistoryEntryDto {
         return {
             id: job.id,
+            sender: job.email.sender,
             subject: job.email.subject,
             body: job.email.body,
             result: this.toHistoryResult(job.result?.output),

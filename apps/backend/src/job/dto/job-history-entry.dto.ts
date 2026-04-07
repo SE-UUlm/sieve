@@ -22,6 +22,15 @@ export class JobHistoryEntryDto {
     id!: string;
 
     @ApiPropertyOptional({
+        description: "Sender address of the email.",
+        type: String,
+        nullable: true,
+    })
+    @IsOptional()
+    @IsString()
+    sender?: string | null;
+
+    @ApiPropertyOptional({
         description: "Email subject submitted for analysis.",
         type: String,
         nullable: true,
