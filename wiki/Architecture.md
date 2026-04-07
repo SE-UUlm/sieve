@@ -20,7 +20,8 @@ Core backend entities:
 - `Email`
 - `Job`
 - `JobResult`
-- `InstanceSettings` — singleton row holding IMAP connection config, `imapLastUid` (UID watermark for auto-polling), `imapAutoProcessEnabledAt`, and the encrypted IMAP password.
+- `InstanceSettings` — singleton row holding IMAP connection config, `imapLastUid` (UID watermark for auto-polling),
+  `imapAutoProcessEnabledAt`, and the encrypted IMAP password.
 - `ProviderSettings`
 
 Auth entities (`Session`, `Account`, `Verification`) are also persisted.
@@ -77,13 +78,16 @@ IMAP ingestion is handled end-to-end by backend orchestration with frontend admi
    - `imapLastUid` tracks the highest message UID seen so far; new messages are detected by fetching UIDs above this value.
    - `imapAutoProcessEnabledAt` records the timestamp when auto-processing was last activated.
 3. Frontend `IMAP` view lists current inbox emails and allows selecting messages for analysis (`POST /api/imap/analyze-selected`).
-   - Emails that arrived after `imapAutoProcessEnabledAt` are hidden from the inbox list when auto-process is active (they will be handled by the cron job).
+   - Emails that arrived after `imapAutoProcessEnabledAt` are hidden from the inbox list when auto-process is active
+     (they will be handled by the cron job).
    - Emails currently being analyzed (either via manual selection or auto-process) are hidden from the inbox list in real time to prevent duplicate submissions.
 4. Backend IMAP processing writes results into the same `Email`/`Job`/`JobResult` pipeline with `Email.source = IMAP`.
 5. Processed messages are moved to `ai_analyzed` via COPY + DELETE to avoid repeated analysis.
 6. When auto-process is enabled, backend polls the IMAP mailbox every 30 seconds using a two-phase approach:
-   - **Detection phase** — a short-lived IMAP connection fetches all messages with UID > `imapLastUid`. `imapLastUid` is advanced immediately and the connection is closed before AI analysis starts.
-   - **Processing phase** — each detected email is analyzed by the AI-backend; a separate short-lived IMAP connection is opened per message to move it to `ai_analyzed`. This avoids socket-timeout issues caused by long-running AI calls.
+   - **Detection phase** — a short-lived IMAP connection fetches all messages with UID > `imapLastUid`.
+     `imapLastUid` is advanced immediately and the connection is closed before AI analysis starts.
+   - **Processing phase** — each detected email is analyzed by the AI-backend; a separate short-lived IMAP connection
+     is opened per message to move it to `ai_analyzed`. This avoids socket-timeout issues from long AI calls.
 7. Backend emits notification events over the `notifications` WebSocket namespace for newly processed IMAP emails.
 
 ## AI-backend flow architecture
