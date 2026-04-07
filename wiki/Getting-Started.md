@@ -1,200 +1,119 @@
-This guide will help you set up your development environment and get your first code changes running.
+# Getting Started
+
+This page describes how to run SIEVE locally with Docker Compose (recommended) or from source.
 
 ## Prerequisites
 
-First, make sure you have installed the following:
-
 - [Docker](https://www.docker.com/get-started/)
-- [Docker Compose](https://docs.docker.com/compose/install/)
-- [Node.js 22/23](https://nodejs.org/en)
-- IDE of your choice (e.g. [WebStorm](https://www.jetbrains.com/webstorm/download/) or
-  [VS Code](https://code.visualstudio.com/download))
+- [Docker Compose](https://docs.docker.com/compose/)
+- [Node.js](https://nodejs.org/) (for source builds of frontend/backend)
+- [pnpm](https://pnpm.io/installation) (for source builds of frontend/backend)
+- [Python 3.10+](https://www.python.org/) and [uv](https://docs.astral.sh/uv/getting-started/installation/) (for source builds of ai-backend)
 
-## Docker Setup (Recommended)
+## Docker Compose (recommended)
 
-The fastest way to get started is to use the provided Docker setup, which runs the entire stack
-(database, backend, and frontend) with a single command.
-
-Before you begin, ensure you have configured the necessary environment variables.
-For a detailed guide on all configuration options, see the
-**[Configuration](https://github.com/SE-UUlm/sieve/wiki/Configuration)** page.
-
-1. Clone the repository:
+1. Clone and enter the repository.
 
    ```bash
    git clone git@github.com:SE-UUlm/sieve.git
    cd sieve
    ```
 
-2. Copy the example environment file and configure it:
+2. Create local environment configuration.
 
    ```bash
    cp .env.example .env
-   # Edit .env with your preferred settings
    ```
 
-   Generate an encryption key for instance settings secrets:
+3. Generate the backend encryption key and set it in `.env` as `SETTINGS_ENCRYPTION_KEY`.
 
    ```bash
-   SETTINGS_ENCRYPTION_KEY=$(openssl rand -base64 32)
+   openssl rand -base64 32
    ```
 
-   Demo users are disabled by default (`SEED_DEMO_USERS=false`).
-   If you want demo users, set `SEED_DEMO_USERS=true` and provide both
-   `SEED_ADMIN_PASSWORD` and `SEED_USER_PASSWORD`.
-
-3. Start all services using Docker Compose:
+4. Start all services.
 
    ```bash
    docker compose up
    ```
 
-   If you want to force local image builds (`docker compose up --build`), generate clients first:
-
-   ```bash
-   cd apps/backend
-   pnpm install
-   pnpm run generate:clients
-   cd ../..
-   ```
-
-   This will start:
-   - PostgreSQL database on port 5432
-   - Backend API on port 5175 (configurable via `BACKEND_PORT`)
-   - Frontend on port 3000 (configurable via `FRONTEND_PORT`)
-   - AI-Backend on port 8000
-
-4. Access the application:
-   - Backend API: `http://localhost:5175`
+5. Open the application.
    - Frontend: `http://localhost:3000`
-     - Backend is also accessible at `http://localhost:3000/api`
-     - This proxying is configured in `next.config.ts`
-   - AI-Backend: `http://localhost:8000`
+   - Backend API: `http://localhost:5175/api`
+   - Backend docs: `http://localhost:5175/docs`
+   - AI-Backend docs: `http://localhost:8000/docs`
 
-   After the first admin login, configure provider credentials and model
-   settings in `Settings -> Provider` (active provider, provider API keys, and
-   simple/complex model identifiers).
+### Compose profiles
 
-   You can configure analysis categories in `Settings -> Category` by editing
-   the categories JSON. Each category must provide `name`, `description`, and a
-   `flow` object with `flow.name` (`simple` or `product`) and
-   `flow.structured_response_schema`.
+You can run subsets of the stack with profiles:
 
-### Running Individual Services
+- Database only: `docker compose --profile db-only up`
+- Backend only: `docker compose --profile backend-only up`
+- Backend + db: `docker compose --profile backend-only --profile db-only up`
+- Frontend only: `docker compose --profile frontend-only up`
+- AI-Backend only: `docker compose --profile ai-backend-only up`
 
-You can also run services individually using Docker Compose profiles:
+### Local image builds with Compose
 
-- Run only the database:
+When using `docker compose up --build`, generate frontend API clients first:
 
-  ```bash
-  docker compose --profile db-only up
-  ```
+```bash
+cd apps/backend
+pnpm install
+pnpm run generate:clients
+```
 
-- Run only the backend (with database):
+## Run from source
 
-  ```bash
-  docker compose --profile backend-only up
-  ```
+### Backend (`apps/backend`)
 
-- Run only the frontend:
-
-  ```bash
-  docker compose --profile frontend-only up
-  ```
-
-- Run only the ai-backend:
-
-  ```bash
-  docker compose --profile ai-backend-only up
-  ```
-
-## Building from Source
-
-If you prefer more control over the development environment, you can build and run each service from source.
-
-### Backend
-
-1. Navigate to the backend directory:
+1. Install dependencies and configure environment variables.
 
    ```bash
    cd apps/backend
-   ```
-
-2. Install all dependencies using `pnpm`:
-
-   ```bash
    pnpm install
+   cp .env.example .env
    ```
 
-3. Configure environment variables (copy `.env.example` to `.env` and edit as needed)
-
-   Ensure `SETTINGS_ENCRYPTION_KEY` is set (base64-encoded 32-byte value), for example:
+2. Set a valid base64-encoded 32-byte `SETTINGS_ENCRYPTION_KEY` in `apps/backend/.env`.
 
    ```bash
-   SETTINGS_ENCRYPTION_KEY=$(openssl rand -base64 32)
+   openssl rand -base64 32
    ```
 
-4. Generate the Prisma client (required after a fresh clone and after Prisma schema changes):
+3. Generate Prisma client and apply schema to your database.
 
    ```bash
    pnpm run generate:client:prisma
-   ```
-
-5. Push Prisma schema to database:
-
-   ```bash
    pnpm exec prisma db push
    ```
 
-   This is only necessary the first time and after a schema change.
-
-6. Optional: Seed demo users:
+4. Optional: bootstrap default users:
+   - set `SEED_DEMO_USERS=true`
+   - admin: `SEED_ADMIN_NAME`, `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD` (password needed when admin does not exist yet)
+   - non-admin (Alice by default): `SEED_USER_NAME`, `SEED_USER_EMAIL`, `SEED_USER_PASSWORD` (password needed when user does not exist yet)
+   - run:
 
    ```bash
-   # In apps/backend/.env:
-   # SEED_DEMO_USERS=true
-   # SEED_ADMIN_PASSWORD=<strong password>
-   # SEED_USER_PASSWORD=<strong password>
    pnpm exec prisma db seed
    ```
 
-   If `SEED_DEMO_USERS` is not `true`, the seed command skips demo user creation.
-
-7. Run the backend:
-
-   **Option A** - Development mode (auto-reload on file changes):
+5. Start backend in development mode.
 
    ```bash
    pnpm run dev
    ```
 
-   This runs the NestJS server using `ts-node` and watches for file changes.
+### Frontend (`apps/frontend`)
 
-   **Option B** - Production mode (compiled output):
-
-   ```bash
-   pnpm run build
-   pnpm run prod
-   ```
-
-   This first compiles the TypeScript source to JavaScript in the `/dist` directory,
-   then starts the server using Node.
-
-### Frontend
-
-1. Navigate to the frontend directory:
+1. Install dependencies.
 
    ```bash
    cd apps/frontend
-   ```
-
-2. Install all dependencies using `pnpm`:
-
-   ```bash
    pnpm install
    ```
 
-3. Generate API clients in the backend (required after a fresh clone and after backend API changes):
+2. Generate API clients from backend OpenAPI.
 
    ```bash
    cd ../backend
@@ -202,73 +121,83 @@ If you prefer more control over the development environment, you can build and r
    cd ../frontend
    ```
 
-4. Run the frontend:
-
-   **Option A** - Development mode (with hot reload):
+3. Start development server.
 
    ```bash
    pnpm run dev
    ```
 
-   This starts the Next.js development server with hot module replacement.
+The frontend proxies `/api/*` to the backend (default target `http://localhost:5175`).
 
-   To enable API mocking (backend not needed for very simple tests), the following command can be used:
+To run with API mocks:
 
-   ```bash
-   ENABLE_MOCK=true pnpm run dev
-   ```
+```bash
+ENABLE_MOCK=true pnpm run dev
+```
 
-   **Option B** - Production mode:
+### AI-Backend (`apps/ai-backend`)
 
-   ```bash
-   pnpm run build
-   pnpm run start
-   ```
-
-   This builds the optimized production bundle and starts the production server.
-
-### AI-Backend
-
-1. Prerequisites:
-   - Python 3.10 or higher
-
-2. Install uv
-
-   Options:
-   - Homebrew (MacOS): `brew install uv`
-   - Other System Package Managers
-   - Other options: [UV Docs](https://docs.astral.sh/uv/getting-started/installation/)
-
-3. Navigate to the AI-Backend directory:
+1. Install dependencies and optionally create local env config.
 
    ```bash
    cd apps/ai-backend
+   uv sync
+   cp .env.example .env
    ```
 
-4. Configure environment variables
-
-   Copy `.env.example` to `.env` if needed.
-   Optional if Product Flow is not used and therefore no Product Database is needed.
-
-5. Start AI-Backend in dev mode with auto-reload:
+2. Start in development mode.
 
    ```bash
    uv run dev
    ```
 
-   Dependencies are automatically installed
+3. Optional quality commands:
 
-#### Setup Product DB
+   ```bash
+   uv run test
+   uv run lint
+   uv run typecheck
+   uv run format
+   ```
 
-The AI-Backend can retrieve data from any Postgres-DB.
-To import a sample dataset to the database, follow these instructions:
+### Product database setup for AI product flow
 
-- Configure `PRODUCT_DB*` environment variables in ai-backend .env (or root .env if using docker compose), use .env.example as reference
-- Start postgres db
-- In `prepare_db.sql` line 10 replace `xxxxxx` by your configured `PRODUCT_DB_PASSWORD`. And if changed:
-  - Replace `ai-backend` with Value of `PRODUCT_DB_USERNAME` in `CREATE ROLE "ai-backend" WITH`, `OWNER = "ai-backend"` and `OWNER to "ai-backend";`
-  - Replace `ai-backend` with Value of `PRODUCT_DB_NAME` in `CREATE DATABASE "ai-backend"` and `\c ai-backend;`
-- Run sql file:
-  - Replace `<postgres-username>` by your configured `DB_USERNAME` from backend/root .env. Not `PRODUCT_DB_USERNAME`. Same thing for prompted password.
-  - psql installed on host: `psql -h localhost -U <postgres-username> -f prepare_db.sql`
-  - Not installed, run in container: `cat prepare_db.sql | docker compose exec -T db psql -U <postgres-username>`
+The product flow requires product DB variables (`PRODUCT_DB_*`). If `PRODUCT_DB_NAME` is unset, product flow is not available.
+
+To load the provided sample dataset:
+
+1. Ensure postgres is running.
+2. Edit `apps/ai-backend/prepare_db.sql`:
+   - replace `xxxxxx` with your `PRODUCT_DB_PASSWORD`
+   - if needed, replace all `"ai-backend"` identifiers with your configured `PRODUCT_DB_USERNAME` / `PRODUCT_DB_NAME`
+3. Execute the SQL file, for example:
+
+   ```bash
+   psql -h localhost -U <postgres-username> -f apps/ai-backend/prepare_db.sql
+   ```
+
+   or through the compose db container:
+
+   ```bash
+   cat apps/ai-backend/prepare_db.sql | docker compose exec -T db psql -U <postgres-username>
+   ```
+
+## First in-app configuration
+
+After first login as admin:
+
+1. Go to `Settings -> Provider` and configure provider API keys and model identifiers.
+2. Go to `Settings -> Category` to configure analysis categories.
+3. (Optional) Go to `Settings -> Mail` to connect an IMAP mailbox, then use the `IMAP` view to select inbox emails for analysis.
+
+For a practical quick-start and full technical reference for category configuration
+(including required schema keys and examples), see
+[Category Settings Guide](https://github.com/SE-UUlm/sieve/wiki/Category-Settings-Guide).
+
+## IMAP email import (optional, admin)
+
+1. Open `Settings -> Mail` and enter your IMAP host, port, username, password, and security mode.
+2. Save settings and select the inbox folder to monitor.
+3. Use the `IMAP` view to preview inbox emails and analyze selected messages.
+4. Processed emails are moved to the `ai_analyzed` folder and appear in `History` with source label `IMAP Import`.
+5. If automatic processing is enabled in Mail settings, new inbox emails are imported and analyzed periodically.

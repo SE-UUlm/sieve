@@ -5,7 +5,7 @@ description = ""
 authors = [
     {name = "Moritz Beck (Birkenstab)", email = "git@birkenstab.de"}
 ]
-readme = "README.md"
+readme = { text = "AI-backend service for the SIEVE project.", content-type = "text/markdown" }
 requires-python = ">=3.10,<4.0"
 dependencies = [
     "fastapi[standard]>=0.128.0,<0.136.0",

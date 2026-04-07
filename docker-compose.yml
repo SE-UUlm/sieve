@@ -38,9 +38,9 @@ services:
             SETTINGS_ENCRYPTION_KEY: ${SETTINGS_ENCRYPTION_KEY}
 
             TRUSTED_ORIGINS: ${TRUSTED_ORIGINS}
+            FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
 
             SEED_DEMO_USERS: ${SEED_DEMO_USERS:-false}
-            SEED_DEMO_HISTORY: ${SEED_DEMO_HISTORY:-false}
             SEED_ADMIN_NAME: ${SEED_ADMIN_NAME:-Admin}
             SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@example.com}
             SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-}

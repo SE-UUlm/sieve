@@ -7,65 +7,88 @@ vars: {
 users: {
   shape: sql_table
 
-  id: uuid {constraint: primary_key}
+  id: string {constraint: primary_key}
   name: string
   email: string {constraint: unique}
-  passwordHash: string
   role: enum
-
-  # Metadata
+  emailVerified: boolean
+  image: string {constraint: nullable}
   createdAt: timestamp with time zone
-  updatedAt: timestamp with time zone {constraint: nullable}
-  deletedAt: timestamp with time zone {constraint: nullable}
-}
-
-jobs: {
-  shape: sql_table
-
-  id: uuid {constraint: primary_key}
-  status: enum
-  userId: uuid {constraint: foreign_key}
-  emailId: uuid {constraint: foreign_key}
-  startedAt: timestamp with time zone {constraint: nullable}
-  completedAt: timestamp with time zone {constraint: nullable}
-
-  # Metadata
-  createdAt: timestamp with time zone
-  deletedAt: timestamp with time zone {constraint: nullable}
-}
-
-jobResults: {
-  shape: sql_table
-
-  id: uuid {constraint: primary_key}
-  jobId: uuid {constraint: foreign_key}
-  status: enum
-  output: json
-
-  # Metadata
-  createdAt: timestamp with time zone
-  deletedAt: timestamp with time zone {constraint: nullable}
+  updatedAt: timestamp with time zone
 }
 
 emails: {
   shape: sql_table
 
-  id: uuid {constraint: primary_key}
-  userId: uuid {constraint: foreign_key}
+  id: string {constraint: primary_key}
+  userId: string {constraint: foreign_key}
   sender: string {constraint: nullable}
   subject: string {constraint: nullable}
   body: text
-
-  # Metadata
+  source: enum
   createdAt: timestamp with time zone
-  deletedAt: timestamp with time zone {constraint: nullable}
+  updatedAt: timestamp with time zone
+}
+
+jobs: {
+  shape: sql_table
+
+  id: string {constraint: primary_key}
+  status: enum
+  userId: string {constraint: foreign_key}
+  emailId: string {constraint: foreign_key, unique}
+  startedAt: timestamp with time zone {constraint: nullable}
+  completedAt: timestamp with time zone {constraint: nullable}
+  createdAt: timestamp with time zone
+  updatedAt: timestamp with time zone
+}
+
+job_results: {
+  shape: sql_table
+
+  id: string {constraint: primary_key}
+  jobId: string {constraint: foreign_key, unique}
+  status: enum
+  output: json
+  createdAt: timestamp with time zone
+  updatedAt: timestamp with time zone
+}
+
+instance_settings: {
+  shape: sql_table
+
+  id: string {constraint: primary_key}
+  activeProvider: enum
+  categories: json {constraint: nullable}
+  imapHost: string {constraint: nullable}
+  imapPort: integer {constraint: nullable}
+  imapUsername: string {constraint: nullable}
+  imapPassword: string {constraint: nullable}
+  imapSecurity: string {constraint: nullable}
+  imapMailbox: string {constraint: nullable}
+  imapEnabled: boolean
+  imapIsConnected: boolean
+  imapLastSyncedAt: timestamp with time zone {constraint: nullable}
+  imapAutoProcessEnabled: boolean
+  createdAt: timestamp with time zone
+  updatedAt: timestamp with time zone
+}
+
+provider_settings: {
+  shape: sql_table
+
+  provider: enum {constraint: primary_key}
+  apiKey: string {constraint: nullable}
+  enabled: boolean
+  simpleModel: string {constraint: nullable}
+  complexModel: string {constraint: nullable}
+  createdAt: timestamp with time zone
+  updatedAt: timestamp with time zone
 }
 
 direction: left
 
+emails.userId -> users.id
 jobs.userId -> users.id
 jobs.emailId -> emails.id
-
-jobResults.jobId -> jobs.id
-
-emails.userId -> users.id
+job_results.jobId -> jobs.id

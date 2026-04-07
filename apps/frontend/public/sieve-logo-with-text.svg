@@ -1,0 +1,40 @@
+<svg
+    width="120"
+    height="40"
+    viewBox="0 0 120 40"
+    xmlns="http://www.w3.org/2000/svg"
+>
+    <rect
+        x="0"
+        y="0"
+        width="40"
+        height="40"
+        rx="8"
+        ry="8"
+        fill="#2563EB"
+    />
+    <text
+        x="20"
+        y="20"
+        text-anchor="middle"
+        dominant-baseline="central"
+        fill="#ffffff"
+        font-size="20"
+        font-weight="700"
+        font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+    >
+        S
+    </text>
+    <text
+        x="52"
+        y="20"
+        dominant-baseline="central"
+        fill="#2563EB"
+        font-size="20"
+        font-weight="700"
+        letter-spacing="-0.02em"
+        font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+    >
+        SIEVE
+    </text>
+</svg>
