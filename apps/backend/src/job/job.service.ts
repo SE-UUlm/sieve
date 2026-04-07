@@ -239,10 +239,7 @@ export class JobService {
      * Sets the handled status for a job without user-scoping.
      * For internal use only — called by trusted server-side processes.
      */
-    async markHandledInternal(
-        jobId: string,
-        handled: boolean,
-    ): Promise<void> {
+    async markHandledInternal(jobId: string, handled: boolean): Promise<void> {
         await this.prismaService.job.update({
             where: { id: jobId },
             data: { handled },

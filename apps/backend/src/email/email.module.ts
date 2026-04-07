@@ -8,7 +8,13 @@ import { EmailController } from "./email.controller";
 import { EmailService } from "./email.service";
 
 @Module({
-    imports: [AiBackendModule, PrismaModule, SmtpModule, ConfigModule, JobModule],
+    imports: [
+        AiBackendModule,
+        PrismaModule,
+        SmtpModule,
+        ConfigModule,
+        JobModule,
+    ],
     controllers: [EmailController],
     providers: [EmailService],
 })
