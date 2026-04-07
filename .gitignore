@@ -223,6 +223,23 @@ compose.override.yaml
 # DB Data
 **/db-data/
 
-# Claude Code
+# AI assistant local guidance files
+AGENTS.md
+**/AGENTS.md
 CLAUDE.md
+CHATGPT.md
+CODEX.md
+COPILOT.md
+CURSOR.md
+GEMINI.md
+AIDER.md
+CLINE.md
+
+# AI assistant local tool state
 .claude/
+.cursor/
+.aider/
+.continue/
+.cline/
+.copilot/
+.windsurf/
