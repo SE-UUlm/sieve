@@ -44,6 +44,7 @@ uv run format
 uv run lint
 uv run typecheck
 uv run test
+uv run build_graphs # update langchain graphs in docs
 ```
 
 ## API client generation
