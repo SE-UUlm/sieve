@@ -151,17 +151,6 @@ model ProviderSettings {
     @@map("provider_settings")
 }
 
-model Product {
-    id          String   @id @default(uuid())
-    name        String
-    description String?
-    metadata    Json?    // Contains part count and other product info
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
-
-    @@map("products")
-}
-
 enum UserRole {
     ADMIN
     USER
