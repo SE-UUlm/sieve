@@ -209,5 +209,8 @@ The `History` view lists all completed analysis runs. For each entry you can:
 - **Filter by source** — switch between `All`, `Manual`, and `IMAP` tabs.
 - **Filter by handled status** — switch between `All`, `Unhandled`, and `Handled` tabs to focus on mails that still need a response.
 - **Search** — filter entries by subject or body content.
-- **Send a response** — if the analysis produced a suggested email response and the original sender address is known, a `Send Email Response` button appears in the detail panel. Clicking it sends the response via SMTP and automatically marks the mail as handled.
-- **Toggle handled manually** — use the `Mark handled` / `Unmark` button on any history card to set or clear the handled status without sending an email.
+- **Send a response** — if the analysis produced a suggested email response and the original sender address
+  is known, a `Send Email Response` button appears in the detail panel. Clicking it sends the response via
+  SMTP and automatically marks the mail as handled.
+- **Toggle handled manually** — use the `Mark handled` / `Unmark` button on any history card to set or
+  clear the handled status without sending an email.
