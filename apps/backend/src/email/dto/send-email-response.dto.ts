@@ -1,5 +1,11 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsEmail, IsNotEmpty, IsString } from "class-validator";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import {
+    IsEmail,
+    IsNotEmpty,
+    IsOptional,
+    IsString,
+    IsUUID,
+} from "class-validator";
 
 export class SendEmailResponseDto {
     @ApiProperty({
@@ -31,4 +37,12 @@ export class SendEmailResponseDto {
     @IsString()
     @IsNotEmpty()
     body!: string;
+
+    @ApiPropertyOptional({
+        description: "Job ID to mark as handled after a successful send.",
+        type: String,
+    })
+    @IsOptional()
+    @IsUUID()
+    jobId?: string;
 }

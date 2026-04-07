@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { IsUUID } from "class-validator";
 
 export class FlowSteps {
     @ApiProperty({
@@ -95,4 +96,11 @@ export class SubmitEmailResponseDto {
         type: "boolean",
     })
     email_response_sent: boolean = false;
+
+    @ApiProperty({
+        description: "The ID of the job created for this analysis.",
+        type: String,
+    })
+    @IsUUID()
+    jobId!: string;
 }

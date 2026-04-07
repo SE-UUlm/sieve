@@ -32,35 +32,43 @@ export class EmailService {
             );
             const now = new Date();
 
-            await this.prismaService.$transaction(async (transaction) => {
-                const email = await transaction.email.create({
-                    data: {
-                        userId,
-                        subject: dto.subject?.trim() || null,
-                        body: dto.body,
-                    },
-                });
+            const createdJobId = await this.prismaService.$transaction(
+                async (transaction) => {
+                    const email = await transaction.email.create({
+                        data: {
+                            userId,
+                            subject: dto.subject?.trim() || null,
+                            body: dto.body,
+                        },
+                    });
 
-                const job = await transaction.job.create({
-                    data: {
-                        userId,
-                        emailId: email.id,
-                        status: JobStatus.COMPLETED,
-                        startedAt: now,
-                        completedAt: now,
-                    },
-                });
+                    const job = await transaction.job.create({
+                        data: {
+                            userId,
+                            emailId: email.id,
+                            status: JobStatus.COMPLETED,
+                            startedAt: now,
+                            completedAt: now,
+                        },
+                    });
 
-                await transaction.jobResult.create({
-                    data: {
-                        jobId: job.id,
-                        status: JobResultStatus.SUCCESS,
-                        output: analysisResult as unknown as Prisma.InputJsonValue,
-                    },
-                });
-            });
+                    await transaction.jobResult.create({
+                        data: {
+                            jobId: job.id,
+                            status: JobResultStatus.SUCCESS,
+                            output: analysisResult as unknown as Prisma.InputJsonValue,
+                        },
+                    });
 
-            return { data: analysisResult, email_response_sent: false };
+                    return job.id;
+                },
+            );
+
+            return {
+                data: analysisResult,
+                email_response_sent: false,
+                jobId: createdJobId,
+            };
         } catch (error) {
             if (error instanceof HttpException) {
                 throw error;
