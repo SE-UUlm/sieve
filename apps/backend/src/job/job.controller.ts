@@ -1,4 +1,12 @@
-import { Controller, Get, Param, ParseEnumPipe, Query } from "@nestjs/common";
+import {
+    Body,
+    Controller,
+    Get,
+    Param,
+    ParseEnumPipe,
+    Patch,
+    Query,
+} from "@nestjs/common";
 import {
     ApiCookieAuth,
     ApiOperation,
@@ -11,6 +19,7 @@ import { EmailSource, JobStatus } from "../../prisma/client/enums"; // Separate 
 import { JobResultDto } from "../job-result/dto/job-result.dto";
 import { JobDto } from "./dto/job.dto";
 import { JobHistoryEntryDto } from "./dto/job-history-entry.dto";
+import { UpdateJobHandledDto } from "./dto/update-job-handled.dto";
 import { JobService } from "./job.service";
 
 @ApiTags("Jobs")
@@ -71,6 +80,24 @@ export class JobController {
         @Param("jobId") jobId: string,
     ): Promise<JobDto> {
         return this.jobService.getJobById(session, jobId);
+    }
+
+    @Patch(":jobId/handled")
+    @ApiCookieAuth("apiKeyCookie")
+    @ApiOperation({ summary: "Set handled status for a job" })
+    @ApiResponse({
+        status: 200,
+        description: "Handled status updated.",
+        type: JobHistoryEntryDto,
+    })
+    @ApiResponse({ status: 401, description: "Unauthorized" })
+    @ApiResponse({ status: 404, description: "Job not found" })
+    setJobHandled(
+        @Session() session: UserSession,
+        @Param("jobId") jobId: string,
+        @Body() dto: UpdateJobHandledDto,
+    ): Promise<JobHistoryEntryDto> {
+        return this.jobService.setHandled(session, jobId, dto.handled);
     }
 
     @Get(":jobId/result")
