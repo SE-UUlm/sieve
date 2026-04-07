@@ -84,6 +84,9 @@ export function ImapView() {
                             source: "IMAP",
                         }),
                     });
+                    queryClient.invalidateQueries({
+                        queryKey: getJobControllerGetHistoryQueryKey({}),
+                    });
                 }
             },
             onError: (_error, _variables, context) => {
