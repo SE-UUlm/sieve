@@ -103,6 +103,7 @@ model Job {
     createdAt   DateTime   @default(now())
     updatedAt   DateTime   @updatedAt
     result      JobResult?
+    handled     Boolean    @default(false)
 
     @@map("jobs")
 }
