@@ -21,7 +21,8 @@ Core backend entities:
 - `Job`
 - `JobResult`
 - `InstanceSettings` — singleton row holding IMAP connection config, `imapLastUid` (UID watermark for auto-polling),
-  `imapAutoProcessEnabledAt`, and the encrypted IMAP password.
+  `imapAutoProcessEnabledAt`, `imapAutoSendThreshold` (nullable 0–100 confidence threshold for auto-sending responses),
+  and the encrypted IMAP password.
 - `ProviderSettings`
 
 Auth entities (`Session`, `Account`, `Verification`) are also persisted.
@@ -52,7 +53,9 @@ Every `Job` carries a `handled` boolean (`false` by default). It tracks whether 
 
 **How a job becomes handled:**
 
-- **Automatic** — when a user sends the generated email response via the `Send Email Response` button
+- **Automatic (IMAP auto-send)** — when `imapAutoSendThreshold` is set and the AI confidence score meets or
+  exceeds the threshold, the IMAP poller sends the response via SMTP and marks the job as handled immediately.
+- **Automatic (manual send)** — when a user sends the generated email response via the `Send Email Response` button
   (in either the `Analyze` or `History` view), the backend marks the corresponding job as handled
   immediately after the SMTP send succeeds.
 - **Manual** — any user can toggle the handled state directly from the history list with the `Mark handled` / `Unmark` button on each card.
@@ -73,10 +76,14 @@ Every `Job` carries a `handled` boolean (`false` by default). It tracks whether 
 
 IMAP ingestion is handled end-to-end by backend orchestration with frontend admin controls:
 
-1. Admin configures mailbox connection in `Settings -> Mail` (`host`, `port`, credentials, security, inbox folder, auto-process toggle).
+1. Admin configures mailbox connection in `Settings -> Mail` (`host`, `port`, credentials, security, inbox folder,
+   auto-process toggle, and optional auto-send confidence threshold).
 2. Backend stores IMAP settings in `InstanceSettings` and encrypts the IMAP password at rest.
    - `imapLastUid` tracks the highest message UID seen so far; new messages are detected by fetching UIDs above this value.
    - `imapAutoProcessEnabledAt` records the timestamp when auto-processing was last activated.
+   - `imapAutoSendThreshold` (nullable `Int`, 0–100) — when set, the poller automatically sends the AI-generated
+     response via SMTP and marks the job `handled = true` if `confidence_assessment.score >= threshold`.
+     Leave `null` to disable auto-send (responses must be sent manually from the History view).
 3. Frontend `IMAP` view lists current inbox emails and allows selecting messages for analysis (`POST /api/imap/analyze-selected`).
    - Emails that arrived after `imapAutoProcessEnabledAt` are hidden from the inbox list when auto-process is active
      (they will be handled by the cron job).
@@ -88,7 +95,11 @@ IMAP ingestion is handled end-to-end by backend orchestration with frontend admi
      `imapLastUid` is advanced immediately and the connection is closed before AI analysis starts.
    - **Processing phase** — each detected email is analyzed by the AI-backend; a separate short-lived IMAP connection
      is opened per message to move it to `ai_analyzed`. This avoids socket-timeout issues from long AI calls.
-7. Backend emits notification events over the `notifications` WebSocket namespace for newly processed IMAP emails.
+7. If `imapAutoSendThreshold` is configured, the poller checks the AI confidence score after each analysis:
+   - Score ≥ threshold → response is sent via SMTP, job marked `handled = true`. Errors are logged but do not
+     abort the overall processing pipeline.
+   - Score < threshold or threshold is `null` → no auto-send; response remains available for manual send in History.
+8. Backend emits notification events over the `notifications` WebSocket namespace for newly processed IMAP emails.
 
 ## AI-backend flow architecture
 

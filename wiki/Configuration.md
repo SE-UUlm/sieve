@@ -77,9 +77,17 @@ Optional seed-data settings:
 ## IMAP configuration note
 
 IMAP connection settings (`host`, `port`, `username`, `password`, `security`, `mailbox`,
-auto-process toggle) are configured in the app via `Settings -> Mail` and stored in backend
-`InstanceSettings` (password encrypted with `SETTINGS_ENCRYPTION_KEY`), not in environment
-variables.
+auto-process toggle, and auto-send confidence threshold) are configured in the app via
+`Settings -> Mail` and stored in backend `InstanceSettings` (password encrypted with
+`SETTINGS_ENCRYPTION_KEY`), not in environment variables.
+
+The **auto-send confidence threshold** (`imapAutoSendThreshold`, 0–100) is distinct from the
+env-var `AUTO_SEND_RESPOND_THRESHOLD`:
+
+| Setting | Scope | Configured via |
+|---------|-------|---------------|
+| `AUTO_SEND_RESPOND_THRESHOLD` | Manual email submissions (`POST /api/emails`) | Environment variable |
+| `imapAutoSendThreshold` | IMAP auto-processed emails | `Settings -> Mail` UI |
 
 ## Frontend (`apps/frontend`) variables
 

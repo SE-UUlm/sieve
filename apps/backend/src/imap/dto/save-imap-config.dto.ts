@@ -49,4 +49,14 @@ export class SaveImapConfigDto {
         example: false,
     })
     autoProcessEnabled!: boolean;
+
+    @ApiProperty({
+        description:
+            "Confidence score threshold (0–100) above which IMAP responses are sent automatically. Null disables auto-send.",
+        type: Number,
+        example: 80,
+        nullable: true,
+        required: false,
+    })
+    autoSendThreshold!: number | null;
 }

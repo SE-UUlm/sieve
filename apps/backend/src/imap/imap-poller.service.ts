@@ -11,6 +11,7 @@ import { AiBackendService } from "../ai-backend/ai-backend.service";
 import { decodeMailHeader, decodeQuotedPrintable } from "../lib/mail-encoding";
 import { PrismaService } from "../prisma/prisma.service";
 import { SettingsService } from "../settings/settings.service";
+import { SmtpService } from "../smtp/smtp.service";
 import type {
     InboxEmailBodyDto,
     InboxEmailDto,
@@ -46,6 +47,7 @@ export class ImapPollerService {
         readonly _imapService: ImapService,
         private readonly eventEmitter: EventEmitter2,
         private readonly aiBackendService: AiBackendService,
+        private readonly smtpService: SmtpService,
     ) {}
 
     /**
@@ -323,6 +325,7 @@ export class ImapPollerService {
         const now = new Date();
 
         let emailId = "";
+        let jobId = "";
         await this.prismaService.$transaction(async (tx) => {
             const email = await tx.email.create({
                 data: {
@@ -344,6 +347,7 @@ export class ImapPollerService {
                     completedAt: now,
                 },
             });
+            jobId = job.id;
 
             await tx.jobResult.create({
                 data: {
@@ -361,6 +365,38 @@ export class ImapPollerService {
             this.logger.warn(
                 `[AutoProcess] Could not move uid=${emailData.uid}: ${moveError instanceof Error ? moveError.message : String(moveError)}`,
             );
+        }
+
+        // Auto-send response if confidence score meets the configured threshold
+        const threshold = config.autoSendThreshold;
+        const score = analysisResult.confidence_assessment?.score;
+        const emailResponse = analysisResult.email_response;
+        if (
+            threshold !== null &&
+            score !== null &&
+            score !== undefined &&
+            score >= threshold &&
+            emailResponse &&
+            emailData.sender
+        ) {
+            try {
+                await this.smtpService.sendMail(
+                    emailData.sender,
+                    emailResponse.response_subject,
+                    emailResponse.response_body,
+                );
+                await this.prismaService.job.update({
+                    where: { id: jobId },
+                    data: { handled: true },
+                });
+                this.logger.log(
+                    `[AutoSend] Sent response for uid=${emailData.uid} (score=${score} >= threshold=${threshold})`,
+                );
+            } catch (sendError) {
+                this.logger.error(
+                    `[AutoSend] Failed to send response for uid=${emailData.uid}: ${sendError instanceof Error ? sendError.message : String(sendError)}`,
+                );
+            }
         }
 
         // Emit notification after the move attempt (success or failure)

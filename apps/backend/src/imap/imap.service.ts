@@ -9,6 +9,7 @@ export interface ImapConfig {
     security: "ssl" | "starttls" | "none";
     mailbox: string;
     lastUid: number;
+    autoSendThreshold: number | null;
 }
 
 export interface ImapStatus {

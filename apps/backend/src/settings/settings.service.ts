@@ -387,6 +387,7 @@ export class SettingsService {
         autoProcessEnabled: boolean;
         autoProcessEnabledAt: Date | null;
         lastUid: number;
+        autoSendThreshold: number | null;
     } | null> {
         const settings = await this.prismaService.instanceSettings.findUnique({
             where: { id: INSTANCE_SETTINGS_ID },
@@ -400,6 +401,7 @@ export class SettingsService {
                 imapAutoProcessEnabled: true,
                 imapAutoProcessEnabledAt: true,
                 imapLastUid: true,
+                imapAutoSendThreshold: true,
             },
         });
 
@@ -424,6 +426,7 @@ export class SettingsService {
             autoProcessEnabled: settings.imapAutoProcessEnabled,
             autoProcessEnabledAt: settings.imapAutoProcessEnabledAt ?? null,
             lastUid: settings.imapLastUid ?? 0,
+            autoSendThreshold: settings.imapAutoSendThreshold ?? null,
         };
     }
 
@@ -512,6 +515,7 @@ export class SettingsService {
             mailbox: string;
             enabled: boolean;
             autoProcessEnabled: boolean;
+            autoSendThreshold: number | null;
             initialLastUid?: number;
         },
         isConnected?: boolean,
@@ -560,6 +564,7 @@ export class SettingsService {
                 imapAutoProcessEnabledAt: config.autoProcessEnabled
                     ? now
                     : undefined,
+                imapAutoSendThreshold: config.autoSendThreshold,
             },
             update: {
                 imapHost: config.host,
@@ -571,6 +576,7 @@ export class SettingsService {
                 imapEnabled: config.enabled,
                 imapIsConnected: isConnected ?? false,
                 imapAutoProcessEnabled: config.autoProcessEnabled,
+                imapAutoSendThreshold: config.autoSendThreshold,
                 ...(activatingAutoProcess
                     ? {
                           imapLastSyncedAt: now,

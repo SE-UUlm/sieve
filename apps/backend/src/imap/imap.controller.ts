@@ -73,6 +73,7 @@ export class ImapController {
             security: dto.security,
             mailbox: dto.mailbox,
             lastUid: 0,
+            autoSendThreshold: null,
         });
 
         // Update the stored connection status based on test result
@@ -137,6 +138,7 @@ export class ImapController {
             mailbox: config.mailbox,
             enabled: false, // Will be determined by getImapStatus
             autoProcessEnabled: config.autoProcessEnabled,
+            autoSendThreshold: config.autoSendThreshold,
         };
     }
 
@@ -172,6 +174,7 @@ export class ImapController {
             security: dto.security,
             mailbox: dto.mailbox,
             lastUid: 0,
+            autoSendThreshold: null,
         });
         this.logger.log(
             `[saveConfig] testConnection result: isConnected=${testResult.isConnected} error=${testResult.lastError ?? "none"}`,
@@ -190,6 +193,7 @@ export class ImapController {
                     security: dto.security,
                     mailbox: dto.mailbox,
                     lastUid: 0,
+                    autoSendThreshold: null,
                 });
                 this.logger.log(
                     `[saveConfig] Snapshotted max UID for auto-process: ${initialLastUid}`,
@@ -209,6 +213,7 @@ export class ImapController {
                 mailbox: dto.mailbox,
                 enabled: dto.enabled && testResult.isConnected,
                 autoProcessEnabled: dto.autoProcessEnabled,
+                autoSendThreshold: dto.autoSendThreshold ?? null,
                 initialLastUid,
             },
             testResult.isConnected,
@@ -338,6 +343,7 @@ export class ImapController {
             security: dto.security,
             mailbox: dto.mailbox,
             lastUid: 0,
+            autoSendThreshold: null,
         });
 
         return { count };
@@ -372,6 +378,7 @@ export class ImapController {
                     security: dto.security,
                     mailbox: dto.mailbox,
                     lastUid: 0,
+                    autoSendThreshold: null,
                 },
                 user.id,
             );
