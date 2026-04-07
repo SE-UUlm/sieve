@@ -104,7 +104,11 @@ export class ImapPollerService {
 
         for (const emailData of emailsToProcess) {
             try {
-                await this.processDetectedEmail(emailData, config, adminUser.id);
+                await this.processDetectedEmail(
+                    emailData,
+                    config,
+                    adminUser.id,
+                );
             } catch (error) {
                 this.logger.error(
                     `[AutoProcess] Failed for uid=${emailData.uid}: ${error instanceof Error ? error.message : String(error)}`,
@@ -143,23 +147,6 @@ export class ImapPollerService {
                 );
             }
         }
-    }
-
-    /**
-     * Checks if a message is in the AI-Analyzed folder.
-     * Note: For Gmail, checks labels. For other providers (GMX, etc.),
-     * we rely on the database check since we can't easily check folder membership.
-     */
-    private isMessageInAnalyzedFolder(message: {
-        labels?: Set<string>;
-    }): boolean {
-        // For Gmail, check labels
-        if (message.labels) {
-            return message.labels.has(this.ANALYZED_FOLDER);
-        }
-        // For non-Gmail providers (GMX, etc.), labels don't exist
-        // We can't easily check folder membership here, so we rely on DB check
-        return false;
     }
 
     /**
@@ -298,9 +285,7 @@ export class ImapPollerService {
 
                 detected.push({
                     uid: message.uid,
-                    subject: decodeMailHeader(
-                        message.envelope?.subject || "",
-                    ),
+                    subject: decodeMailHeader(message.envelope?.subject || ""),
                     sender: message.envelope?.from?.[0]?.address ?? null,
                     body: decodeQuotedPrintable(
                         this.extractTextContent(message),
@@ -472,10 +457,9 @@ export class ImapPollerService {
 
             // Fetch only the last message to get its UID
             let maxUid = 0;
-            const messages = await client.fetch(
-                "*",
-                { uid: true } as unknown as import("imapflow").FetchQueryObject,
-            );
+            const messages = await client.fetch("*", {
+                uid: true,
+            } as unknown as import("imapflow").FetchQueryObject);
             for await (const message of messages) {
                 if (message.uid && message.uid > maxUid) {
                     maxUid = message.uid;
@@ -518,7 +502,9 @@ export class ImapPollerService {
             logger: false,
         });
         client.on("error", (err: Error) => {
-            this.logger.error(`[ImapFlow] Socket error in getMailboxMessageCount: ${err.message}`);
+            this.logger.error(
+                `[ImapFlow] Socket error in getMailboxMessageCount: ${err.message}`,
+            );
         });
 
         try {
@@ -561,7 +547,9 @@ export class ImapPollerService {
             logger: false,
         });
         client.on("error", (err: Error) => {
-            this.logger.error(`[ImapFlow] Socket error in processExistingEmails: ${err.message}`);
+            this.logger.error(
+                `[ImapFlow] Socket error in processExistingEmails: ${err.message}`,
+            );
         });
 
         try {
@@ -648,7 +636,9 @@ export class ImapPollerService {
             logger: false,
         });
         client.on("error", (err: Error) => {
-            this.logger.error(`[ImapFlow] Socket error in listFolders: ${err.message}`);
+            this.logger.error(
+                `[ImapFlow] Socket error in listFolders: ${err.message}`,
+            );
         });
 
         try {
@@ -696,7 +686,9 @@ export class ImapPollerService {
             logger: false,
         });
         client.on("error", (err: Error) => {
-            this.logger.error(`[ImapFlow] Socket error in getInboxEmails: ${err.message}`);
+            this.logger.error(
+                `[ImapFlow] Socket error in getInboxEmails: ${err.message}`,
+            );
         });
 
         try {
@@ -783,7 +775,9 @@ export class ImapPollerService {
             logger: false,
         });
         client.on("error", (err: Error) => {
-            this.logger.error(`[ImapFlow] Socket error in getEmailBody: ${err.message}`);
+            this.logger.error(
+                `[ImapFlow] Socket error in getEmailBody: ${err.message}`,
+            );
         });
 
         try {
@@ -855,7 +849,9 @@ export class ImapPollerService {
             logger: false,
         });
         client.on("error", (err: Error) => {
-            this.logger.error(`[ImapFlow] Socket error in analyzeSelectedEmails: ${err.message}`);
+            this.logger.error(
+                `[ImapFlow] Socket error in analyzeSelectedEmails: ${err.message}`,
+            );
         });
 
         let processedCount = 0;
@@ -1010,7 +1006,9 @@ export class ImapPollerService {
             this.logger.error(
                 `[analyzeSelected] Fatal: ${error instanceof Error ? error.message : String(error)}`,
             );
-            uids.forEach((uid) => this.processingUids.delete(uid));
+            for (const uid of uids) {
+                this.processingUids.delete(uid);
+            }
             try {
                 await client.logout();
             } catch {

@@ -524,13 +524,17 @@ export class SettingsService {
         // imapAutoProcessEnabledAt = now() so the cron only picks up emails arriving after this point.
         const existing = await this.prismaService.instanceSettings.findUnique({
             where: { id: INSTANCE_SETTINGS_ID },
-            select: { imapAutoProcessEnabled: true, imapAutoProcessEnabledAt: true },
+            select: {
+                imapAutoProcessEnabled: true,
+                imapAutoProcessEnabledAt: true,
+            },
         });
         const wasAutoProcessEnabled = existing?.imapAutoProcessEnabled ?? false;
         // Activate when: switching on, OR already on but timestamp was never set (migration case)
         const activatingAutoProcess =
             config.autoProcessEnabled &&
-            (!wasAutoProcessEnabled || existing?.imapAutoProcessEnabledAt === null);
+            (!wasAutoProcessEnabled ||
+                existing?.imapAutoProcessEnabledAt === null);
         const deactivatingAutoProcess =
             !config.autoProcessEnabled && wasAutoProcessEnabled;
 

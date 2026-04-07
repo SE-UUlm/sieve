@@ -8,9 +8,9 @@ import { SplitViewPane } from "@/components/composites/views/split-view/split-vi
 import { StyledButton } from "@/components/ui/styled-button";
 import { StyledSkeleton } from "@/components/ui/styled-skeleton";
 import {
-    type imapControllerGetInboxEmailsResponseSuccess,
     getImapControllerGetEmailBodyQueryKey,
     getImapControllerGetInboxEmailsQueryKey,
+    type imapControllerGetInboxEmailsResponseSuccess,
     useImapControllerAnalyzeSelected,
     useImapControllerGetEmailBody,
     useImapControllerGetInboxEmails,
