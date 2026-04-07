@@ -37,4 +37,10 @@ export class ImapConfigDto {
         example: true,
     })
     enabled!: boolean;
+
+    @ApiProperty({
+        description: "Whether to automatically process new incoming emails",
+        example: false,
+    })
+    autoProcessEnabled!: boolean;
 }

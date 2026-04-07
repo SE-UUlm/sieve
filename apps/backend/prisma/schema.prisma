@@ -133,7 +133,9 @@ model InstanceSettings {
     imapEnabled             Boolean   @default(false)
     imapIsConnected         Boolean   @default(false)
     imapLastSyncedAt        DateTime?
-    imapAutoProcessEnabled  Boolean   @default(false)
+    imapLastUid             Int       @default(0)
+    imapAutoProcessEnabled   Boolean   @default(false)
+    imapAutoProcessEnabledAt DateTime?
     createdAt        DateTime  @default(now())
     updatedAt        DateTime  @updatedAt
 

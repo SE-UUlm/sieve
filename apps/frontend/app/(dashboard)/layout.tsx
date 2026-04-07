@@ -5,15 +5,16 @@ import type React from "react";
 import { useEffect } from "react";
 import { Sidebar } from "@/components/composites/sidebar/sidebar";
 import { DashboardLoadingView } from "@/components/composites/views/dashboard-loading-view";
-
 import useLogout from "@/hooks/useLogout";
 import { authClient } from "@/lib/auth-client";
+import { useNotifications } from "@/lib/use-notifications";
 
 export default function DashboardLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
+    useNotifications();
     const { data: session, isPending } = authClient.useSession();
     const router = useRouter();
     const { logout } = useLogout();

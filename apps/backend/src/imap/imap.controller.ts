@@ -2,6 +2,7 @@ import {
     Body,
     Controller,
     Get,
+    HttpCode,
     Logger,
     Param,
     ParseIntPipe,
@@ -71,6 +72,7 @@ export class ImapController {
             password: dto.password,
             security: dto.security,
             mailbox: dto.mailbox,
+            lastUid: 0,
         });
 
         // Update the stored connection status based on test result
@@ -134,6 +136,7 @@ export class ImapController {
             security: config.security,
             mailbox: config.mailbox,
             enabled: false, // Will be determined by getImapStatus
+            autoProcessEnabled: config.autoProcessEnabled,
         };
     }
 
@@ -168,10 +171,33 @@ export class ImapController {
             password: dto.password,
             security: dto.security,
             mailbox: dto.mailbox,
+            lastUid: 0,
         });
         this.logger.log(
             `[saveConfig] testConnection result: isConnected=${testResult.isConnected} error=${testResult.lastError ?? "none"}`,
         );
+
+        // When enabling auto-process, snapshot the current max UID so that
+        // existing emails in the inbox are not picked up by the cron job.
+        let initialLastUid: number | undefined;
+        if (dto.autoProcessEnabled && testResult.isConnected) {
+            try {
+                initialLastUid = await this.imapPollerService.getMailboxMaxUid({
+                    host: dto.host,
+                    port: dto.port,
+                    username: dto.username,
+                    password: dto.password,
+                    security: dto.security,
+                    mailbox: dto.mailbox,
+                    lastUid: 0,
+                });
+                this.logger.log(
+                    `[saveConfig] Snapshotted max UID for auto-process: ${initialLastUid}`,
+                );
+            } catch {
+                initialLastUid = 0;
+            }
+        }
 
         await this.settingsService.saveImapConfig(
             {
@@ -183,6 +209,7 @@ export class ImapController {
                 mailbox: dto.mailbox,
                 enabled: dto.enabled && testResult.isConnected,
                 autoProcessEnabled: dto.autoProcessEnabled,
+                initialLastUid,
             },
             testResult.isConnected,
         );
@@ -261,6 +288,7 @@ export class ImapController {
     }
 
     @Post("analyze-selected")
+    @HttpCode(200)
     @Roles([UserRole.ADMIN])
     @ApiCookieAuth("apiKeyCookie")
     @ApiOperation({
@@ -309,6 +337,7 @@ export class ImapController {
             password: dto.password,
             security: dto.security,
             mailbox: dto.mailbox,
+            lastUid: 0,
         });
 
         return { count };
@@ -342,6 +371,7 @@ export class ImapController {
                     password: dto.password,
                     security: dto.security,
                     mailbox: dto.mailbox,
+                    lastUid: 0,
                 },
                 user.id,
             );

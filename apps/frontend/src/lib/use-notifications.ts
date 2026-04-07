@@ -1,17 +1,24 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { io, type Socket } from "socket.io-client";
+import { getImapControllerGetInboxEmailsQueryKey } from "@/lib/client/imap/imap";
+import { getJobControllerGetHistoryQueryKey } from "@/lib/client/jobs/jobs";
 import { showSuccessToast } from "@/lib/toast";
 
 export function useNotifications() {
     const socketRef = useRef<Socket | null>(null);
+    const queryClient = useQueryClient();
 
     useEffect(() => {
         // Connect to WebSocket server
-        const socket = io("http://localhost:5175/notifications", {
-            withCredentials: true,
-        });
+        const socket = io(
+            `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5175"}/notifications`,
+            {
+                withCredentials: true,
+            },
+        );
 
         socketRef.current = socket;
 
@@ -34,6 +41,17 @@ export function useNotifications() {
                         title: "New Email Received",
                         description: `A new email "${data.data.subject || "(no subject)"}" has been processed from IMAP.`,
                     });
+                    queryClient.invalidateQueries({
+                        queryKey: getImapControllerGetInboxEmailsQueryKey(),
+                    });
+                    queryClient.invalidateQueries({
+                        queryKey: getJobControllerGetHistoryQueryKey({
+                            source: "IMAP",
+                        }),
+                    });
+                    queryClient.invalidateQueries({
+                        queryKey: getJobControllerGetHistoryQueryKey({}),
+                    });
                 }
             },
         );
@@ -41,7 +59,7 @@ export function useNotifications() {
         return () => {
             socket.disconnect();
         };
-    }, []);
+    }, [queryClient]);
 
     return socketRef.current;
 }

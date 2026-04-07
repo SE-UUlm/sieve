@@ -98,9 +98,7 @@ export function MailSection() {
                 username: config.username || "",
                 password: "", // Password is not returned for security
                 security: config.security || "ssl",
-                autoProcessEnabled:
-                    (config as { autoProcessEnabled?: boolean })
-                        .autoProcessEnabled ?? false,
+                autoProcessEnabled: config.autoProcessEnabled ?? false,
             });
             if (config.mailbox) {
                 setSelectedMailbox(config.mailbox);
