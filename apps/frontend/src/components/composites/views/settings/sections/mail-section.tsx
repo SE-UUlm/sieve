@@ -220,7 +220,8 @@ export function MailSection() {
                     mailbox: folder,
                     enabled: true,
                     autoProcessEnabled: pendingFormValues.autoProcessEnabled,
-                    autoSendThreshold: pendingFormValues.autoSendThreshold ?? null,
+                    autoSendThreshold:
+                        pendingFormValues.autoSendThreshold ?? null,
                 },
             });
 
