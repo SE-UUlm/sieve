@@ -71,6 +71,11 @@ updates:
                   - "clsx"
                   - "tailwind-merge"
 
+          auth-and-realtime:
+              patterns:
+                  - "better-auth"
+                  - "socket.io-client"
+
           dev-tooling:
               dependency-type: "development"
               patterns:
@@ -105,9 +110,13 @@ updates:
                   - "@nestjs/common"
                   - "@nestjs/config"
                   - "@nestjs/core"
+                  - "@nestjs/event-emitter"
                   - "@nestjs/platform-express"
+                  - "@nestjs/platform-socket.io"
+                  - "@nestjs/schedule"
                   - "@nestjs/swagger"
                   - "@nestjs/terminus"
+                  - "@nestjs/websockets"
 
           prisma:
               patterns:
@@ -140,8 +149,11 @@ updates:
 
           runtime:
               patterns:
+                  - "imapflow"
+                  - "nodemailer"
                   - "rxjs"
                   - "reflect-metadata"
+                  - "socket.io"
 
           testing:
               patterns:
@@ -189,6 +201,7 @@ updates:
               patterns:
                   - "langchain"
                   - "langchain-*"
+                  - "langgraph"
 
           validation-and-config:
               patterns:
