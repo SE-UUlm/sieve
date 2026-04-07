@@ -1,6 +1,8 @@
 "use client";
 
+import { CheckCheck } from "lucide-react";
 import { Inbox, Mail } from "lucide-react";
+import { Badge } from "@/components/primitives/badge";
 
 type EmailSource = "MANUAL" | "IMAP";
 
@@ -9,18 +11,21 @@ type HistoryEntry = {
     subject: string;
     body: string;
     source?: EmailSource;
+    handled: boolean;
 };
 
 type HistoryListItemProps = {
     entry: HistoryEntry;
     isSelected: boolean;
     onSelectAction: (id: string) => void;
+    onToggleHandled: (id: string, handled: boolean) => void;
 };
 
 export function HistoryListItem({
     entry,
     isSelected,
     onSelectAction,
+    onToggleHandled,
 }: HistoryListItemProps) {
     return (
         <button
@@ -48,11 +53,36 @@ export function HistoryListItem({
                     <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-300">
                         {entry.body || "No content preview available."}
                     </p>
-                    <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
-                        {entry.source === "IMAP"
-                            ? "IMAP Import"
-                            : "Manual Entry"}
-                    </p>
+                    <div className="mt-2 flex items-center justify-between">
+                        <p className="text-xs text-slate-400 dark:text-slate-500">
+                            {entry.source === "IMAP"
+                                ? "IMAP Import"
+                                : "Manual Entry"}
+                        </p>
+                        <div className="flex items-center gap-2">
+                            {entry.handled && (
+                                <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
+                                    <CheckCheck className="h-3 w-3" />
+                                    Handled
+                                </Badge>
+                            )}
+                            <button
+                                type="button"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onToggleHandled(entry.id, !entry.handled);
+                                }}
+                                className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                                aria-label={
+                                    entry.handled
+                                        ? "Mark as unhandled"
+                                        : "Mark as handled"
+                                }
+                            >
+                                {entry.handled ? "Unmark" : "Mark handled"}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </button>
