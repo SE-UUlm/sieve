@@ -385,6 +385,7 @@ export class SettingsService {
         security: "ssl" | "starttls" | "none";
         mailbox: string;
         autoProcessEnabled: boolean;
+        autoProcessEnabledAt: Date | null;
     } | null> {
         const settings = await this.prismaService.instanceSettings.findUnique({
             where: { id: INSTANCE_SETTINGS_ID },
@@ -396,6 +397,7 @@ export class SettingsService {
                 imapSecurity: true,
                 imapMailbox: true,
                 imapAutoProcessEnabled: true,
+                imapAutoProcessEnabledAt: true,
             },
         });
 
@@ -418,6 +420,7 @@ export class SettingsService {
                 (settings.imapSecurity as "ssl" | "starttls" | "none") || "ssl",
             mailbox: settings.imapMailbox || "INBOX",
             autoProcessEnabled: settings.imapAutoProcessEnabled,
+            autoProcessEnabledAt: settings.imapAutoProcessEnabledAt ?? null,
         };
     }
 
@@ -513,15 +516,21 @@ export class SettingsService {
             ? this.encryptValue(config.password)
             : null;
 
-        // When auto-process is being enabled for the first time, set imapLastSyncedAt = now()
-        // so the cron job only picks up emails arriving after this point.
+        // When auto-process is being enabled for the first time, set imapLastSyncedAt and
+        // imapAutoProcessEnabledAt = now() so the cron only picks up emails arriving after this point.
         const existing = await this.prismaService.instanceSettings.findUnique({
             where: { id: INSTANCE_SETTINGS_ID },
-            select: { imapAutoProcessEnabled: true },
+            select: { imapAutoProcessEnabled: true, imapAutoProcessEnabledAt: true },
         });
         const wasAutoProcessEnabled = existing?.imapAutoProcessEnabled ?? false;
+        // Activate when: switching on, OR already on but timestamp was never set (migration case)
         const activatingAutoProcess =
-            config.autoProcessEnabled && !wasAutoProcessEnabled;
+            config.autoProcessEnabled &&
+            (!wasAutoProcessEnabled || existing?.imapAutoProcessEnabledAt === null);
+        const deactivatingAutoProcess =
+            !config.autoProcessEnabled && wasAutoProcessEnabled;
+
+        const now = new Date();
 
         await this.prismaService.instanceSettings.upsert({
             where: { id: INSTANCE_SETTINGS_ID },
@@ -536,8 +545,9 @@ export class SettingsService {
                 imapEnabled: config.enabled,
                 imapIsConnected: isConnected ?? false,
                 imapAutoProcessEnabled: config.autoProcessEnabled,
-                imapLastSyncedAt: config.autoProcessEnabled
-                    ? new Date()
+                imapLastSyncedAt: config.autoProcessEnabled ? now : undefined,
+                imapAutoProcessEnabledAt: config.autoProcessEnabled
+                    ? now
                     : undefined,
             },
             update: {
@@ -551,7 +561,10 @@ export class SettingsService {
                 imapIsConnected: isConnected ?? false,
                 imapAutoProcessEnabled: config.autoProcessEnabled,
                 ...(activatingAutoProcess
-                    ? { imapLastSyncedAt: new Date() }
+                    ? { imapLastSyncedAt: now, imapAutoProcessEnabledAt: now }
+                    : {}),
+                ...(deactivatingAutoProcess
+                    ? { imapAutoProcessEnabledAt: null }
                     : {}),
             },
         });

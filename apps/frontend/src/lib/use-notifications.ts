@@ -9,7 +9,7 @@ export function useNotifications() {
 
     useEffect(() => {
         // Connect to WebSocket server
-        const socket = io("http://localhost:5175/notifications", {
+        const socket = io(`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5175"}/notifications`, {
             withCredentials: true,
         });
 

@@ -134,6 +134,7 @@ export class ImapController {
             security: config.security,
             mailbox: config.mailbox,
             enabled: false, // Will be determined by getImapStatus
+            autoProcessEnabled: config.autoProcessEnabled,
         };
     }
 

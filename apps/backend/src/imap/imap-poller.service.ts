@@ -200,6 +200,9 @@ export class ImapPollerService {
             },
             logger: false,
         });
+        client.on("error", (err: Error) => {
+            this.logger.error(`[ImapFlow] Socket error in checkForNewEmails: ${err.message}`);
+        });
 
         try {
             await client.connect();
@@ -389,6 +392,9 @@ export class ImapPollerService {
             },
             logger: false,
         });
+        client.on("error", (err: Error) => {
+            this.logger.error(`[ImapFlow] Socket error in getMailboxMessageCount: ${err.message}`);
+        });
 
         try {
             await client.connect();
@@ -428,6 +434,9 @@ export class ImapPollerService {
                     : undefined,
             auth: { user: config.username, pass: config.password },
             logger: false,
+        });
+        client.on("error", (err: Error) => {
+            this.logger.error(`[ImapFlow] Socket error in processExistingEmails: ${err.message}`);
         });
 
         try {
@@ -513,6 +522,9 @@ export class ImapPollerService {
             auth: { user: credentials.username, pass: credentials.password },
             logger: false,
         });
+        client.on("error", (err: Error) => {
+            this.logger.error(`[ImapFlow] Socket error in listFolders: ${err.message}`);
+        });
 
         try {
             await client.connect();
@@ -558,6 +570,9 @@ export class ImapPollerService {
             auth: { user: config.username, pass: config.password },
             logger: false,
         });
+        client.on("error", (err: Error) => {
+            this.logger.error(`[ImapFlow] Socket error in getInboxEmails: ${err.message}`);
+        });
 
         try {
             await client.connect();
@@ -574,10 +589,23 @@ export class ImapPollerService {
             const messages = await client.fetch("1:*", {
                 uid: true,
                 envelope: true,
+                internalDate: true,
             } as unknown as import("imapflow").FetchQueryObject);
+
+            const autoProcessEnabledAt = config.autoProcessEnabledAt;
 
             for await (const message of messages) {
                 if (!message.uid) continue;
+                // When auto-process is enabled, hide emails that arrived after the activation
+                // timestamp — they will be (or already are) auto-processed by the cron job.
+                if (
+                    config.autoProcessEnabled &&
+                    autoProcessEnabledAt &&
+                    message.internalDate &&
+                    message.internalDate >= autoProcessEnabledAt
+                ) {
+                    continue;
+                }
                 emails.push({
                     uid: message.uid,
                     subject: message.envelope?.subject
@@ -624,6 +652,9 @@ export class ImapPollerService {
                     : undefined,
             auth: { user: config.username, pass: config.password },
             logger: false,
+        });
+        client.on("error", (err: Error) => {
+            this.logger.error(`[ImapFlow] Socket error in getEmailBody: ${err.message}`);
         });
 
         try {
@@ -693,6 +724,9 @@ export class ImapPollerService {
                     : undefined,
             auth: { user: config.username, pass: config.password },
             logger: false,
+        });
+        client.on("error", (err: Error) => {
+            this.logger.error(`[ImapFlow] Socket error in analyzeSelectedEmails: ${err.message}`);
         });
 
         let processedCount = 0;
@@ -808,12 +842,6 @@ export class ImapPollerService {
                                     output: analysisResult as unknown as Prisma.InputJsonValue,
                                 },
                             });
-
-                            this.eventEmitter.emit("imap.email.received", {
-                                userId: adminUser.id,
-                                emailId: email.id,
-                                subject,
-                            } as NewImapEmailEvent);
                         },
                     );
 
