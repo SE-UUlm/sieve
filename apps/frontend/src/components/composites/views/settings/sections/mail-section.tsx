@@ -51,6 +51,7 @@ const formSchema = z.object({
     password: z.string().min(1, "Password is required."),
     security: z.enum(["ssl", "starttls", "none"]),
     autoProcessEnabled: z.boolean(),
+    autoSendThreshold: z.number().int().min(0).max(100).nullable(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -85,6 +86,7 @@ export function MailSection() {
             password: "",
             security: "ssl",
             autoProcessEnabled: false,
+            autoSendThreshold: null,
         },
     });
 
@@ -99,6 +101,7 @@ export function MailSection() {
                 password: "", // Password is not returned for security
                 security: config.security || "ssl",
                 autoProcessEnabled: config.autoProcessEnabled ?? false,
+                autoSendThreshold: config.autoSendThreshold ?? null,
             });
             if (config.mailbox) {
                 setSelectedMailbox(config.mailbox);
@@ -217,6 +220,7 @@ export function MailSection() {
                     mailbox: folder,
                     enabled: true,
                     autoProcessEnabled: pendingFormValues.autoProcessEnabled,
+                    autoSendThreshold: pendingFormValues.autoSendThreshold ?? null,
                 },
             });
 
@@ -489,6 +493,52 @@ export function MailSection() {
                                     </p>
                                 </div>
                             </label>
+                        )}
+                    />
+                </div>
+
+                {/* Auto-send confidence threshold */}
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900/50">
+                    <Controller
+                        name="autoSendThreshold"
+                        control={form.control}
+                        render={({ field, fieldState }) => (
+                            <div className="flex flex-col gap-3">
+                                <div>
+                                    <p className="text-sm font-medium text-slate-900 dark:text-white">
+                                        Auto-send confidence threshold
+                                    </p>
+                                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                                        IMAP responses with a confidence score
+                                        at or above this value (0–100) are sent
+                                        automatically via SMTP. Leave empty to
+                                        disable.
+                                    </p>
+                                </div>
+                                <div className="space-y-1">
+                                    <StyledInput
+                                        type="number"
+                                        inputMode="numeric"
+                                        min={0}
+                                        max={100}
+                                        placeholder="e.g. 80 (leave empty to disable)"
+                                        value={field.value ?? ""}
+                                        onChange={(e) =>
+                                            field.onChange(
+                                                e.target.value === ""
+                                                    ? null
+                                                    : Number(e.target.value),
+                                            )
+                                        }
+                                        disabled={isLoading}
+                                    />
+                                    {fieldState.error && (
+                                        <p className="text-xs text-red-500">
+                                            {fieldState.error.message}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
                         )}
                     />
                 </div>
