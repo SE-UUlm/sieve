@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { Check } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 import { CopyActionButton } from "@/components/composites/views/analyze/output/common/copy-action-button";
@@ -6,13 +7,12 @@ import { ResultSection } from "@/components/composites/views/analyze/output/resu
 import { StyledButton } from "@/components/ui/styled-button";
 import {
     type CreateEmailDto,
-    type SubmitEmailResponseDto,
     getJobControllerGetHistoryQueryKey,
+    type SubmitEmailResponseDto,
     useEmailControllerSendEmailResponse,
     useJobControllerSetJobHandled,
 } from "@/lib/client";
 import { showPersistentErrorToast, showSuccessToast } from "@/lib/toast";
-import { useQueryClient } from "@tanstack/react-query";
 
 type SendEmailResponseToast = {
     title: string;

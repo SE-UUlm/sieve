@@ -1,5 +1,6 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { CheckCheck, FileJson, Inbox, Mail, Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { AnalysisResult } from "@/components/composites/views/analyze/model/analysis-result";
@@ -17,7 +18,6 @@ import {
 } from "@/lib/client";
 import { showPersistentErrorToast } from "@/lib/toast";
 import { cn } from "@/lib/utils/shadcn-helper";
-import { useQueryClient } from "@tanstack/react-query";
 import { HistoryAnalysisPanel } from "./history-analysis-panel";
 import { HistoryListItem } from "./history-list-item";
 
@@ -215,7 +215,7 @@ export function HistoryView({ history = [] }: HistoryViewProps) {
             email_response_sent: selectedItem.handled,
             jobId: selectedItem.id,
         });
-    }, [selectedItem?.id, selectedItem?.handled]);
+    }, [selectedItem?.id, selectedItem?.handled, selectedItem?.result]);
 
     const tabConfig: {
         key: EmailSource | "ALL";
@@ -285,9 +285,7 @@ export function HistoryView({ history = [] }: HistoryViewProps) {
                                 <button
                                     key={filter.key}
                                     type="button"
-                                    onClick={() =>
-                                        setHandledFilter(filter.key)
-                                    }
+                                    onClick={() => setHandledFilter(filter.key)}
                                     className={cn(
                                         "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
                                         isActive

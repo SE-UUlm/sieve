@@ -1,7 +1,6 @@
 "use client";
 
-import { CheckCheck } from "lucide-react";
-import { Inbox, Mail } from "lucide-react";
+import { CheckCheck, Inbox, Mail } from "lucide-react";
 import { Badge } from "@/components/primitives/badge";
 
 type EmailSource = "MANUAL" | "IMAP";
