@@ -15,6 +15,7 @@ import {
     ApiTags,
 } from "@nestjs/swagger";
 import { Session, type UserSession } from "@thallesp/nestjs-better-auth";
+import { JobService } from "src/job/job.service";
 import { SmtpService } from "src/smtp/smtp.service";
 import { CreateEmailDto } from "./dto/create-email.dto";
 import { SubmitEmailResponseDto } from "./dto/email-analysis-result.dto";
@@ -30,6 +31,7 @@ export class EmailController {
         private readonly emailService: EmailService,
         private smtpService: SmtpService,
         private configService: ConfigService<null, true>,
+        private jobService: JobService,
     ) {}
 
     onModuleInit() {
@@ -139,6 +141,17 @@ export class EmailController {
                 dto.subject,
                 dto.body,
             );
+
+            if (dto.jobId) {
+                this.jobService
+                    .markHandledInternal(dto.jobId, true)
+                    .catch((error: unknown) =>
+                        Logger.warn(
+                            "Failed to mark job as handled after email send",
+                            error,
+                        ),
+                    );
+            }
 
             return true;
         } catch (error) {

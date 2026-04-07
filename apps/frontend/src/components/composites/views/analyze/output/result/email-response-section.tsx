@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { Check } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 import { CopyActionButton } from "@/components/composites/views/analyze/output/common/copy-action-button";
@@ -6,8 +7,10 @@ import { ResultSection } from "@/components/composites/views/analyze/output/resu
 import { StyledButton } from "@/components/ui/styled-button";
 import {
     type CreateEmailDto,
+    getJobControllerGetHistoryQueryKey,
     type SubmitEmailResponseDto,
     useEmailControllerSendEmailResponse,
+    useJobControllerSetJobHandled,
 } from "@/lib/client";
 import { showPersistentErrorToast, showSuccessToast } from "@/lib/toast";
 
@@ -73,6 +76,10 @@ export function EmailResponseSection({
 }: EmailResponseSectionProps) {
     const response = result.data.email_response;
 
+    const queryClient = useQueryClient();
+
+    const { mutate: setHandled } = useJobControllerSetJobHandled();
+
     const { mutate, isPending } = useEmailControllerSendEmailResponse({
         mutation: {
             onSuccess: (response) => {
@@ -85,6 +92,31 @@ export function EmailResponseSection({
                             },
                     );
                     showSuccessToast({ title: "Email Response Sent" });
+
+                    setHandled(
+                        { jobId: result.jobId, data: { handled: true } },
+                        {
+                            onSuccess: () => {
+                                void queryClient.invalidateQueries({
+                                    queryKey:
+                                        getJobControllerGetHistoryQueryKey({}),
+                                });
+                                void queryClient.invalidateQueries({
+                                    queryKey:
+                                        getJobControllerGetHistoryQueryKey({
+                                            source: "MANUAL",
+                                        }),
+                                });
+                                void queryClient.invalidateQueries({
+                                    queryKey:
+                                        getJobControllerGetHistoryQueryKey({
+                                            source: "IMAP",
+                                        }),
+                                });
+                            },
+                        },
+                    );
+
                     return;
                 }
 
@@ -110,6 +142,7 @@ export function EmailResponseSection({
                     ? `Re: ${request.subject}`
                     : response?.response_subject || "Support Response",
                 body: response.response_body,
+                jobId: result.jobId,
             },
         });
     };

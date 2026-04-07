@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import {
+    IsBoolean,
     IsDateString,
     IsEnum,
     IsObject,
@@ -19,6 +20,15 @@ export class JobHistoryEntryDto {
     })
     @IsUUID()
     id!: string;
+
+    @ApiPropertyOptional({
+        description: "Sender address of the email.",
+        type: String,
+        nullable: true,
+    })
+    @IsOptional()
+    @IsString()
+    sender?: string | null;
 
     @ApiPropertyOptional({
         description: "Email subject submitted for analysis.",
@@ -60,4 +70,11 @@ export class JobHistoryEntryDto {
     })
     @IsEnum(EmailSource)
     source!: EmailSource;
+
+    @ApiProperty({
+        description: "Whether this job has been marked as handled.",
+        type: Boolean,
+    })
+    @IsBoolean()
+    handled!: boolean;
 }

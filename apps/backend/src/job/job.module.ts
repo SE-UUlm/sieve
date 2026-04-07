@@ -7,5 +7,6 @@ import { JobService } from "./job.service";
     imports: [PrismaModule],
     controllers: [JobController],
     providers: [JobService],
+    exports: [JobService],
 })
 export class JobModule {}

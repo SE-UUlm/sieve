@@ -209,14 +209,53 @@ export class JobService {
         };
     }
 
+    /**
+     * Sets the handled status for a job owned by the active user.
+     */
+    async setHandled(
+        session: UserSession,
+        jobId: string,
+        handled: boolean,
+    ): Promise<JobHistoryEntryDto> {
+        const job = await this.prismaService.job.findFirst({
+            where: this.getScopedJobIdWhere(session, jobId),
+            include: { email: true, result: true },
+        });
+
+        if (!job) {
+            throw new NotFoundException("Job not found");
+        }
+
+        const updated = await this.prismaService.job.update({
+            where: { id: jobId },
+            data: { handled },
+            include: { email: true, result: true },
+        });
+
+        return this.toJobHistoryEntryDto(updated);
+    }
+
+    /**
+     * Sets the handled status for a job without user-scoping.
+     * For internal use only — called by trusted server-side processes.
+     */
+    async markHandledInternal(jobId: string, handled: boolean): Promise<void> {
+        await this.prismaService.job.update({
+            where: { id: jobId },
+            data: { handled },
+        });
+    }
+
     private toJobHistoryEntryDto(job: JobWithRelations): JobHistoryEntryDto {
         return {
             id: job.id,
+            sender: job.email.sender,
             subject: job.email.subject,
             body: job.email.body,
             result: this.toHistoryResult(job.result?.output),
             createdAt: job.createdAt.toISOString(),
             source: job.email.source,
+            handled: job.handled,
         };
     }
 
