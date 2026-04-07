@@ -285,13 +285,18 @@ export class ImapPollerService {
                     if (existing) continue;
                 }
 
+                const parsed = message.source
+                    ? await this.parseSource(message.source)
+                    : null;
                 detected.push({
                     uid: message.uid,
-                    subject: decodeMailHeader(message.envelope?.subject || ""),
+                    subject:
+                        parsed?.subject ||
+                        decodeMailHeader(message.envelope?.subject || ""),
                     sender: message.envelope?.from?.[0]?.address ?? null,
-                    body: decodeQuotedPrintable(
-                        this.extractTextContent(message),
-                    ),
+                    body:
+                        parsed?.text ??
+                        decodeQuotedPrintable(this.extractTextContent(message)),
                     messageId,
                 });
             }
@@ -833,7 +838,12 @@ export class ImapPollerService {
             );
 
             for await (const msg of fetchResult) {
-                body = decodeQuotedPrintable(this.extractTextContent(msg));
+                if (msg.source) {
+                    const parsed = await this.parseSource(msg.source);
+                    body = parsed.text;
+                } else {
+                    body = decodeQuotedPrintable(this.extractTextContent(msg));
+                }
                 break;
             }
 
@@ -963,14 +973,21 @@ export class ImapPollerService {
                         }
                     }
 
-                    const subject = decodeMailHeader(
-                        fetchedMessage.envelope?.subject || "",
-                    );
+                    const sourceParsed = fetchedMessage.source
+                        ? await this.parseSource(fetchedMessage.source)
+                        : null;
+                    const subject =
+                        sourceParsed?.subject ||
+                        decodeMailHeader(
+                            fetchedMessage.envelope?.subject || "",
+                        );
                     const sender =
                         fetchedMessage.envelope?.from?.[0]?.address ?? null;
-                    const body = decodeQuotedPrintable(
-                        this.extractTextContent(fetchedMessage),
-                    );
+                    const body =
+                        sourceParsed?.text ??
+                        decodeQuotedPrintable(
+                            this.extractTextContent(fetchedMessage),
+                        );
 
                     const analysisResult = await this.aiBackendService.runFlow(
                         body,
@@ -1054,6 +1071,23 @@ export class ImapPollerService {
         }
 
         return processedCount;
+    }
+
+    /**
+     * Parses a raw email source buffer using mailparser to get properly
+     * decoded subject and body text (handles all charsets incl. umlauts).
+     */
+    private async parseSource(
+        source: Buffer,
+    ): Promise<{ subject: string; text: string }> {
+        const { simpleParser } = await import("mailparser");
+        const parsed = await simpleParser(source);
+        const text = parsed.text
+            ? parsed.text.slice(0, 10000)
+            : parsed.html
+              ? this.stripHtmlTags(parsed.html).slice(0, 10000)
+              : "";
+        return { subject: parsed.subject ?? "", text };
     }
 
     /**
