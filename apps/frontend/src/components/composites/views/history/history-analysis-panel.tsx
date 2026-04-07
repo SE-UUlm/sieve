@@ -61,9 +61,6 @@ export function HistoryAnalysisPanel({
                     <div className="space-y-6">
                         <CategorySection result={renderableResult} />
                         <SummarySection result={renderableResult} />
-                        <HistoryEmailResponseSection
-                            result={renderableResult}
-                        />
                         <ConfidenceSection result={renderableResult} />
                     </div>
                 </StyledTabsContent>
@@ -98,25 +95,6 @@ export function HistoryAnalysisPanel({
                 </ResultSection>
             </StyledTabsContent>
         </StyledTabs>
-    );
-}
-
-function HistoryEmailResponseSection({ result }: { result: AnalysisResult }) {
-    const responseBody = result.email_response?.response_body;
-    if (typeof responseBody !== "string" || responseBody.length === 0) {
-        return null;
-    }
-
-    return (
-        <ResultSection title="Email Response">
-            <ResultCard className="text-sm leading-relaxed text-slate-700 whitespace-break-spaces dark:text-slate-300">
-                <CopyActionButton
-                    title="Copy Email body"
-                    copyText={responseBody}
-                />
-                {responseBody}
-            </ResultCard>
-        </ResultSection>
     );
 }
 
