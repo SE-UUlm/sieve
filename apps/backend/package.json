@@ -23,11 +23,11 @@
         "generate:clients": "pnpm run generate:client:prisma && pnpm run generate:client:orval"
     },
     "dependencies": {
-        "@nestjs/common": "^11.1.16",
+        "@nestjs/common": "^11.1.18",
         "@nestjs/config": "^4.0.3",
         "@nestjs/core": "^11.1.18",
         "@nestjs/event-emitter": "^3.0.1",
-        "@nestjs/platform-express": "^11.1.16",
+        "@nestjs/platform-express": "^11.1.18",
         "@nestjs/platform-socket.io": "^11.1.17",
         "@nestjs/schedule": "^6.1.1",
         "@nestjs/swagger": "^11.2.6",
