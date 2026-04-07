@@ -8,6 +8,7 @@ export interface ImapConfig {
     password: string;
     security: "ssl" | "starttls" | "none";
     mailbox: string;
+    lastUid: number;
 }
 
 export interface ImapStatus {

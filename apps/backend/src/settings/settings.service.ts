@@ -386,6 +386,7 @@ export class SettingsService {
         mailbox: string;
         autoProcessEnabled: boolean;
         autoProcessEnabledAt: Date | null;
+        lastUid: number;
     } | null> {
         const settings = await this.prismaService.instanceSettings.findUnique({
             where: { id: INSTANCE_SETTINGS_ID },
@@ -398,6 +399,7 @@ export class SettingsService {
                 imapMailbox: true,
                 imapAutoProcessEnabled: true,
                 imapAutoProcessEnabledAt: true,
+                imapLastUid: true,
             },
         });
 
@@ -421,6 +423,7 @@ export class SettingsService {
             mailbox: settings.imapMailbox || "INBOX",
             autoProcessEnabled: settings.imapAutoProcessEnabled,
             autoProcessEnabledAt: settings.imapAutoProcessEnabledAt ?? null,
+            lastUid: settings.imapLastUid ?? 0,
         };
     }
 
@@ -509,6 +512,7 @@ export class SettingsService {
             mailbox: string;
             enabled: boolean;
             autoProcessEnabled: boolean;
+            initialLastUid?: number;
         },
         isConnected?: boolean,
     ): Promise<void> {
@@ -546,6 +550,9 @@ export class SettingsService {
                 imapIsConnected: isConnected ?? false,
                 imapAutoProcessEnabled: config.autoProcessEnabled,
                 imapLastSyncedAt: config.autoProcessEnabled ? now : undefined,
+                imapLastUid: config.autoProcessEnabled
+                    ? (config.initialLastUid ?? 0)
+                    : 0,
                 imapAutoProcessEnabledAt: config.autoProcessEnabled
                     ? now
                     : undefined,
@@ -561,10 +568,14 @@ export class SettingsService {
                 imapIsConnected: isConnected ?? false,
                 imapAutoProcessEnabled: config.autoProcessEnabled,
                 ...(activatingAutoProcess
-                    ? { imapLastSyncedAt: now, imapAutoProcessEnabledAt: now }
+                    ? {
+                          imapLastSyncedAt: now,
+                          imapLastUid: config.initialLastUid ?? 0,
+                          imapAutoProcessEnabledAt: now,
+                      }
                     : {}),
                 ...(deactivatingAutoProcess
-                    ? { imapAutoProcessEnabledAt: null }
+                    ? { imapAutoProcessEnabledAt: null, imapLastUid: 0 }
                     : {}),
             },
         });

@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
-import { Cron, CronExpression } from "@nestjs/schedule";
+import { Cron } from "@nestjs/schedule";
 import type { Prisma } from "../../prisma/client/client";
 import {
     EmailSource,
@@ -18,6 +18,14 @@ import type {
 } from "./dto";
 import { ImapConfig, ImapService } from "./imap.service";
 
+interface DetectedEmail {
+    uid: number;
+    subject: string;
+    sender: string | null;
+    body: string;
+    messageId: string;
+}
+
 export interface NewImapEmailEvent {
     userId: string;
     emailId: string;
@@ -27,7 +35,7 @@ export interface NewImapEmailEvent {
 @Injectable()
 export class ImapPollerService {
     private readonly logger = new Logger(ImapPollerService.name);
-    private isRunning = false;
+    private isDetecting = false;
     private readonly processingUids = new Set<number>();
     private readonly ANALYZED_FOLDER = "ai_analyzed";
     private analyzedFolderPath: string | null = null;
@@ -41,36 +49,69 @@ export class ImapPollerService {
     ) {}
 
     /**
-     * Polls the IMAP mailbox every minute for new emails.
+     * Polls the IMAP mailbox every 30 seconds for new emails.
+     * Two-phase approach: detection (fast, IMAP connection) then processing (slow, AI).
      */
-    @Cron(CronExpression.EVERY_MINUTE)
+    @Cron("*/30 * * * * *")
     async pollImapMailbox(): Promise<void> {
-        if (this.isRunning) {
-            return;
-        }
+        if (this.isDetecting) return;
 
         const config = await this.settingsService.getImapConfig();
-        if (!config) {
-            return;
-        }
+        if (!config || !config.autoProcessEnabled) return;
 
         const status = await this.settingsService.getImapStatus();
-        if (!status.isEnabled) {
-            return;
-        }
+        if (!status.isEnabled) return;
 
-        if (!config.autoProcessEnabled) {
-            return;
-        }
-
-        this.isRunning = true;
-
+        // === PHASE 1: Detection (short, IMAP connection is open only here) ===
+        this.isDetecting = true;
+        let emailsToProcess: DetectedEmail[] = [];
+        let maxUid = config.lastUid;
         try {
-            await this.checkForNewEmails(config);
+            const result = await this.detectNewEmails(config);
+            emailsToProcess = result.emails;
+            maxUid = result.maxUid;
+            // Advance lastUid immediately so the next cron cycle doesn't re-detect
+            if (maxUid > config.lastUid) {
+                await this.prismaService.instanceSettings.update({
+                    where: { id: "singleton" },
+                    data: { imapLastUid: maxUid, imapLastSyncedAt: new Date() },
+                });
+            }
+            // Mark all UIDs as in-progress before releasing the detection lock
+            for (const email of emailsToProcess) {
+                this.processingUids.add(email.uid);
+            }
         } catch (error) {
-            this.logger.error("Error polling IMAP mailbox:", error);
+            this.logger.error("IMAP detection failed:", error);
+            return;
         } finally {
-            this.isRunning = false;
+            this.isDetecting = false; // Release lock BEFORE AI analysis starts
+        }
+
+        if (emailsToProcess.length === 0) return;
+
+        // === PHASE 2: Processing (long, no open IMAP connection) ===
+        const adminUser = await this.prismaService.user.findFirst({
+            where: { role: "ADMIN" },
+        });
+        if (!adminUser) {
+            this.logger.warn("No admin user found for IMAP email processing");
+            for (const email of emailsToProcess) {
+                this.processingUids.delete(email.uid);
+            }
+            return;
+        }
+
+        for (const emailData of emailsToProcess) {
+            try {
+                await this.processDetectedEmail(emailData, config, adminUser.id);
+            } catch (error) {
+                this.logger.error(
+                    `[AutoProcess] Failed for uid=${emailData.uid}: ${error instanceof Error ? error.message : String(error)}`,
+                );
+            } finally {
+                this.processingUids.delete(emailData.uid);
+            }
         }
     }
 
@@ -182,9 +223,13 @@ export class ImapPollerService {
     }
 
     /**
-     * Checks for new emails in the IMAP mailbox and processes them.
+     * Detection phase: opens a short-lived IMAP connection, fetches emails with
+     * UID greater than the stored lastUid, closes the connection, and returns
+     * the collected emails together with the highest seen UID.
      */
-    private async checkForNewEmails(config: ImapConfig): Promise<void> {
+    private async detectNewEmails(
+        config: ImapConfig,
+    ): Promise<{ emails: DetectedEmail[]; maxUid: number }> {
         const ImapClient = (await import("imapflow")).ImapFlow;
 
         const client = new ImapClient({
@@ -195,180 +240,259 @@ export class ImapPollerService {
                 config.security === "starttls"
                     ? { rejectUnauthorized: false }
                     : undefined,
-            auth: {
-                user: config.username,
-                pass: config.password,
-            },
+            auth: { user: config.username, pass: config.password },
             logger: false,
         });
         client.on("error", (err: Error) => {
-            this.logger.error(`[ImapFlow] Socket error in checkForNewEmails: ${err.message}`);
+            this.logger.error(
+                `[ImapFlow] Socket error in detectNewEmails: ${err.message}`,
+            );
         });
 
         try {
             await client.connect();
-
-            // Ensure the analyzed folder exists
-            await this.ensureAnalyzedFolderExists(client);
-
-            // Get the last synced UID to avoid reprocessing
-            const settings =
-                await this.prismaService.instanceSettings.findUnique({
-                    where: { id: "singleton" },
-                    select: { imapLastSyncedAt: true },
-                });
-
-            const _mailbox = await client.mailboxOpen(config.mailbox);
-
-            // Search for unread messages
-            const searchCriteria = settings?.imapLastSyncedAt
-                ? { since: settings.imapLastSyncedAt }
-                : { unseen: true };
-
-            const messages = await client.fetch(searchCriteria, {
-                uid: true,
-                envelope: true,
-                source: true,
-                text: true,
-                html: true,
-            } as unknown as import("imapflow").FetchQueryObject);
-
-            let newEmailCount = 0;
-
-            for await (const message of messages) {
-                // Skip messages that are already in the AI-Analyzed folder
-                if (this.isMessageInAnalyzedFolder(message)) {
-                    continue;
-                }
-
-                // Check if this email was already processed
-                const messageId = message.envelope?.messageId || "";
-                const existingEmail = await this.prismaService.email.findFirst({
-                    where: {
-                        source: EmailSource.IMAP,
-                        body: {
-                            contains: messageId,
-                        },
-                    },
-                });
-
-                if (existingEmail) {
-                    continue;
-                }
-
-                // Get admin user for IMAP emails
-                const adminUser = await this.prismaService.user.findFirst({
-                    where: { role: "ADMIN" },
-                });
-
-                if (!adminUser) {
-                    this.logger.warn(
-                        "No admin user found for IMAP email processing",
-                    );
-                    continue;
-                }
-
-                // Parse email content
-                const subject = decodeMailHeader(
-                    message.envelope?.subject || "",
-                );
-                const sender = message.envelope?.from?.[0]?.address || null;
-                const body = decodeQuotedPrintable(
-                    this.extractTextContent(message),
-                );
-
-                // Process email through AI backend and save results
-                try {
-                    const analysisResult = await this.aiBackendService.runFlow(
-                        body,
-                        subject,
-                    );
-                    const now = new Date();
-
-                    await this.prismaService.$transaction(
-                        async (transaction) => {
-                            const email = await transaction.email.create({
-                                data: {
-                                    userId: adminUser.id,
-                                    sender,
-                                    subject,
-                                    body,
-                                    source: EmailSource.IMAP,
-                                },
-                            });
-
-                            const job = await transaction.job.create({
-                                data: {
-                                    userId: adminUser.id,
-                                    emailId: email.id,
-                                    status: JobStatus.COMPLETED,
-                                    startedAt: now,
-                                    completedAt: now,
-                                },
-                            });
-
-                            await transaction.jobResult.create({
-                                data: {
-                                    jobId: job.id,
-                                    status: JobResultStatus.SUCCESS,
-                                    output: analysisResult as unknown as Prisma.InputJsonValue,
-                                },
-                            });
-
-                            newEmailCount++;
-
-                            // Emit event for notification
-                            this.eventEmitter.emit("imap.email.received", {
-                                userId: adminUser.id,
-                                emailId: email.id,
-                                subject,
-                            } as NewImapEmailEvent);
-
-                            this.logger.log(
-                                `New IMAP email processed: ${subject || "(no subject)"}`,
-                            );
-
-                            newEmailCount++;
-                        },
-                    );
-
-                    // Move the message to AI-Analyzed folder AFTER successful transaction
-                    // Note: This happens outside the transaction so DB changes are preserved
-                    // even if the move fails (e.g., due to connection issues with GMX)
-                    if (message.uid) {
-                        try {
-                            await this.moveMessageToAnalyzedFolder(
-                                client,
-                                message.uid,
-                            );
-                        } catch (moveError) {
-                            this.logger.warn(
-                                `Could not move message ${message.uid} to analyzed folder, but email was processed: ${moveError instanceof Error ? moveError.message : String(moveError)}`,
-                            );
-                            // Continue - the email was already saved to DB
-                        }
-                    }
-                } catch (error) {
-                    this.logger.error(
-                        `Failed to process IMAP email: ${subject || "(no subject)"}`,
-                        error,
-                    );
-                }
-            }
-
-            // Update last synced timestamp
-            await this.prismaService.instanceSettings.update({
-                where: { id: "singleton" },
-                data: { imapLastSyncedAt: new Date() },
+            const mailboxInfo = await client.mailboxOpen(config.mailbox, {
+                readOnly: true,
             });
 
-            if (newEmailCount > 0) {
-                this.logger.log(`Processed ${newEmailCount} new IMAP emails`);
+            if (mailboxInfo.exists === 0) {
+                await client.logout();
+                return { emails: [], maxUid: config.lastUid };
+            }
+
+            const lastUid = config.lastUid;
+            const uidRange = `${lastUid + 1}:*`;
+
+            const detected: DetectedEmail[] = [];
+            let maxUid = lastUid;
+
+            const messages = await client.fetch(
+                uidRange,
+                {
+                    uid: true,
+                    envelope: true,
+                    source: true,
+                    text: true,
+                    html: true,
+                } as unknown as import("imapflow").FetchQueryObject,
+                { uid: true },
+            );
+
+            for await (const message of messages) {
+                if (!message.uid) continue;
+                if (message.uid <= lastUid) continue;
+                if (this.processingUids.has(message.uid)) continue;
+
+                if (message.uid > maxUid) maxUid = message.uid;
+
+                const messageId = message.envelope?.messageId || "";
+                if (messageId) {
+                    const existing = await this.prismaService.email.findFirst({
+                        where: {
+                            source: EmailSource.IMAP,
+                            body: { contains: messageId },
+                        },
+                    });
+                    if (existing) continue;
+                }
+
+                detected.push({
+                    uid: message.uid,
+                    subject: decodeMailHeader(
+                        message.envelope?.subject || "",
+                    ),
+                    sender: message.envelope?.from?.[0]?.address ?? null,
+                    body: decodeQuotedPrintable(
+                        this.extractTextContent(message),
+                    ),
+                    messageId,
+                });
             }
 
             await client.logout();
+            return { emails: detected, maxUid };
         } catch (error) {
-            this.logger.error("Error checking IMAP mailbox:", error);
+            try {
+                await client.logout();
+            } catch {
+                /* ignore */
+            }
+            throw error;
+        }
+    }
+
+    /**
+     * Processing phase for a single detected email: AI analysis, DB transaction,
+     * move to ai_analyzed (with fresh IMAP connection), then emit notification.
+     */
+    private async processDetectedEmail(
+        emailData: DetectedEmail,
+        config: ImapConfig,
+        userId: string,
+    ): Promise<void> {
+        // AI analysis runs here — no IMAP connection is open
+        const analysisResult = await this.aiBackendService.runFlow(
+            emailData.body,
+            emailData.subject,
+        );
+        const now = new Date();
+
+        let emailId = "";
+        await this.prismaService.$transaction(async (tx) => {
+            const email = await tx.email.create({
+                data: {
+                    userId,
+                    sender: emailData.sender,
+                    subject: emailData.subject,
+                    body: emailData.body,
+                    source: EmailSource.IMAP,
+                },
+            });
+            emailId = email.id;
+
+            const job = await tx.job.create({
+                data: {
+                    userId,
+                    emailId: email.id,
+                    status: JobStatus.COMPLETED,
+                    startedAt: now,
+                    completedAt: now,
+                },
+            });
+
+            await tx.jobResult.create({
+                data: {
+                    jobId: job.id,
+                    status: JobResultStatus.SUCCESS,
+                    output: analysisResult as unknown as Prisma.InputJsonValue,
+                },
+            });
+        });
+
+        // Move using a fresh IMAP connection — no socket timeout risk
+        try {
+            await this.moveEmailWithFreshConnection(config, emailData.uid);
+        } catch (moveError) {
+            this.logger.warn(
+                `[AutoProcess] Could not move uid=${emailData.uid}: ${moveError instanceof Error ? moveError.message : String(moveError)}`,
+            );
+        }
+
+        // Emit notification after the move attempt (success or failure)
+        this.eventEmitter.emit("imap.email.received", {
+            userId,
+            emailId,
+            subject: emailData.subject,
+        } as NewImapEmailEvent);
+
+        this.logger.log(
+            `[AutoProcess] Processed uid=${emailData.uid}: ${emailData.subject || "(no subject)"}`,
+        );
+    }
+
+    /**
+     * Opens a short-lived dedicated IMAP connection solely to move a single
+     * message to the ai_analyzed folder (COPY + DELETE).
+     * Using a fresh connection avoids socket timeout after long AI analysis.
+     */
+    private async moveEmailWithFreshConnection(
+        config: ImapConfig,
+        uid: number,
+    ): Promise<void> {
+        const ImapClient = (await import("imapflow")).ImapFlow;
+
+        const client = new ImapClient({
+            host: config.host.trim(),
+            port: config.port,
+            secure: config.security === "ssl",
+            tls:
+                config.security === "starttls"
+                    ? { rejectUnauthorized: false }
+                    : undefined,
+            auth: { user: config.username, pass: config.password },
+            logger: false,
+        });
+        client.on("error", (err: Error) => {
+            this.logger.error(
+                `[ImapFlow] Socket error in moveEmailWithFreshConnection: ${err.message}`,
+            );
+        });
+
+        try {
+            await client.connect();
+            await this.ensureAnalyzedFolderExists(client);
+            await client.mailboxOpen(config.mailbox);
+            await this.moveMessageToAnalyzedFolder(client, uid);
+            await client.logout();
+        } catch (error) {
+            try {
+                await client.logout();
+            } catch {
+                /* ignore */
+            }
+            throw error;
+        }
+    }
+
+    /**
+     * Returns the highest UID currently present in the mailbox, or 0 if empty.
+     * Used to initialise imapLastUid when enabling auto-processing so that
+     * existing emails are not re-processed.
+     */
+    async getMailboxMaxUid(config: ImapConfig): Promise<number> {
+        const ImapClient = (await import("imapflow")).ImapFlow;
+
+        const client = new ImapClient({
+            host: config.host.trim(),
+            port: config.port,
+            secure: config.security === "ssl",
+            tls:
+                config.security === "starttls"
+                    ? { rejectUnauthorized: false }
+                    : undefined,
+            auth: { user: config.username, pass: config.password },
+            logger: false,
+        });
+        client.on("error", (err: Error) => {
+            this.logger.error(
+                `[ImapFlow] Socket error in getMailboxMaxUid: ${err.message}`,
+            );
+        });
+
+        try {
+            await client.connect();
+            const mailboxInfo = await client.mailboxOpen(config.mailbox, {
+                readOnly: true,
+            });
+
+            if (mailboxInfo.exists === 0) {
+                await client.logout();
+                return 0;
+            }
+
+            // Fetch only the last message to get its UID
+            let maxUid = 0;
+            const messages = await client.fetch(
+                "*",
+                { uid: true } as unknown as import("imapflow").FetchQueryObject,
+            );
+            for await (const message of messages) {
+                if (message.uid && message.uid > maxUid) {
+                    maxUid = message.uid;
+                }
+            }
+
+            await client.logout();
+            return maxUid;
+        } catch (error) {
+            this.logger.error(
+                `[getMailboxMaxUid] Failed: ${error instanceof Error ? error.message : String(error)}`,
+            );
+            try {
+                await client.logout();
+            } catch {
+                /* ignore */
+            }
             throw error;
         }
     }
