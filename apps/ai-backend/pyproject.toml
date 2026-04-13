@@ -26,6 +26,7 @@ lint = "tasks:lint"
 format = "tasks:format"
 typecheck = "tasks:typecheck"
 build_graphs = "build_graphs:build_graphs"
+evaluate = "tasks:evaluate"
 
 [build-system]
 requires = ["uv_build>=0.9.27,<0.10.0"]

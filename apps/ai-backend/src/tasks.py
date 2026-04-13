@@ -26,3 +26,7 @@ def format():
 
 def typecheck():
     run_command(["ty", "check"])
+
+
+def evaluate():
+    run_command(["python", "tests/eval_suite.py"])
