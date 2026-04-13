@@ -158,6 +158,7 @@ ENABLE_MOCK=true pnpm run dev
    uv run lint
    uv run typecheck
    uv run format
+   uv run evaluate
    ```
 
 ### Product database setup for AI product flow
@@ -214,3 +215,18 @@ The `History` view lists all completed analysis runs. For each entry you can:
   SMTP and automatically marks the mail as handled.
 - **Toggle handled manually** — use the `Mark handled` / `Unmark` button on any history card to set or
   clear the handled status without sending an email.
+
+## Testing
+
+### Evaluate AI-Backend
+
+This runs a test suite with 6 test cases to evaluate the analyze endpoint of the ai-backend.
+This uses real OpenAI llm calls, thus it is not run in CI/CD pipeline.
+GPT 5.1 is used for the evaluation of the email response and the summaries.
+
+Steps:
+
+1. Start ai-backend
+2. Start Product database and prepare with sample products, see [Product database setup for AI product flow](#product-database-setup-for-ai-product-flow)
+3. Set OPENAI_API_KEY in .env
+4. Run `uv run evaluate`
