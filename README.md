@@ -1,6 +1,6 @@
 <div align="center">
     <picture>
-        <img alt="SIEVE Logo" src="apps/frontend/public/sieve-logo-with-text.svg" />
+        <img alt="SIEVE Logo" width="350" src="apps/frontend/public/sieve-logo-with-text.svg" />
     </picture>
     <p><em><strong>S</strong>tructuring <strong>I</strong>ncoming <strong>E</strong>mails for <strong>V</strong>aluable <strong>E</strong>xtraction</em></p>
 </div>
