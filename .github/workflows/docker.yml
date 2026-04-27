@@ -1,0 +1,38 @@
+name: Docker
+
+on:
+    push:
+        branches:
+            - develop
+        tags:
+            - "v*.*.*"
+    workflow_dispatch:
+
+permissions:
+    contents: read
+    packages: write
+    id-token: write
+    attestations: write
+    artifact-metadata: write
+
+jobs:
+    build-and-publish-backend-docker-image:
+        name: Build and Publish Backend Docker Image
+        uses: ./.github/workflows/docker-build.yml
+        with:
+            context: ./apps/backend
+            image-name: se-uulm/sieve-backend
+
+    build-and-publish-frontend-docker-image:
+        name: Build and Publish Frontend Docker Image
+        uses: ./.github/workflows/docker-build.yml
+        with:
+            context: ./apps/frontend
+            image-name: se-uulm/sieve-frontend
+
+    build-and-publish-ai-backend-docker-image:
+        name: Build and Publish AI-Backend Docker Image
+        uses: ./.github/workflows/docker-build.yml
+        with:
+            context: ./apps/ai-backend
+            image-name: se-uulm/sieve-ai-backend

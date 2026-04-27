@@ -1,0 +1,35 @@
+name: Code Quality Checks Frontend
+
+on:
+    push:
+        branches:
+            - main
+            - develop
+    pull_request:
+    workflow_dispatch:
+
+env:
+    node_version: ${{ vars.NODE_VERSION_FRONTEND }}
+    working_directory: apps/frontend
+
+jobs:
+    linting:
+        name: Lint Frontend
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v6
+
+            - name: Setup Frontend
+              uses: ./.github/workflows/setup-node-pnpm/
+              with:
+                  node_version: ${{ env.node_version }}
+                  working-directory: ${{ env.working_directory }}
+
+            - name: Run License Check
+              run: pnpm run license-check
+              working-directory: ${{ env.working_directory }}
+
+            - name: Lint
+              run: pnpm run lint
+              working-directory: ${{ env.working_directory }}

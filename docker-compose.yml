@@ -1,0 +1,85 @@
+services:
+    # PostgreSQL Database
+    db:
+        profiles: ["", "db-only"]
+        image: postgres:16-alpine3.22
+        restart: ${RESTART_POLICY:-no}
+        environment:
+            POSTGRES_USER: ${DB_USERNAME}
+            POSTGRES_PASSWORD: ${DB_PASSWORD}
+            POSTGRES_DB: ${DB_NAME}
+        ports:
+            - "5432:5432"
+        volumes:
+            - ./db-data:/var/lib/postgresql/data
+        healthcheck:
+            test: "pg_isready -U ${DB_USERNAME}"
+            start_period: 4s # wait 4s to let db get ready for accepting connections
+            start_interval: 2s # start first healthcheck after 2s
+
+    backend:
+        profiles: ["", "backend-only"]
+        image: ghcr.io/se-uulm/sieve-backend:latest
+        build:
+            context: ./apps/backend
+        environment:
+            BACKEND_PORT: ${BACKEND_PORT}
+
+            DB_HOST: db
+            DB_PORT: 5432
+            DB_USERNAME: ${DB_USERNAME}
+            DB_PASSWORD: ${DB_PASSWORD}
+            DB_NAME: ${DB_NAME}
+
+            BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+            BETTER_AUTH_URL: ${BETTER_AUTH_URL}
+
+            AI_BACKEND_URL: "http://ai-backend:8000"
+            SETTINGS_ENCRYPTION_KEY: ${SETTINGS_ENCRYPTION_KEY}
+
+            TRUSTED_ORIGINS: ${TRUSTED_ORIGINS}
+            FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+
+            SEED_DEMO_USERS: ${SEED_DEMO_USERS:-false}
+            SEED_ADMIN_NAME: ${SEED_ADMIN_NAME:-Admin}
+            SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@example.com}
+            SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-}
+            SEED_USER_NAME: ${SEED_USER_NAME:-Alice Smith}
+            SEED_USER_EMAIL: ${SEED_USER_EMAIL:-alice@example.com}
+            SEED_USER_PASSWORD: ${SEED_USER_PASSWORD:-}
+
+            SMTP_HOST: ${SMTP_HOST}
+            SMTP_PORT: ${SMTP_PORT}
+            SMTP_USER: ${SMTP_USER}
+            SMTP_PASS: ${SMTP_PASS}
+            SMTP_FROM: ${SMTP_FROM}
+
+            AUTO_SEND_RESPOND_THRESHOLD: ${AUTO_SEND_RESPOND_THRESHOLD}
+        ports:
+            - ${BACKEND_PORT}:${BACKEND_PORT}
+
+    frontend:
+        profiles: ["", "frontend-only"]
+        image: ghcr.io/se-uulm/sieve-frontend:latest
+        build:
+            context: ./apps/frontend
+            additional_contexts:
+                backend: ./apps/backend
+        environment:
+            NODE_ENV: production
+        ports:
+            - ${FRONTEND_PORT:-3000}:3000
+
+    ai-backend:
+        profiles: ["", "ai-backend-only"]
+        image: ghcr.io/se-uulm/sieve-ai-backend:latest
+        build:
+            context: ./apps/ai-backend
+        environment:
+            PRODUCT_DB_USERNAME: ${PRODUCT_DB_USERNAME}
+            PRODUCT_DB_PASSWORD: ${PRODUCT_DB_PASSWORD}
+            PRODUCT_DB_NAME: ${PRODUCT_DB_NAME}
+            PRODUCT_DB_HOST: db
+            PRODUCT_DB_PORT: 5432
+        ports:
+            - 8000:8000

@@ -1,0 +1,198 @@
+"use client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { type SubmitErrorHandler, useForm } from "react-hook-form";
+import {
+    type AnalyzeFormValues,
+    analyzeFormSchema,
+} from "@/components/composites/views/analyze/form/analyze-form-schema";
+import { AnalyzeInputForm } from "@/components/composites/views/analyze/form/analyze-input-form";
+import { OutputPanel } from "@/components/composites/views/analyze/output/output-panel";
+import { SplitView } from "@/components/composites/views/split-view/split-view";
+import { SplitViewPane } from "@/components/composites/views/split-view/split-view-pane";
+import {
+    getJobControllerGetHistoryQueryKey,
+    type SubmitEmailResponseDto,
+    useEmailControllerSubmitEmail,
+} from "@/lib/client";
+import { showPersistentErrorToast } from "@/lib/toast";
+
+/**
+ * Analyze page container that orchestrates authentication, API calls, and view state.
+ */
+export function AnalyzeView() {
+    const queryClient = useQueryClient();
+
+    // Local UI State
+    const [result, setResult] = useState<SubmitEmailResponseDto | null>(null);
+    const [currentStep, setCurrentStep] = useState(0);
+
+    const form = useForm<AnalyzeFormValues>({
+        resolver: zodResolver(analyzeFormSchema),
+        defaultValues: {
+            sender: "",
+            subject: "",
+            emailContent: "",
+        },
+    });
+
+    const { mutate, isPending, variables } = useEmailControllerSubmitEmail({
+        mutation: {
+            onMutate: () => {
+                setResult(null);
+                setCurrentStep(0);
+            },
+            onSuccess: async (response) => {
+                if (response.status === 201) {
+                    setResult(response.data);
+                    setCurrentStep(4);
+                    await queryClient.invalidateQueries({
+                        queryKey: getJobControllerGetHistoryQueryKey(),
+                    });
+                    return;
+                }
+
+                setCurrentStep(0);
+                showPersistentErrorToast(
+                    getAnalyzeErrorToastFromStatus(response.status),
+                );
+            },
+            onError: (error) => {
+                console.error("[analyze] Email analysis request failed", error);
+                setCurrentStep(0);
+                const toastError = getAnalyzeErrorToastFromError(error);
+                showPersistentErrorToast(toastError);
+            },
+        },
+    });
+
+    /**
+     * Submits the email content to the backend for analysis.
+     */
+    const onSubmit = (values: AnalyzeFormValues) => {
+        setCurrentStep(0);
+        const normalizedSubject = values.subject.trim();
+
+        mutate({
+            data: {
+                sender: values.sender || undefined,
+                subject:
+                    normalizedSubject.length > 0
+                        ? normalizedSubject
+                        : undefined,
+                body: values.emailContent,
+            },
+        });
+    };
+
+    /**
+     * Handles form validation errors shown during submit.
+     */
+    const onInvalidSubmit: SubmitErrorHandler<AnalyzeFormValues> = (errors) => {
+        const firstErrorMessage =
+            Object.values(errors)[0]?.message ??
+            "Please check your input and try again.";
+
+        showPersistentErrorToast({
+            title: "Cannot Submit Analysis",
+            description: String(firstErrorMessage),
+        });
+    };
+
+    return (
+        <SplitView resizable>
+            <SplitViewPane variant="primary" className="flex flex-col">
+                <div className="mx-auto flex h-full w-full flex-col">
+                    <div className="mb-8">
+                        <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+                            Analyze Single Email
+                        </h2>
+                        <p className="mt-2 text-slate-500 dark:text-slate-400">
+                            Add a subject and paste an email below to extract
+                            structured data.
+                        </p>
+                    </div>
+
+                    <AnalyzeInputForm
+                        form={form}
+                        isPending={isPending}
+                        onSubmitAction={onSubmit}
+                        onInvalidSubmitAction={onInvalidSubmit}
+                    />
+                </div>
+            </SplitViewPane>
+            <SplitViewPane variant="secondary" isScrollable>
+                <OutputPanel
+                    result={result}
+                    isAnalyzing={isPending}
+                    currentStep={currentStep}
+                    setResult={setResult}
+                    request={variables?.data}
+                />
+            </SplitViewPane>
+        </SplitView>
+    );
+}
+
+type AnalyzeErrorToast = {
+    title: string;
+    description: string;
+};
+
+/**
+ * Maps API status codes to a user-facing analyze error toast.
+ *
+ * @param status HTTP status code returned by the analyze endpoint.
+ * @returns Title and description for the persistent error toast.
+ */
+function getAnalyzeErrorToastFromStatus(status: number): AnalyzeErrorToast {
+    if (status === 503) {
+        return {
+            title: "Analysis Unavailable",
+            description:
+                "Email analysis is not configured yet. Please contact an admin.",
+        };
+    }
+
+    if (status === 423) {
+        return {
+            title: "Analysis Disabled",
+            description:
+                "Email analysis is currently disabled by an admin. Please try again later.",
+        };
+    }
+
+    return {
+        title: "Email Analysis Failed",
+        description:
+            "There was an issue with the server. Please try again later.",
+    };
+}
+
+/**
+ * Maps unexpected client/network failures to a user-facing analyze error toast.
+ *
+ * @param error Unknown error returned by the mutation.
+ * @returns Title and description for the persistent error toast.
+ */
+function getAnalyzeErrorToastFromError(error: unknown): AnalyzeErrorToast {
+    if (!error || typeof error !== "object") {
+        return {
+            title: "Email Analysis Failed",
+            description:
+                "There was an issue with the server. Please try again later.",
+        };
+    }
+
+    const status =
+        "status" in error && typeof error.status === "number"
+            ? error.status
+            : undefined;
+
+    if (status !== undefined) {
+        return getAnalyzeErrorToastFromStatus(status);
+    }
+
+    return getAnalyzeErrorToastFromStatus(500);
+}

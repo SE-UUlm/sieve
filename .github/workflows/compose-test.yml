@@ -1,0 +1,48 @@
+name: Verify Docker Compose (default profile)
+
+on:
+    push:
+        branches:
+            - main
+            - develop
+    pull_request:
+    workflow_dispatch:
+
+jobs:
+    compose-verify:
+        name: Verify Docker Compose Setup
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v6
+
+            - name: Run Docker Compose Setup
+              uses: adambirds/docker-compose-action@v1.5.0
+              with:
+                  compose-file: "./docker-compose.yml"
+                  up-flags: "--build --wait"
+                  down-flags: "--volumes"
+              env:
+                  BACKEND_PORT: 5175
+                  DB_USERNAME: postgres
+                  DB_PASSWORD: example
+                  DB_HOST: localhost
+                  DB_PORT: 5432
+                  DB_NAME: postgres
+                  BETTER_AUTH_SECRET: better-auth-secret-placeholder01
+                  BETTER_AUTH_URL: http://localhost:5175
+                  AI_BACKEND_URL: http://localhost:8000
+                  SETTINGS_ENCRYPTION_KEY: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+                  NEXT_PUBLIC_API_URL: http://localhost:5175
+                  AUTO_SEND_RESPOND_THRESHOLD: -1
+
+            - name: Verify Backend Health
+              run: |
+                  echo "Waiting for backend..."
+                  sleep 5
+                  curl -f http://localhost:5175/api/health || (docker compose logs && exit 1)
+
+            - name: Verify Frontend Availability
+              run: |
+                  curl -f http://localhost:3000 || (docker compose logs && exit 1)

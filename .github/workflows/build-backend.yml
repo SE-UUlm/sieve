@@ -1,0 +1,49 @@
+name: Build Backend
+
+on:
+    push:
+        branches:
+            - main
+            - develop
+    pull_request:
+
+env:
+    node_version: ${{ vars.NODE_VERSION_BACKEND }}
+    working_directory: apps/backend
+
+jobs:
+    build:
+        name: Build Backend
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v6
+
+            - name: Setup Environment
+              uses: ./.github/workflows/setup-node-pnpm/
+              with:
+                  node_version: ${{ env.node_version }}
+                  working-directory: ${{ env.working_directory }}
+
+            - name: Generate Prisma Client
+              run: pnpm run generate:client:prisma
+              working-directory: ${{ env.working_directory }}
+              env:
+                  DB_USERNAME: postgres
+                  DB_PASSWORD: postgres
+                  DB_HOST: localhost
+                  DB_PORT: 5432
+                  DB_NAME: postgres
+
+            - name: Build Backend
+              run: pnpm run build
+              working-directory: ${{ env.working_directory }}
+
+            - name: Archive Build Artifacts
+              uses: actions/upload-artifact@v7
+              if: ${{ !cancelled() }}
+              with:
+                  name: Backend Build Artifact
+                  path: apps/backend/dist/
+                  include-hidden-files: true
+                  if-no-files-found: error

@@ -1,0 +1,38 @@
+name: Setup Node + pnpm
+description: Setup Node.js and pnpm
+inputs:
+    node_version:
+        description: "Node.js version"
+        required: true
+    working-directory:
+        description: "Working directory for installing dependencies"
+        required: true
+    cache-dependency-path:
+        description: "Path to the file used for caching dependencies"
+        required: false
+
+runs:
+    using: composite
+    steps:
+        - name: Setup Node.js (with cache)
+          if: ${{ inputs.cache-dependency-path != '' }}
+          uses: actions/setup-node@v6
+          with:
+              node-version: ${{ inputs.node_version }}
+              cache: npm
+              cache-dependency-path: ${{ inputs.cache-dependency-path }}
+
+        - name: Setup Node.js (no cache)
+          if: ${{ inputs.cache-dependency-path == '' }}
+          uses: actions/setup-node@v6
+          with:
+              node-version: ${{ inputs.node_version }}
+
+        - name: Install pnpm
+          shell: bash
+          run: npm install -g pnpm
+
+        - name: Install dependencies
+          shell: bash
+          run: pnpm install --frozen-lockfile
+          working-directory: ${{ inputs.working-directory }}

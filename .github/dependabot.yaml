@@ -1,0 +1,219 @@
+version: 2
+updates:
+    - package-ecosystem: "github-actions"
+      directory: "/"
+      schedule:
+          interval: "monthly"
+          # day: "sunday"
+          # time: "16:00"
+
+      labels:
+          - "dependencies"
+          - "github-actions"
+
+      commit-message:
+          prefix: "chore"
+          include: "scope"
+
+      groups:
+          github-actions:
+              patterns:
+                  - "*"
+
+    - package-ecosystem: "npm"
+      directory: "/apps/frontend"
+      schedule:
+          interval: "monthly"
+          # day: "sunday"
+          # time: "16:00"
+
+      versioning-strategy: "increase"
+      open-pull-requests-limit: 10
+
+      # cooldown:
+      # semver-major-days: 7
+      # semver-minor-days: 3
+      # semver-patch-days: 1
+
+      labels:
+          - "dependencies"
+          - "frontend"
+
+      commit-message:
+          prefix: "chore"
+          include: "scope"
+
+      groups:
+          nextjs:
+              patterns:
+                  - "next"
+                  - "react"
+                  - "react-dom"
+
+          data-layer:
+              patterns:
+                  - "@tanstack/*"
+
+          forms-and-validation:
+              patterns:
+                  - "react-hook-form"
+                  - "@hookform/*"
+                  - "zod"
+
+          ui-libraries:
+              patterns:
+                  - "@radix-ui/*"
+                  - "radix-ui"
+                  - "lucide-react"
+                  - "sonner"
+                  - "next-themes"
+                  - "class-variance-authority"
+                  - "clsx"
+                  - "tailwind-merge"
+
+          auth-and-realtime:
+              patterns:
+                  - "better-auth"
+                  - "socket.io-client"
+
+          dev-tooling:
+              dependency-type: "development"
+              patterns:
+                  - "*"
+
+    - package-ecosystem: "npm"
+      directory: "/apps/backend"
+      schedule:
+          interval: "monthly"
+          # day: "sunday"
+          # time: "16:00"
+
+      versioning-strategy: "increase"
+      open-pull-requests-limit: 10
+
+      # cooldown:
+      # semver-major-days: 7
+      # semver-minor-days: 3
+      # semver-patch-days: 1
+
+      labels:
+          - "dependencies"
+          - "backend"
+
+      commit-message:
+          prefix: "chore"
+          include: "scope"
+
+      groups:
+          nestjs-framework:
+              patterns:
+                  - "@nestjs/common"
+                  - "@nestjs/config"
+                  - "@nestjs/core"
+                  - "@nestjs/event-emitter"
+                  - "@nestjs/platform-express"
+                  - "@nestjs/platform-socket.io"
+                  - "@nestjs/schedule"
+                  - "@nestjs/swagger"
+                  - "@nestjs/terminus"
+                  - "@nestjs/websockets"
+
+          prisma:
+              patterns:
+                  - "@prisma/*"
+                  - "prisma"
+
+          authentication:
+              patterns:
+                  - "better-auth"
+                  - "@thallesp/nestjs-better-auth"
+
+          validation:
+              patterns:
+                  - "class-validator"
+                  - "class-transformer"
+                  - "joi"
+
+          database:
+              patterns:
+                  - "pg"
+
+          graphql:
+              patterns:
+                  - "graphql"
+
+          api-tooling:
+              patterns:
+                  - "@scalar/*"
+                  - "orval"
+
+          runtime:
+              patterns:
+                  - "dotenv"
+                  - "imapflow"
+                  - "nodemailer"
+                  - "rxjs"
+                  - "reflect-metadata"
+                  - "socket.io"
+
+          testing:
+              patterns:
+                  - "jest"
+                  - "ts-jest"
+                  - "@types/jest"
+                  - "supertest"
+                  - "@types/supertest"
+
+          dev-tooling:
+              dependency-type: "development"
+              patterns:
+                  - "*"
+
+    - package-ecosystem: "uv"
+      directory: "/apps/ai-backend"
+      schedule:
+          interval: "monthly"
+          # day: "sunday"
+          # time: "16:00"
+
+      open-pull-requests-limit: 10
+
+      # cooldown:
+      # semver-major-days: 7
+      # semver-minor-days: 3
+      # semver-patch-days: 1
+
+      labels:
+          - "dependencies"
+          - "ai-backend"
+
+      commit-message:
+          prefix: "chore"
+          include: "scope"
+
+      groups:
+          fastapi-stack:
+              patterns:
+                  - "fastapi"
+                  - "starlette"
+                  - "uvicorn"
+
+          langchain-ecosystem:
+              patterns:
+                  - "langchain"
+                  - "langchain-*"
+                  - "langgraph"
+
+          validation-and-config:
+              patterns:
+                  - "pydantic"
+                  - "python-dotenv"
+
+          database:
+              patterns:
+                  - "asyncpg"
+
+          dev-tooling:
+              dependency-type: "development"
+              patterns:
+                  - "*"

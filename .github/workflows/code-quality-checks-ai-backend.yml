@@ -1,0 +1,62 @@
+name: Code Quality Checks AI-Backend
+
+on:
+    push:
+        branches:
+            - main
+            - develop
+    pull_request:
+    workflow_dispatch:
+
+env:
+    working_directory: apps/ai-backend
+    python_version: "3.10"
+
+jobs:
+    tests:
+        name: Test AI-Backend
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v6
+
+            - name: Setup
+              uses: ./.github/workflows/setup-python-uv/
+              with:
+                  python_version: ${{ env.python_version }}
+
+            - name: Run Pytest
+              run: uv run pytest
+              working-directory: ${{ env.working_directory }}
+
+    linting:
+        name: Lint AI-Backend
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v6
+
+            - name: Setup
+              uses: ./.github/workflows/setup-python-uv/
+              with:
+                  python_version: ${{ env.python_version }}
+
+            - name: Run ruff
+              run: uv run ruff check --output-format=github
+              working-directory: ${{ env.working_directory }}
+
+    type-checking:
+        name: Type-Check AI-Backend
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v6
+
+            - name: Setup
+              uses: ./.github/workflows/setup-python-uv/
+              with:
+                  python_version: ${{ env.python_version }}
+
+            - name: Run ty
+              run: uv run ty check --output-format=github
+              working-directory: ${{ env.working_directory }}
