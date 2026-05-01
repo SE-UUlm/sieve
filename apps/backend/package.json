@@ -45,7 +45,7 @@
         "graphql": "^16.13.2",
         "imapflow": "^1.2.15",
         "joi": "^18.1.2",
-        "mailparser": "^3.9.6",
+        "mailparser": "^3.9.8",
         "nodemailer": "^8.0.6",
         "orval": "^8.6.2",
         "pg": "^8.20.0",
