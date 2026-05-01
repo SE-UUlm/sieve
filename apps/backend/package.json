@@ -54,17 +54,17 @@
         "socket.io": "^4.8.3"
     },
     "devDependencies": {
-        "@biomejs/biome": "2.4.10",
-        "@nestjs/cli": "^11.0.18",
-        "@nestjs/schematics": "^11.0.10",
-        "@nestjs/testing": "^11.1.18",
+        "@biomejs/biome": "2.4.13",
+        "@nestjs/cli": "^11.0.21",
+        "@nestjs/schematics": "^11.1.0",
+        "@nestjs/testing": "^11.1.19",
         "@types/express": "^5.0.6",
         "@types/imapflow": "^1.0.23",
         "@types/jest": "^30.0.0",
-        "@types/node": "^25.5.2",
+        "@types/node": "^25.6.0",
         "@types/nodemailer": "^8.0.0",
         "@types/supertest": "^7.2.0",
-        "globals": "^17.4.0",
+        "globals": "^17.5.0",
         "jest": "^30.3.0",
         "license-checker-rseidelsohn": "^4.4.2",
         "prisma": "^7.6.0",
@@ -75,7 +75,7 @@
         "ts-node": "^10.9.2",
         "tsconfig-paths": "^4.2.0",
         "tsx": "^4.21.0",
-        "typescript": "^6.0.2"
+        "typescript": "^6.0.3"
     },
     "jest": {
         "moduleFileExtensions": [
