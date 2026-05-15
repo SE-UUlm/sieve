@@ -25,7 +25,7 @@
     "dependencies": {
         "@nestjs/common": "^11.1.18",
         "@nestjs/config": "^4.0.3",
-        "@nestjs/core": "^11.1.19",
+        "@nestjs/core": "^11.1.21",
         "@nestjs/event-emitter": "^3.0.1",
         "@nestjs/platform-express": "^11.1.18",
         "@nestjs/platform-socket.io": "^11.1.17",
