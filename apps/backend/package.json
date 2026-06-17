@@ -46,7 +46,7 @@
         "imapflow": "^1.2.15",
         "joi": "^18.1.2",
         "mailparser": "^3.9.6",
-        "nodemailer": "^8.0.6",
+        "nodemailer": "^8.0.9",
         "orval": "^8.6.2",
         "pg": "^8.20.0",
         "reflect-metadata": "^0.2.2",
