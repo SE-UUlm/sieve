@@ -20,7 +20,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout Repository
-              uses: actions/checkout@v6
+              uses: actions/checkout@v7
 
             - name: Setup Backend Environment
               uses: ./.github/workflows/setup-node-pnpm/
@@ -45,7 +45,7 @@ jobs:
                   working-directory: ${{ env.working_directory }}
                   cache-dependency-path: ${{ env.cache-dependency-path }}
 
-            - uses: actions/cache@v5
+            - uses: actions/cache@v6
               with:
                   path: apps/frontend/.next/cache
                   # Generate a new cache whenever packages or source files change.
